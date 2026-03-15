@@ -1,0 +1,18 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+<%- include('partials/flash-message') %>
+
+<h2><%= event.title %></h2>
+<p><%= event.description %></p>
+
+<ul>
+    <li>Date: <%= event.date %></li>
+    <li>Time: <%= event.time %></li>
+    <li>Location: <%= event.location %></li>
+    <li>Category: <%= event.category %></li>
+    <li>Max Attendees: <%= event.maxAttendees %></li>
+</ul>
+
+<a href="/events/create">Back</a>
+
+<%- include('partials/footer') %>
