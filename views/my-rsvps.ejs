@@ -1,0 +1,23 @@
+<h1>My RSVPs</h1>
+
+<% if (events.length === 0) { %>
+  <p>You have not joined any events yet.</p>
+<% } else { %>
+  <% events.forEach(event => { %>
+    <div style="border:1px solid #ccc; padding:15px; margin-bottom:15px;">
+      <h3><%= event.title %></h3>
+      <p><%= event.description %></p>
+      <p><strong>Date:</strong> <%= new Date(event.date).toDateString() %></p>
+      <p><strong>Time:</strong> <%= event.time %></p>
+      <p><strong>Venue:</strong> <%= event.venue %></p>
+      <p><strong>Organizer:</strong> <%= event.createdBy.name %></p>
+      <p><strong>Attendance:</strong> <%= event.attendees.length %> / <%= event.maxAttendees %></p>
+
+      <a href="/events/<%= event._id %>">View Details</a>
+
+      <form action="/events/<%= event._id %>/cancel-rsvp" method="POST" style="margin-top:10px;">
+        <button type="submit">Cancel RSVP</button>
+      </form>
+    </div>
+  <% }) %>
+<% } %>

@@ -1,0 +1,42 @@
+<h1><%= event.title %></h1>
+
+<p><strong>Description:</strong> <%= event.description %></p>
+<p><strong>Date:</strong> <%= new Date(event.date).toDateString() %></p>
+<p><strong>Time:</strong> <%= event.time %></p>
+<p><strong>Venue:</strong> <%= event.venue %></p>
+<p><strong>Category:</strong> <%= event.category %></p>
+<p><strong>Organizer:</strong> <%= event.createdBy.name %></p>
+
+<hr>
+
+<h3><%= attendeeCount %> / <%= event.maxAttendees %> attending</h3>
+
+<% if (event.attendees.length === 0) { %>
+  <p>No attendees yet.</p>
+<% } else { %>
+  <ul>
+    <% event.attendees.forEach(attendee => { %>
+      <li><%= attendee.name %> - <%= attendee.email %></li>
+    <% }) %>
+  </ul>
+<% } %>
+
+<hr>
+
+<% if (!currentUser) { %>
+  <p><a href="/login">Login</a> to RSVP.</p>
+
+<% } else if (isOwner) { %>
+  <p>You cannot RSVP to your own event.</p>
+
+<% } else if (!hasJoined) { %>
+  <form action="/events/<%= event._id %>/rsvp" method="POST">
+    <button type="submit">Join Event</button>
+  </form>
+
+<% } else { %>
+  <p>You have already joined this event.</p>
+  <form action="/events/<%= event._id %>/cancel-rsvp" method="POST">
+    <button type="submit">Cancel RSVP</button>
+  </form>
+<% } %>
