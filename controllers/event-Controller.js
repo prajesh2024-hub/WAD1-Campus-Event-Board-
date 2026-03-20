@@ -1,6 +1,11 @@
 // Get Service model
 const Events = require('./../models/events-model');
 
+// GET /
+exports.getHome = (req, res) => {
+    res.render('events');
+};
+
 // GET /create-event
 exports.getCreateEvent = async (req, res) => {
     let title = req.query.title || "";
@@ -41,3 +46,20 @@ exports.postCreateEvent = async (req, res) => {
         res.send('Error reading database');
     }
 };
+
+exports.eventList = async (req,res) => {
+ try {
+      let eventslist = await Events.retrieveAll();          
+      res.render("my-events", {eventslist});
+    } catch (error) {                                   
+      res.send("Error reading database");               
+    }  
+}
+
+exports.editEvent = async (req,res) => {
+ try {          
+      res.render("edit-event", {});
+    } catch (error) {                                   
+      res.send("Error reading database");               
+    }  
+}

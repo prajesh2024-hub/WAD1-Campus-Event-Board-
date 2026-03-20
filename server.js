@@ -15,7 +15,10 @@ server.use(express.urlencoded({ extended: true }));
 server.use(express.json());
 
 // Set EJS as the view engine for rendering dynamic HTML pages
-server.set("view engine", "ejs"); 
+server.set("view engine", "ejs");
+
+// Serve static files (images, CSS, etc.) from the public folder
+server.use(express.static('public')); 
 
 // root routes
 server.use('/', eventsRoutes);

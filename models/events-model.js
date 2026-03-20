@@ -29,11 +29,6 @@ const eventSchema = new mongoose.Schema({
     type: Number,
     default: 50
   },
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true
-  },
   attendees: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"
@@ -56,4 +51,8 @@ module.exports.eventExists = async function(title, date, time, venue) {
 module.exports.addEvent = function(title, description, date, time, venue, category, maxAttendees) {
     const newEvent = new Event({ title, description, date, time, venue, category, maxAttendees });
     return newEvent.save();
+}
+
+module.exports.retrieveAll = function() {
+    return Event.find();
 }

@@ -1,0 +1,36 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<h2>My Events</h2>
+
+<% if (eventslist.length === 0) { %>
+    <p>You have not created any events yet.</p>
+<% } else { %>
+    <table border="1">
+        <tr>
+            <th>Title</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Location</th>
+            <th>Category</th>
+            <th>Max Attendees</th>
+            <th>Actions</th>
+        </tr>
+        <% eventslist.forEach(event => { %>
+        <tr>
+            <td><%= event.title %></td>
+            <td><%= new Date(event.date).toDateString() %></td>
+            <td><%= event.time %></td>
+            <td><%= event.venue %></td>
+            <td><%= event.category %></td>
+            <td><%= event.maxAttendees %></td>
+            <td>
+                <a href="">Edit</a>
+                <a href= "">Delete</a>
+            </td>
+        </tr>
+        <% }); %>
+    </table>
+<% } %>
+
+<%- include('partials/footer') %>
