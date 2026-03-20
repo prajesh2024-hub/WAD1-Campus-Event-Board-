@@ -1,0 +1,43 @@
+// Get Service model
+const Events = require('./../models/events-model');
+
+// GET /create-event
+exports.getCreateEvent = async (req, res) => {
+    let title = req.query.title || "";
+    let description = req.query.description || "";
+    let date = req.query.date || "";
+    let time = req.query.time || "";
+    let location = req.query.location || "";
+    let category = req.query.category || "";
+    let maxAttendees = req.query.maxAttendees || "";
+    let clicked = false;
+    let error = [];
+    res.render('create-event', { title, description, date, time, location, category, maxAttendees, clicked, error });
+};
+
+// POST /create-event
+exports.postCreateEvent = async (req, res) => {
+    let title = req.body.title;
+    let description = req.body.description;
+    let date = req.body.date;
+    let time = req.body.time;
+    let location = req.body.location;
+    let category = req.body.category;
+    let maxAttendees = req.body.maxAttendees;
+    let clicked = true;
+    let error = [];
+
+    try {
+        let isDuplicate = await Events.eventExists(title, date, time, location);
+        if (isDuplicate) {
+            error.push('Error adding event, this event already exists');
+            res.render('create-event', { title, description, date, time, location, category, maxAttendees, clicked, error });
+        } else {
+            await Events.addEvent(title, description, date, time, location, category, maxAttendees);
+            res.render('create-event', { title, description, date, time, location, category, maxAttendees, clicked, error });
+        }
+    } catch (err) {
+        console.error(err);
+        res.send('Error reading database');
+    }
+};

@@ -5,53 +5,57 @@
 <h2>Create New Event</h2>
 <p>Fill in the details below to create a new campus event.</p>
 
-<button type="button">Show validation error states (demo)</button>
-
-<form action="/events" method="POST">
-
-    <label>Event Title *</label>
-    <input type="text" name="title" placeholder="e.g. Spring Hackathon 2026">
-
-    <label>Description *</label>
-    <textarea name="description" placeholder="Describe your event, what attendees can expect, what to bring, etc." rows="6"></textarea>
-
-    <div>
-        <div>
-            <label>Date *</label>
-            <input type="date" name="date">
-        </div>
-        <div>
-            <label>Time *</label>
-            <input type="time" name="time">
-        </div>
-    </div>
-
-    <label>Location *</label>
-    <input type="text" name="location" placeholder="e.g. Engineering Building, Room 301">
-
-    <div>
-        <div>
-            <label>Category *</label>
-            <select name="category">
-                <option value="" disabled selected>Select a category</option>
-                <option value="academic">Academic</option>
-                <option value="social">Social</option>
-                <option value="sports">Sports</option>
-                <option value="workshop">Workshop</option>
-                <option value="other">Other</option>
-            </select>
-        </div>
-        <div>
-            <label>Max Attendees *</label>
-            <input type="number" name="maxAttendees" placeholder="e.g. 50">
-        </div>
-    </div>
-
-    <div>
-        <a href="/events">Cancel</a>
-        <button type="submit">Create Event</button>
-    </div>
-
+<form action="/create-event" method="POST">
+    <table border = '1'>
+        <tr>
+            <td><label>Event Title *</label></td>
+            <td><input type="text" name="title" placeholder="e.g. Spring Hackathon 2026"></td>
+        </tr>
+        <tr>
+            <td><label>Description *</label></td>
+            <td><textarea name="description" placeholder="Describe your event, what attendees can expect, what to bring, etc." rows="6"></textarea></td>
+        </tr>
+        <tr>
+            <td><label>Date *</label></td>
+            <td><input type="date" name="date"></td>
+        </tr>
+        <tr>
+            <td><label>Time *</label></td>
+            <td><input type="time" name="time"></td>
+        </tr>
+        <tr>
+            <td><label>Location *</label></td>
+            <td><input type="text" name="location" placeholder="e.g. Engineering Building, Room 301"></td>
+        </tr>
+        <tr>
+            <td><label>Category *</label></td>
+            <td>
+                <select name="category">
+                    <option value="" disabled selected>Select a category</option>
+                    <option value="academic">Academic</option>
+                    <option value="social">Social</option>
+                    <option value="sports">Sports</option>
+                    <option value="workshop">Workshop</option>
+                    <option value="other">Other</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td><label>Max Attendees *</label></td>
+            <td><input type="number" name="maxAttendees" placeholder="e.g. 50"></td>
+        </tr>
+    </table>
+    <br>
+    <a href="/events">Cancel</a>
+    <button type="submit">Create Event</button>
 </form>
+
+<% if (clicked) { %>
+    <% if (error.length > 0) { %>
+        <p style="color: red;"><%= error[0] %></p>
+    <% } else { %>
+        <p style="color: green;">Event has been successfully added!</p>
+    <% } %>
+<% } %>
 
 <%- include('partials/footer') %>
