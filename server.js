@@ -1,10 +1,12 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+const session = require("express-session");
 
 dotenv.config({ path: './config.env' });
 
 const eventsRoutes = require("./routes/event-routes");
+const rsvpRoutes = require("./routes/rsvp-routes");
 
 const server = express();
 
@@ -22,6 +24,19 @@ server.use(express.static('public'));
 
 // root routes
 server.use('/', eventsRoutes);
+server.use("/", rsvpRoutes);
+
+server.use(session({
+  secret: process.env.SESSION_SECRET || "secret123",
+  resave: false,
+  saveUninitialized: false
+}));
+
+server.use((req, res, next) => {
+  res.locals.currentUser = req.session.user || null;
+  next();
+});
+
 
 // async function to connect to DB
 async function connectDB() {
