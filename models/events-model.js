@@ -29,10 +29,17 @@ const eventSchema = new mongoose.Schema({
     type: Number,
     default: 50
   },
-  attendees: [{
+  attendees: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    }
+  ],
+  createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
-  }],
+    ref: "User",
+    required: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -43,16 +50,30 @@ const Event = mongoose.model("Event", eventSchema);
 
 module.exports = Event;
 
+// helper: check duplicate event
 module.exports.eventExists = async function(title, date, time, venue) {
-    const existing = await Event.findOne({ title, date, time, venue });
-    return existing !== null;
-}
+  const existing = await Event.findOne({ title, date, time, venue });
+  return existing !== null;
+};
 
-module.exports.addEvent = function(title, description, date, time, venue, category, maxAttendees) {
-    const newEvent = new Event({ title, description, date, time, venue, category, maxAttendees });
-    return newEvent.save();
-}
+// helper: add event
+module.exports.addEvent = async function(title, description, date, time, venue, category, maxAttendees, createdBy = null) {
+  const newEvent = new Event({
+    title,
+    description,
+    date,
+    time,
+    venue,
+    category,
+    maxAttendees,
+    createdBy,
+    attendees: []
+  });
 
+  return await newEvent.save();
+};
+
+// helper: get all events
 module.exports.retrieveAll = function() {
-    return Event.find();
-}
+  return Event.find().populate("createdBy").populate("attendees");
+};
