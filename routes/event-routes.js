@@ -8,7 +8,8 @@ const router = express.Router(); // sub application
 router.get("/", eventController.getHome);
 router.get("/create-event", eventController.getCreateEvent);
 router.post("/create-event", eventController.postCreateEvent);
-router.get("/my-events", eventController.eventList)
-router.get("/edit-events", eventController.eventList)
+router.get("/my-events", eventController.eventList);
+router.get("/edit-events", eventController.eventList);
+router.get("/all-events", eventController.eventList);
 // EXPORT
 module.exports = router;

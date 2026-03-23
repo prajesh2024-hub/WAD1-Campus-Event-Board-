@@ -49,8 +49,24 @@ exports.postCreateEvent = async (req, res) => {
 
 exports.eventList = async (req,res) => {
  try {
-      let eventslist = await Events.retrieveAll();          
-      res.render("my-events", {eventslist});
+      const { search, category, dateFrom, dateTo } = req.query;
+      let eventslist;
+      
+      if (search || category || dateFrom || dateTo) {
+        eventslist = await Events.retrieveFiltered(search, category, dateFrom, dateTo);
+      } else {
+        eventslist = await Events.retrieveAll();
+      }
+      
+      let template = "my-events";
+      
+      if (req.path === "/all-events") {
+        template = "all-events";
+      } else if (req.path === "/edit-events") {
+        template = "edit-event";
+      }
+      
+      res.render(template, {eventslist, search, category, dateFrom, dateTo});
     } catch (error) {                                   
       res.send("Error reading database");               
     }  

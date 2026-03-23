@@ -54,5 +54,32 @@ module.exports.addEvent = function(title, description, date, time, venue, catego
 }
 
 module.exports.retrieveAll = function() {
-    return Event.find();
+    return Event.find().sort({ date: 1 });
+}
+
+module.exports.retrieveFiltered = function(search, category, dateFrom, dateTo) {
+    let query = {};
+    
+    if (search) {
+        query.$or = [
+            { title: { $regex: search, $options: 'i' } },
+            { description: { $regex: search, $options: 'i' } }
+        ];
+    }
+    
+    if (category) {
+        query.category = category;
+    }
+    
+    if (dateFrom || dateTo) {
+        query.date = {};
+        if (dateFrom) {
+            query.date.$gte = new Date(dateFrom);
+        }
+        if (dateTo) {
+            query.date.$lte = new Date(dateTo);
+        }
+    }
+    
+    return Event.find(query).sort({ date: 1 });
 }
