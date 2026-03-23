@@ -107,7 +107,8 @@ async function postCreateEvent(req, res) {
   }
 }
 
-exports.eventList = async (req, res) => {
+// GET /all-events
+async function allEvents(req, res) {
   try {
     const { search, category, dateFrom, dateTo } = req.query;
     let eventslist;
@@ -118,31 +119,28 @@ exports.eventList = async (req, res) => {
       eventslist = await Events.retrieveAll();
     }
 
-    let template = "my-events";
-
-    if (req.path === "/all-events") {
-      template = "all-events";
-    } else if (req.path === "/edit-events") {
-      template = "edit-event";
-    }
-
-    res.render(template, { eventslist, search, category, dateFrom, dateTo });
+    res.render("all-events", { eventslist, search, category, dateFrom, dateTo });
   } catch (error) {
-    console.error("eventList error:", error);
+    console.error("allEvents error:", error);
     res.send("Error reading database");
   }
-};
-
-exports.postCreateEvent = postCreateEvent;
+}
 
 // GET /my-events
 async function eventList(req, res) {
   try {
-    const eventslist = await Events.retrieveAll();
+    if (!req.session || !req.session.user) {
+      return res.redirect("/login");
+    }
+
+    const eventslist = await Events.find({ createdBy: req.session.user._id })
+      .populate("createdBy")
+      .populate("attendees")
+      .sort({ date: 1 });
 
     res.render("my-events", {
       eventslist,
-      currentUser: req.session && req.session.user ? req.session.user : null
+      currentUser: req.session.user
     });
   } catch (error) {
     console.error("eventList error:", error);
@@ -167,6 +165,7 @@ module.exports = {
   getEventDetails,
   getCreateEvent,
   postCreateEvent,
+  allEvents,
   eventList,
   editEvent
 };

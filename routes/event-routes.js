@@ -10,7 +10,7 @@ router.get("/index.html", eventController.getHome);
 
 router.get("/create-event", eventController.getCreateEvent);
 router.post("/create-event", eventController.postCreateEvent);
-router.get("/all-events", eventController.eventList);
+router.get("/all-events", eventController.allEvents);
 
 router.get("/my-events", eventController.eventList);
 router.get("/edit-events", eventController.editEvent);

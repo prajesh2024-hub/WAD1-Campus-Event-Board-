@@ -7,6 +7,8 @@ dotenv.config({ path: './config.env' });
 
 const eventsRoutes = require("./routes/event-routes");
 const rsvpRoutes = require("./routes/rsvp-routes");
+const authRoutes = require("./routes/auth-routes");
+require("./models/user");
 
 const server = express();
 
@@ -36,6 +38,7 @@ server.use((req, res, next) => {
 // root routes
 server.use('/', eventsRoutes);
 server.use("/", rsvpRoutes);
+server.use("/", authRoutes);
 
 
 // async function to connect to DB
