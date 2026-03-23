@@ -89,7 +89,7 @@ async function getMyRSVPs(req, res) {
     })
       .populate("createdBy")
       .populate("attendees")
-      .sort({ date: 1 });
+      .sort({ startDate: 1 });
 
     res.render("my-rsvps", {
       events,

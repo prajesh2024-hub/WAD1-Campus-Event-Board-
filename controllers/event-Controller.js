@@ -5,7 +5,7 @@ async function getHome(req, res) {
   try {
     const events = await Events.find()
       .populate("createdBy")
-      .sort({ date: 1 })
+      .sort({ startDate: 1 })
       .limit(3);
 
     res.render("index", {
@@ -66,7 +66,8 @@ async function getCreateEvent(req, res) {
     res.render("create-event", {
       title: "",
       description: "",
-      date: "",
+      dateFrom: "",
+      dateTo: "",
       time: "",
       venue: "",
       category: "",
@@ -89,7 +90,8 @@ async function postCreateEvent(req, res) {
 
     const title = req.body.title;
     const description = req.body.description;
-    const date = req.body.date;
+    const dateFrom = req.body.dateFrom;
+    const dateTo = req.body.dateTo;
     const time = req.body.time;
     const venue = req.body.venue;
     const category = req.body.category;
@@ -98,7 +100,8 @@ async function postCreateEvent(req, res) {
     const newEvent = new Events({
       title,
       description,
-      date,
+      startDate: new Date(dateFrom),
+      endDate: new Date(dateTo),
       time,
       venue,
       category,
@@ -144,7 +147,7 @@ async function eventList(req, res) {
     const eventslist = await Events.find({ createdBy: req.session.user._id })
       .populate("createdBy")
       .populate("attendees")
-      .sort({ date: 1 });
+      .sort({ startDate: 1 });
 
     res.render("my-events", {
       eventslist,
