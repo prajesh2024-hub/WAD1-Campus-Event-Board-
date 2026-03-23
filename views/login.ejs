@@ -3,8 +3,12 @@
 
 <h2>Login</h2>
 
-<% if (error) { %>
-  <p style="color: red;"><%= error %></p>
+<% if (errors.length > 0) { %>
+  <ul style="color: red;">
+    <% errors.forEach(err => { %>
+      <li><%= err %></li>
+    <% }) %>
+  </ul>
 <% } %>
 
 <form action="/login" method="POST">

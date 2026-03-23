@@ -59,6 +59,10 @@ async function getEventDetails(req, res) {
 // GET /create-event
 async function getCreateEvent(req, res) {
   try {
+    if (!req.session || !req.session.user) {
+      return res.redirect("/login");
+    }
+
     res.render("create-event", {
       title: "",
       description: "",
@@ -79,6 +83,10 @@ async function getCreateEvent(req, res) {
 // POST /create-event
 async function postCreateEvent(req, res) {
   try {
+    if (!req.session || !req.session.user) {
+      return res.redirect("/login");
+    }
+
     const title = req.body.title;
     const description = req.body.description;
     const date = req.body.date;

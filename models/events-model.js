@@ -81,6 +81,8 @@ module.exports.retrieveAll = function () {
     .sort({ date: 1 });
 };
 
+
+// helper: get all filtered events
 module.exports.retrieveFiltered = function (search, category, dateFrom, dateTo) {
   let query = {};
 
