@@ -1,0 +1,28 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<h2>Login</h2>
+
+<% if (error) { %>
+  <p style="color: red;"><%= error %></p>
+<% } %>
+
+<form action="/login" method="POST">
+  <table border="1">
+    <tr>
+      <td><label>Email *</label></td>
+      <td><input type="email" name="email" required></td>
+    </tr>
+    <tr>
+      <td><label>Password *</label></td>
+      <td><input type="password" name="password" required></td>
+    </tr>
+  </table>
+  <br>
+  <a href="/">Cancel</a>
+  <button type="submit">Login</button>
+</form>
+
+<p>Don't have an account? <a href="/register">Register here</a></p>
+
+<%- include('partials/footer') %>
