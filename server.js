@@ -20,11 +20,7 @@ server.use(express.json());
 server.set("view engine", "ejs");
 
 // Serve static files (images, CSS, etc.) from the public folder
-server.use(express.static('public')); 
-
-// root routes
-server.use('/', eventsRoutes);
-server.use("/", rsvpRoutes);
+server.use(express.static('public'));
 
 server.use(session({
   secret: process.env.SESSION_SECRET || "secret123",
@@ -36,6 +32,10 @@ server.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;
   next();
 });
+
+// root routes
+server.use('/', eventsRoutes);
+server.use("/", rsvpRoutes);
 
 
 // async function to connect to DB
