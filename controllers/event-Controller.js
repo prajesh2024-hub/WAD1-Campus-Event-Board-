@@ -106,7 +106,7 @@ async function postCreateEvent(req, res) {
     res.status(500).send(error.message);
   }
 }
-
+ // GET /all-events and GET /my-events and GET /edit-events
 exports.eventList = async (req, res) => {
   try {
     const { search, category, dateFrom, dateTo } = req.query;
