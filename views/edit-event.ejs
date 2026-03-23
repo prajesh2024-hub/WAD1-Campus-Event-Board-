@@ -18,8 +18,12 @@
             <td><textarea name="description" rows="6"><%= event.description %></textarea></td>
         </tr>
         <tr>
-            <td><label>Date *</label></td>
-            <td><input type="date" name="date" value="<%= event.date %>"></td>
+            <td><label>From Date *</label></td>
+            <td><input type="date" name="startDate" value="<%= event.startDate ? event.startDate.toISOString().split('T')[0] : '' %>"></td>
+        </tr>
+        <tr>
+            <td><label>To Date *</label></td>
+            <td><input type="date" name="endDate" value="<%= event.endDate ? event.endDate.toISOString().split('T')[0] : '' %>"></td>
         </tr>
         <tr>
             <td><label>Time *</label></td>

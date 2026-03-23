@@ -9,7 +9,11 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  date: {
+  startDate: {
+    type: Date,
+    required: true
+  },
+  endDate: {
     type: Date,
     required: true
   },
@@ -51,17 +55,18 @@ const Event = mongoose.model("Event", eventSchema);
 module.exports = Event;
 
 // helper: check duplicate event
-module.exports.eventExists = async function(title, date, time, venue) {
-  const existing = await Event.findOne({ title, date, time, venue });
+module.exports.eventExists = async function(title, startDate, endDate, time, venue) {
+  const existing = await Event.findOne({ title, startDate, endDate, time, venue });
   return existing !== null;
 };
 
 // helper: add event
-module.exports.addEvent = async function(title, description, date, time, venue, category, maxAttendees, createdBy = null) {
+module.exports.addEvent = async function(title, description, startDate, endDate, time, venue, category, maxAttendees, createdBy = null) {
   const newEvent = new Event({
     title,
     description,
-    date,
+    startDate,
+    endDate,
     time,
     venue,
     category,
@@ -78,7 +83,7 @@ module.exports.retrieveAll = function () {
   return Event.find()
     .populate("createdBy")
     .populate("attendees")
-    .sort({ date: 1 });
+    .sort({ startDate: 1 })
 };
 
 module.exports.retrieveFiltered = function (search, category, dateFrom, dateTo) {
@@ -96,19 +101,19 @@ module.exports.retrieveFiltered = function (search, category, dateFrom, dateTo) 
   }
 
   if (dateFrom || dateTo) {
-    query.date = {};
+    query.startDate = {};
 
     if (dateFrom) {
-      query.date.$gte = new Date(dateFrom);
+      query.startDate.$gte = new Date(dateFrom);
     }
 
     if (dateTo) {
-      query.date.$lte = new Date(dateTo);
+      query.startDate.$lte = new Date(dateTo);
     }
   }
 
   return Event.find(query)
     .populate("createdBy")
     .populate("attendees")
-    .sort({ date: 1 });
+    .sort({ startDate: 1 });
 };
