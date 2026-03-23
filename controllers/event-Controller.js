@@ -79,13 +79,13 @@ async function getCreateEvent(req, res) {
 // POST /create-event
 async function postCreateEvent(req, res) {
   try {
-    let title = req.body.title;
-    let description = req.body.description;
-    let date = req.body.date;
-    let time = req.body.time;
-    let venue = req.body.venue;
-    let category = req.body.category;
-    let maxAttendees = req.body.maxAttendees || 50;
+    const title = req.body.title;
+    const description = req.body.description;
+    const date = req.body.date;
+    const time = req.body.time;
+    const venue = req.body.venue;
+    const category = req.body.category;
+    const maxAttendees = req.body.maxAttendees || 50;
 
     const newEvent = new Events({
       title,
@@ -106,6 +106,34 @@ async function postCreateEvent(req, res) {
     res.status(500).send(error.message);
   }
 }
+
+exports.eventList = async (req, res) => {
+  try {
+    const { search, category, dateFrom, dateTo } = req.query;
+    let eventslist;
+
+    if (search || category || dateFrom || dateTo) {
+      eventslist = await Events.retrieveFiltered(search, category, dateFrom, dateTo);
+    } else {
+      eventslist = await Events.retrieveAll();
+    }
+
+    let template = "my-events";
+
+    if (req.path === "/all-events") {
+      template = "all-events";
+    } else if (req.path === "/edit-events") {
+      template = "edit-event";
+    }
+
+    res.render(template, { eventslist, search, category, dateFrom, dateTo });
+  } catch (error) {
+    console.error("eventList error:", error);
+    res.send("Error reading database");
+  }
+};
+
+exports.postCreateEvent = postCreateEvent;
 
 // GET /my-events
 async function eventList(req, res) {

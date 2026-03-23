@@ -74,6 +74,41 @@ module.exports.addEvent = async function(title, description, date, time, venue, 
 };
 
 // helper: get all events
-module.exports.retrieveAll = function() {
-  return Event.find().populate("createdBy").populate("attendees");
+module.exports.retrieveAll = function () {
+  return Event.find()
+    .populate("createdBy")
+    .populate("attendees")
+    .sort({ date: 1 });
+};
+
+module.exports.retrieveFiltered = function (search, category, dateFrom, dateTo) {
+  let query = {};
+
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } }
+    ];
+  }
+
+  if (category) {
+    query.category = category;
+  }
+
+  if (dateFrom || dateTo) {
+    query.date = {};
+
+    if (dateFrom) {
+      query.date.$gte = new Date(dateFrom);
+    }
+
+    if (dateTo) {
+      query.date.$lte = new Date(dateTo);
+    }
+  }
+
+  return Event.find(query)
+    .populate("createdBy")
+    .populate("attendees")
+    .sort({ date: 1 });
 };
