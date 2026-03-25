@@ -88,7 +88,7 @@ module.exports.retrieveAll = function () {
 
 
 // helper: get all filtered events
-module.exports.retrieveFiltered = function (search, category, dateFrom, dateTo) {
+module.exports.retrieveFiltered = async function(search, category, dateFrom, dateTo) {
   let query = {};
 
   if (search) {
@@ -104,18 +104,19 @@ module.exports.retrieveFiltered = function (search, category, dateFrom, dateTo) 
 
   if (dateFrom || dateTo) {
     query.startDate = {};
-
-    if (dateFrom) {
-      query.startDate.$gte = new Date(dateFrom);
-    }
-
-    if (dateTo) {
-      query.startDate.$lte = new Date(dateTo);
-    }
+    if (dateFrom) query.startDate.$gte = new Date(dateFrom);
+    if (dateTo) query.startDate.$lte = new Date(dateTo);
   }
 
-  return Event.find(query)
-    .populate("createdBy")
-    .populate("attendees")
-    .sort({ startDate: 1 });
+  return await Event.find(query).populate("createdBy").populate("attendees").sort({ startDate: 1 });
 };
+
+module.exports.updateevents = function(id, title, description, startDate, endDate, time, venue, category, maxAttendees) {
+  return Event.findByIdAndUpdate(id, { title, description, startDate, endDate, time, venue, category, maxAttendees }, { new: true });
+};
+
+module.exports.deleteEvent = async function(id) {
+  return await Event.findByIdAndDelete(id);
+};
+
+

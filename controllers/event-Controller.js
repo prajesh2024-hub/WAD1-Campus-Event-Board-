@@ -159,15 +159,99 @@ async function eventList(req, res) {
   }
 }
 
-// GET /edit-events
+// GET /events/:id/edit
 async function editEvent(req, res) {
   try {
+    const event = await Events.findById(req.params.id);
+
+    if (!event) {
+      return res.status(404).render("error", { message: "Event not found." });
+    }
+
     res.render("edit-event", {
+      event,
+      clicked: false,
+      error: [],
       currentUser: req.session && req.session.user ? req.session.user : null
     });
   } catch (error) {
     console.error("editEvent error:", error);
     res.send("Error reading database");
+  }
+}
+
+
+// POST /events/:id/edit
+async function postEditEvent(req, res) {
+  const id = req.params.id;
+  const title = req.body.title;
+  const description = req.body.description;
+  const startDate = req.body.startDate;
+  const endDate = req.body.endDate;
+  const time = req.body.time;
+  const venue = req.body.venue;
+  const category = req.body.category;
+  const maxAttendees = req.body.maxAttendees;
+
+  try {
+    const existing = await Events.findById(id);
+
+    if (!existing) {
+      return res.status(404).render("error", { message: "Event not found." });
+    }
+
+    // use eventExists to check if the submitted data already matches the database
+    const alreadyExists = await Events.eventExists(title, startDate, endDate, time, venue);
+
+    if (alreadyExists) {
+      return res.render("edit-event", {
+        event: existing,
+        clicked: true,
+        error: ["No changes were made."],
+        currentUser: req.session && req.session.user ? req.session.user : null
+      });
+    }
+
+    // otherwise save the update
+    const result = await Events.updateevents(id, title, description, startDate, endDate, time, venue, category, maxAttendees);
+    console.log(result);
+    res.render("edit-event", {
+      event: result,
+      clicked: true,
+      error: [],
+      currentUser: req.session && req.session.user ? req.session.user : null
+    });
+  } catch (error) {
+    console.error("postEditEvent error:", error);
+    res.send("Error updating database");
+  }
+}
+
+// GET /events/:id/delete
+async function getDeleteEvent(req, res) {
+  const id = req.params.id;
+  try {
+    const event = await Events.findById(id);
+    if (!event) {
+      return res.status(404).render("error", { message: "Event not found." });
+    }
+    res.render("delete-event", { event });
+  } catch (error) {
+    console.error("getDeleteEvent error:", error);
+    res.send("Error loading delete page");
+  }
+}
+
+// POST /events/:id/delete
+async function deleteEvent(req, res) {
+  const id = req.params.id;
+  try {
+    await Events.deleteEvent(id);
+    console.log("Event deleted:", id);
+    res.redirect("/my-events");
+  } catch (error) {
+    console.error("deleteEvent error:", error);
+    res.send("Error deleting event");
   }
 }
 
@@ -178,5 +262,8 @@ module.exports = {
   postCreateEvent,
   allEvents,
   eventList,
-  editEvent
+  editEvent,
+  postEditEvent,
+  getDeleteEvent,
+  deleteEvent
 };

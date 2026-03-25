@@ -31,7 +31,7 @@
         </tr>
         <tr>
             <td><label>Location *</label></td>
-            <td><input type="text" name="location" value="<%= event.venue %>"></td>
+            <td><input type="text" name="venue" value="<%= event.venue %>"></td>
         </tr>
         <tr>
             <td><label>Category *</label></td>
@@ -52,7 +52,7 @@
         <tr>
             <td></td>
             <td>
-                <a href="/events/<%= event._id %>">Cancel</a>
+                <a href="/my-events">Cancel</a>
                 <button type="submit">Update Event</button>
             </td>
         </tr>

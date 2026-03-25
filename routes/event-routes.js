@@ -11,7 +11,14 @@ router.post("/create-event", eventController.postCreateEvent);
 router.get("/all-events", eventController.allEvents);
 
 router.get("/my-events", eventController.eventList);
-router.get("/edit-events", eventController.editEvent);
+
+//edit events
+router.get("/events/:id/edit", eventController.editEvent);
+router.post("/events/:id/edit", eventController.postEditEvent);
+
+//delete event
+router.get("/events/:id/delete", eventController.getDeleteEvent);
+router.post("/events/:id/delete", eventController.deleteEvent);
 
 router.get("/events/:id", eventController.getEventDetails);
 // EXPORT

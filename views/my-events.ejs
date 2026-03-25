@@ -31,8 +31,8 @@
             <td><%= event.category %></td>
             <td><%= event.maxAttendees %></td>
             <td>
-                <a href="">Edit</a>
-                <a href= "">Delete</a>
+                <a href="/events/<%= event._id %>/edit">Edit</a>
+                <a href="/events/<%= event._id %>/delete">Delete</a>
             </td>
         </tr>
         <% }); %>
