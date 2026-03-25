@@ -13,9 +13,9 @@
         <p><%= event.description %></p>
         <p><strong>Date:</strong> 
           <% if (new Date(event.startDate).toDateString() === new Date(event.endDate).toDateString()) { %>
-            <%= new Date(event.startDate).toDateString() %>
+            <%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %>
           <% } else { %>
-            <%= new Date(event.startDate).toDateString() %> to <%= new Date(event.endDate).toDateString() %>
+            <%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %> to <%= new Date(event.endDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %>
           <% } %>
         </p>
         <p><strong>Time:</strong> <%= event.time %></p>
