@@ -33,6 +33,10 @@ const eventSchema = new mongoose.Schema({
     type: Number,
     default: 50
   },
+  organizer: {
+    type: String,
+    required: true
+  },
   attendees: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -61,7 +65,7 @@ module.exports.eventExists = async function(title, startDate, endDate, time, ven
 };
 
 // helper: add event
-module.exports.addEvent = async function(title, description, startDate, endDate, time, venue, category, maxAttendees, createdBy = null) {
+module.exports.addEvent = async function(title, description, startDate, endDate, time, venue, category, maxAttendees, organizer, createdBy = null) {
   const newEvent = new Event({
     title,
     description,
@@ -71,6 +75,7 @@ module.exports.addEvent = async function(title, description, startDate, endDate,
     venue,
     category,
     maxAttendees,
+    organizer,
     createdBy,
     attendees: []
   });

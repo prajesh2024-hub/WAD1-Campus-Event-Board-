@@ -72,6 +72,7 @@ async function getCreateEvent(req, res) {
       venue: "",
       category: "",
       maxAttendees: "",
+      organizer: "",
       clicked: false,
       error: []
     });
@@ -96,6 +97,7 @@ async function postCreateEvent(req, res) {
     const venue = req.body.venue;
     const category = req.body.category;
     const maxAttendees = req.body.maxAttendees || 50;
+    const organizer = req.body.organizer;
 
     const newEvent = new Events({
       title,
@@ -106,6 +108,7 @@ async function postCreateEvent(req, res) {
       venue,
       category,
       maxAttendees,
+      organizer,
       createdBy: req.session && req.session.user ? req.session.user._id : null,
       attendees: []
     });
