@@ -7,15 +7,16 @@
   <p><strong>Description:</strong> <%= event.description %></p>
   <p><strong>Date:</strong> 
     <% if (new Date(event.startDate).toDateString() === new Date(event.endDate).toDateString()) { %>
-      <%= new Date(event.startDate).toDateString() %>
+      <%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %>
     <% } else { %>
-      <%= new Date(event.startDate).toDateString() %> to <%= new Date(event.endDate).toDateString() %>
+      <%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %> to <%= new Date(event.endDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %>
     <% } %>
   </p>
   <p><strong>Time:</strong> <%= event.time %></p>
   <p><strong>Venue:</strong> <%= event.venue %></p>
   <p><strong>Category:</strong> <%= event.category %></p>
-  <p><strong>Organizer:</strong> <%= event.createdBy.name %></p>
+  <p><strong>Organizer:</strong> <%= event.organizer %></p>
+  <p><strong>Event Host:</strong> <%= event.createdBy.name %></p>
 
   <hr>
 
@@ -36,7 +37,7 @@
   <% if (!currentUser) { %>
     <p><a href="/login">Login</a> to RSVP.</p>
   <% } else if (isOwner) { %>
-    <p>You cannot RSVP to your own event.</p>
+    <p>You cannot join your own event.</p>
   <% } else if (!hasJoined) { %>
     <form action="/events/<%= event._id %>/rsvp" method="POST">
       <button type="submit">Join Event</button>
@@ -44,7 +45,7 @@
   <% } else { %>
     <p>You have already joined this event.</p>
     <form action="/events/<%= event._id %>/cancel-rsvp" method="POST">
-      <button type="submit">Cancel RSVP</button>
+      <button type="submit">Cancel Booking</button>
     </form>
   <% } %>
 </div>
