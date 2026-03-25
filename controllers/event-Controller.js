@@ -200,10 +200,18 @@ async function postEditEvent(req, res) {
       return res.status(404).render("error", { message: "Event not found." });
     }
 
-    // use eventExists to check if the submitted data already matches the database
-    const alreadyExists = await Events.eventExists(title, startDate, endDate, time, venue);
+    // check every field to see if anything actually changed
+    const noChanges =
+      existing.title === title &&
+      existing.description === description &&
+      existing.startDate.toISOString().split('T')[0] === startDate &&
+      existing.endDate.toISOString().split('T')[0] === endDate &&
+      existing.time === time &&
+      existing.venue === venue &&
+      existing.category === category &&
+      String(existing.maxAttendees) === String(maxAttendees);
 
-    if (alreadyExists) {
+    if (noChanges) {
       return res.render("edit-event", {
         event: existing,
         clicked: true,
