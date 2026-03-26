@@ -5,12 +5,20 @@ const session = require("express-session");
 
 dotenv.config({ path: './config.env' });
 
+const server = express();
+
+
+server.use(session({
+   secret: process.env.SECRET,
+   resave: false,
+   saveUninitialized: false
+}));
+
 const eventsRoutes = require("./routes/event-routes");
 const rsvpRoutes = require("./routes/rsvp-routes");
 const authRoutes = require("./routes/auth-routes");
-require("./models/user");
+require("./model/user");
 
-const server = express();
 
 // make sure u add this line when you are using Express to do form (POST)
 server.use(express.urlencoded({ extended: true }));
@@ -23,12 +31,6 @@ server.set("view engine", "ejs");
 
 // Serve static files (images, CSS, etc.) from the public folder
 server.use(express.static('public'));
-
-server.use(session({
-  secret: process.env.SESSION_SECRET || "secret123",
-  resave: false,
-  saveUninitialized: false
-}));
 
 server.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;

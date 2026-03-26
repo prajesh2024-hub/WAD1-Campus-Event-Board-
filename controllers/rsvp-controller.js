@@ -1,4 +1,4 @@
-const Event = require("../models/events-model");
+const Event = require("../model/events-model");
 
 // POST /events/:id/rsvp
 async function joinEvent(req, res) {

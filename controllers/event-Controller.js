@@ -1,12 +1,10 @@
-const Events = require("../models/events-model");
+const Events = require("../model/events-model");
 
 // GET /
 async function getHome(req, res) {
+  //tries to fect all the events 
   try {
-    const events = await Events.find()
-      .populate("createdBy")
-      .sort({ startDate: 1 })
-      .limit(3);
+    const events = await Events.retrieveAll().limit(3);
 
     res.render("index", {
       events,
@@ -18,46 +16,9 @@ async function getHome(req, res) {
   }
 }
 
-// GET /events/:id
-async function getEventDetails(req, res) {
-  try {
-    const event = await Events.findById(req.params.id)
-      .populate("createdBy")
-      .populate("attendees");
-
-    if (!event) {
-      return res.status(404).render("error", { message: "Event not found." });
-    }
-
-    const attendeeCount = event.attendees.length;
-
-    let hasJoined = false;
-    let isOwner = false;
-
-    if (req.session && req.session.user) {
-      const currentUserId = req.session.user._id.toString();
-
-      isOwner = event.createdBy._id.toString() === currentUserId;
-      hasJoined = event.attendees.some(
-        attendee => attendee._id.toString() === currentUserId
-      );
-    }
-
-    res.render("event-details", {
-      event,
-      attendeeCount,
-      hasJoined,
-      isOwner,
-      currentUser: req.session && req.session.user ? req.session.user : null
-    });
-  } catch (error) {
-    console.error("getEventDetails error:", error);
-    res.status(500).send(error.message);
-  }
-}
-
-// GET /create-event
+// create events
 async function getCreateEvent(req, res) {
+  //check if there is a session going on and if there's a user tied to it.
   try {
     if (!req.session || !req.session.user) {
       return res.redirect("/login");
@@ -84,40 +45,38 @@ async function getCreateEvent(req, res) {
 
 // POST /create-event
 async function postCreateEvent(req, res) {
+  const title = req.body.title;
+  const description = req.body.description;
+  const dateFrom = req.body.dateFrom;
+  const dateTo = req.body.dateTo;
+  const time = req.body.time;
+  const venue = req.body.venue;
+  const category = req.body.category;
+  const maxAttendees = req.body.maxAttendees || 50;
+  const organizer = req.body.organizer;
+  const error = [];
+  const clicked = true;
+
   try {
     if (!req.session || !req.session.user) {
       return res.redirect("/login");
     }
 
-    const title = req.body.title;
-    const description = req.body.description;
-    const dateFrom = req.body.dateFrom;
-    const dateTo = req.body.dateTo;
-    const time = req.body.time;
-    const venue = req.body.venue;
-    const category = req.body.category;
-    const maxAttendees = req.body.maxAttendees || 50;
-    const organizer = req.body.organizer;
-
-    const newEvent = new Events({
-      title,
-      description,
-      startDate: new Date(dateFrom),
-      endDate: new Date(dateTo),
-      time,
-      venue,
-      category,
-      maxAttendees,
-      organizer,
-      createdBy: req.session && req.session.user ? req.session.user._id : null,
-      attendees: []
-    });
-
-    await newEvent.save();
-    res.redirect("/");
-  } catch (error) {
-    console.error("postCreateEvent error:", error);
-    res.status(500).send(error.message);
+    const result = await Events.eventExists(title, description, dateFrom, dateTo, time, venue, category, maxAttendees, organizer);
+    if (result) {
+      error.push("Error adding event: a duplicate event already exists.");
+      res.render("create-event", { title, description, dateFrom, dateTo, time, venue, category, maxAttendees, organizer, clicked, error });
+    } else {
+      await Events.addEvent(
+        title, description, dateFrom, dateTo, time, venue, category, maxAttendees, organizer,
+        req.session.user._id,
+        req.session.user.username
+      );
+      res.render("create-event", { title, description, dateFrom, dateTo, time, venue, category, maxAttendees, organizer, clicked, error });
+    }
+  } catch (err) {
+    console.error("postCreateEvent error:", err);
+    res.send("Error reading database");
   }
 }
 
@@ -148,7 +107,6 @@ async function eventList(req, res) {
     }
 
     const eventslist = await Events.find({ createdBy: req.session.user._id })
-      .populate("createdBy")
       .populate("attendees")
       .sort({ startDate: 1 });
 
@@ -156,9 +114,47 @@ async function eventList(req, res) {
       eventslist,
       currentUser: req.session.user
     });
+
   } catch (error) {
     console.error("eventList error:", error);
     res.send("Error reading database");
+  }
+}
+
+// GET /events/:id
+async function getEventDetails(req, res) {
+  try {
+    const event = await Events.findById(req.params.id)
+      .populate("attendees");
+
+    if (!event) {
+      return res.status(404).render("error", { message: "Event not found." });
+    }
+
+    const attendeeCount = event.attendees.length;
+
+    let hasJoined = false;
+    let isOwner = false;
+
+    if (req.session && req.session.user) {
+      const currentUserId = req.session.user._id.toString();
+
+      isOwner = event.createdBy.toString() === currentUserId;
+      hasJoined = event.attendees.some(
+        attendee => attendee._id.toString() === currentUserId
+      );
+    }
+
+    res.render("event-details", {
+      event,
+      attendeeCount,
+      hasJoined,
+      isOwner,
+      currentUser: req.session && req.session.user ? req.session.user : null
+    });
+  } catch (error) {
+    console.error("getEventDetails error:", error);
+    res.status(500).send(error.message);
   }
 }
 
@@ -183,7 +179,6 @@ async function editEvent(req, res) {
   }
 }
 
-
 // POST /events/:id/edit
 async function postEditEvent(req, res) {
   const id = req.params.id;
@@ -199,6 +194,8 @@ async function postEditEvent(req, res) {
   try {
     const existing = await Events.findById(id);
 
+    //check if the event itself exist if it doesn't exist meaning 
+    //that it edits an empty event then ti sends out an error
     if (!existing) {
       return res.status(404).render("error", { message: "Event not found." });
     }
@@ -207,6 +204,8 @@ async function postEditEvent(req, res) {
     const noChanges =
       existing.title === title &&
       existing.description === description &&
+    // since startDate format is under 2026-03-26T00:00:00.000Z, so we need
+    //  to make it into a string first then splitting under T
       existing.startDate.toISOString().split('T')[0] === startDate &&
       existing.endDate.toISOString().split('T')[0] === endDate &&
       existing.time === time &&

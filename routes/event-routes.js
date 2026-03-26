@@ -15,7 +15,7 @@ router.post("/create-event", eventController.postCreateEvent);
 //shows all events
 router.get("/all-events", eventController.allEvents);
 
-//show all events created
+//show all events created by the user
 router.get("/my-events", eventController.eventList);
 
 //edit events

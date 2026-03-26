@@ -48,6 +48,9 @@ const eventSchema = new mongoose.Schema({
     ref: "User",
     required: false
   },
+  createdByUsername: {
+    type: String
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -59,13 +62,26 @@ const Event = mongoose.model("Event", eventSchema);
 module.exports = Event;
 
 // helper: check duplicate event
-module.exports.eventExists = async function(title, startDate, endDate, time, venue) {
-  const existing = await Event.findOne({ title, startDate, endDate, time, venue });
+module.exports.eventExists = async function(title, description, startDate, endDate, time, venue, category, maxAttendees, organizer) {
+  const conditions = [];
+  if (title) conditions.push({ title });
+  if (description) conditions.push({ description });
+  if (startDate) conditions.push({ startDate: new Date(startDate) });
+  if (endDate) conditions.push({ endDate: new Date(endDate) });
+  if (time) conditions.push({ time });
+  if (venue) conditions.push({ venue });
+  if (category) conditions.push({ category });
+  if (maxAttendees) conditions.push({ maxAttendees });
+  if (organizer) conditions.push({ organizer });
+
+  if (conditions.length === 0) return false;
+
+  const existing = await Event.findOne({conditions});
   return existing !== null;
 };
 
 // helper: add event
-module.exports.addEvent = async function(title, description, startDate, endDate, time, venue, category, maxAttendees, organizer, createdBy = null) {
+module.exports.addEvent = async function(title, description, startDate, endDate, time, venue, category, maxAttendees, organizer, createdBy = null, createdByUsername = null) {
   const newEvent = new Event({
     title,
     description,
@@ -77,6 +93,7 @@ module.exports.addEvent = async function(title, description, startDate, endDate,
     maxAttendees,
     organizer,
     createdBy,
+    createdByUsername,
     attendees: []
   });
 
@@ -86,11 +103,9 @@ module.exports.addEvent = async function(title, description, startDate, endDate,
 // helper: get all events
 module.exports.retrieveAll = function () {
   return Event.find()
-    .populate("createdBy")
     .populate("attendees")
     .sort({ startDate: 1 })
 };
-
 
 // helper: get all filtered events
 module.exports.retrieveFiltered = async function(search, category, dateFrom, dateTo) {
@@ -113,7 +128,7 @@ module.exports.retrieveFiltered = async function(search, category, dateFrom, dat
     if (dateTo) query.startDate.$lte = new Date(dateTo);
   }
 
-  return await Event.find(query).populate("createdBy").populate("attendees").sort({ startDate: 1 });
+  return await Event.find(query).populate("attendees").sort({ startDate: 1 });
 };
 
 module.exports.updateevents = function(id, title, description, startDate, endDate, time, venue, category, maxAttendees) {
