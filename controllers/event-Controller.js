@@ -1,6 +1,5 @@
-const Events = require("../model/events-model");
 // Get Service model
-const Events = require('./../models/events-model');
+const Events = require('./../model/events-model');
 
 // GET /
 exports.getHome = (req, res) => {
@@ -63,8 +62,7 @@ exports.editEvent = async (req,res) => {
     } catch (error) {                                   
       res.send("Error reading database");               
     }  
-}
-const Events = require("../models/events-model");
+};
 
 // GET /
 async function getHome(req, res) {

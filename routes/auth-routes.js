@@ -8,7 +8,7 @@ router.get('/', usersController.gethome);
 
 router.get('/register', usersController.registerGet);
 
-router.post('/register', authMiddleware.isExistingUser, usersController.registerPost);
+router.post('/register', usersController.registerPost);
 
 router.get('/login', usersController.loginGet);
 

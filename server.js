@@ -17,7 +17,7 @@ server.use(session({
 const eventsRoutes = require("./routes/event-routes");
 const rsvpRoutes = require("./routes/rsvp-routes");
 const authRoutes = require("./routes/auth-routes");
-require("./model/user");
+
 
 
 // make sure u add this line when you are using Express to do form (POST)
