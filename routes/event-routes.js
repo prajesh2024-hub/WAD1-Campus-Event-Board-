@@ -2,11 +2,10 @@ const express = require('express');
 
 const eventController = require('../controllers/event-Controller');
 
-const router = express.Router(); // sub application
+const router = express.Router(); // creates the router object from express
 
 //root home page
 router.get("/", eventController.getHome);
-
 
 //create events and showing all events created
 router.get("/create-event", eventController.getCreateEvent);

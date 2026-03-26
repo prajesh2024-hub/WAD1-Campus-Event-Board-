@@ -3,10 +3,9 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const session = require("express-session");
 
-dotenv.config({ path: './config.env' });
+dotenv.config({path: './config.env'});
 
 const server = express();
-
 
 server.use(session({
    secret: process.env.SECRET,
@@ -14,13 +13,12 @@ server.use(session({
    saveUninitialized: false
 }));
 
+// creates an object to store the routes for each of the specific features
 const eventsRoutes = require("./routes/event-routes");
 const rsvpRoutes = require("./routes/rsvp-routes");
 const authRoutes = require("./routes/auth-routes");
 
-
-
-// make sure u add this line when you are using Express to do form (POST)
+// middleware for post
 server.use(express.urlencoded({ extended: true }));
 
 // express.json() is a middleware
@@ -29,7 +27,7 @@ server.use(express.json());
 // Set EJS as the view engine for rendering dynamic HTML pages
 server.set("view engine", "ejs");
 
-// Serve static files (images, CSS, etc.) from the public folder
+// Serve static files and store images and css from uploads (images, CSS, etc.) from the public folder 
 server.use(express.static('public'));
 
 server.use((req, res, next) => {
@@ -39,9 +37,8 @@ server.use((req, res, next) => {
 
 // root routes
 server.use('/', eventsRoutes);
-server.use("/", rsvpRoutes);
-server.use("/", authRoutes);
-
+server.use('/', rsvpRoutes);
+server.use('/', authRoutes);
 
 // async function to connect to DB
 async function connectDB() {

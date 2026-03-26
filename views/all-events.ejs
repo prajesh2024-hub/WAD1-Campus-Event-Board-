@@ -35,7 +35,7 @@
         <% eventslist.forEach(event=> { %>
             <% if (event) { %>
             <div style="border:1px solid black; padding:10px; border-radius: 5px; margin-bottom: 10px; width: 200px; margin-right: 10px;">
-                <strong><%= event.title %></strong><br><br>
+<strong><%= event.title %></strong><br><br>
                 <% if (new Date(event.startDate).toDateString() === new Date(event.endDate).toDateString()) { %>
                   <%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %>
                 <% } else { %>

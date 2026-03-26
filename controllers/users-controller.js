@@ -66,7 +66,7 @@ exports.loginPost = async (req, res) => {
 }
 
 exports.profile = async (req, res) => {
-    if (!req.session.user.username) {
+    if (!req.session.user || !req.session.user.username) {
         console.log("User not logged in, redirecting to /login");
         return res.redirect('/login');
     }
@@ -88,6 +88,6 @@ exports.adminProfile = (req, res) => {
 
 exports.logout = (req, res) => {
     req.session.destroy(() => {
-        res.redirect('/home');
+        res.redirect('/login');
     });
 }

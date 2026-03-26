@@ -8,7 +8,7 @@ async function joinEvent(req, res) {
     }
 
     const eventId = req.params.id;
-    const currentUserId = req.session.user._id;
+    const currentUserId = req.session.user.id;
 
     const event = await Event.findById(eventId);
     if (!event) {
@@ -55,7 +55,7 @@ async function cancelRSVP(req, res) {
     }
 
     const eventId = req.params.id;
-    const currentUserId = req.session.user._id;
+    const currentUserId = req.session.user.id;
 
     const event = await Event.findById(eventId);
     if (!event) {
@@ -82,7 +82,7 @@ async function getMyRSVPs(req, res) {
       return res.redirect("/login");
     }
 
-    const currentUserId = req.session.user._id;
+    const currentUserId = req.session.user.id;
 
     const events = await Event.find({
       attendees: currentUserId

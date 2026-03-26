@@ -1,68 +1,4 @@
-// Get Service model
 const Events = require('./../model/events-model');
-
-// GET /
-exports.getHome = (req, res) => {
-    res.render('events');
-};
-
-// GET /create-event
-exports.getCreateEvent = async (req, res) => {
-    let title = req.query.title || "";
-    let description = req.query.description || "";
-    let date = req.query.date || "";
-    let time = req.query.time || "";
-    let location = req.query.location || "";
-    let category = req.query.category || "";
-    let maxAttendees = req.query.maxAttendees || "";
-    let clicked = false;
-    let error = [];
-    res.render('create-event', { title, description, date, time, location, category, maxAttendees, clicked, error });
-};
-
-// POST /create-event
-exports.postCreateEvent = async (req, res) => {
-    let title = req.body.title;
-    let description = req.body.description;
-    let date = req.body.date;
-    let time = req.body.time;
-    let location = req.body.location;
-    let category = req.body.category;
-    let maxAttendees = req.body.maxAttendees;
-    let clicked = true;
-    let error = [];
-
-    try {
-        let isDuplicate = await Events.eventExists(title, date, time, location);
-        if (isDuplicate) {
-            error.push('Error adding event, this event already exists');
-            res.render('create-event', { title, description, date, time, location, category, maxAttendees, clicked, error });
-        } else {
-            await Events.addEvent(title, description, date, time, location, category, maxAttendees);
-            res.render('create-event', { title, description, date, time, location, category, maxAttendees, clicked, error });
-        }
-    } catch (err) {
-        console.error(err);
-        res.send('Error reading database');
-    }
-};
-
-exports.eventList = async (req,res) => {
- try {
-      let eventslist = await Events.retrieveAll();          
-      res.render("my-events", {eventslist});
-    } catch (error) {                                   
-      res.send("Error reading database");               
-    }  
-}
-
-exports.editEvent = async (req,res) => {
- try {          
-      res.render("edit-event", {});
-    } catch (error) {                                   
-      res.send("Error reading database");               
-    }  
-};
 
 // GET /
 async function getHome(req, res) {
@@ -133,10 +69,10 @@ async function postCreateEvent(req, res) {
     } else {
       await Events.addEvent(
         title, description, dateFrom, dateTo, time, venue, category, maxAttendees, organizer,
-        req.session.user._id,
+        req.session.user.id,
         req.session.user.username
       );
-      res.render("create-event", { title, description, dateFrom, dateTo, time, venue, category, maxAttendees, organizer, clicked, error });
+      res.render("create-event", { title: '', description: '', dateFrom: '', dateTo: '', time: '', venue: '', category: '', maxAttendees: '', organizer: '', clicked, error });
     }
   } catch (err) {
     console.error("postCreateEvent error:", err);
@@ -170,7 +106,7 @@ async function eventList(req, res) {
       return res.redirect("/login");
     }
 
-    const eventslist = await Events.find({ createdBy: req.session.user._id })
+    const eventslist = await Events.find({ createdBy: req.session.user.id })
       .populate("attendees")
       .sort({ startDate: 1 });
 
@@ -201,9 +137,9 @@ async function getEventDetails(req, res) {
     let isOwner = false;
 
     if (req.session && req.session.user) {
-      const currentUserId = req.session.user._id.toString();
+      const currentUserId = req.session.user.id.toString();
 
-      isOwner = event.createdBy.toString() === currentUserId;
+      isOwner = event.createdBy ? event.createdBy.toString() === currentUserId : false;
       hasJoined = event.attendees.some(
         attendee => attendee._id.toString() === currentUserId
       );
@@ -289,12 +225,7 @@ async function postEditEvent(req, res) {
     // otherwise save the update
     const result = await Events.updateevents(id, title, description, startDate, endDate, time, venue, category, maxAttendees);
     console.log(result);
-    res.render("edit-event", {
-      event: result,
-      clicked: true,
-      error: [],
-      currentUser: req.session && req.session.user ? req.session.user : null
-    });
+    res.redirect('/my-events');
   } catch (error) {
     console.error("postEditEvent error:", error);
     res.send("Error updating database");
