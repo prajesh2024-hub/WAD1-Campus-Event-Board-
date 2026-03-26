@@ -9,6 +9,7 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  date: {
   startDate: {
     type: Date,
     required: true
@@ -33,6 +34,10 @@ const eventSchema = new mongoose.Schema({
     type: Number,
     default: 50
   },
+  attendees: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  }],
   organizer: {
     type: String,
     required: true
