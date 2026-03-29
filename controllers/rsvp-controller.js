@@ -20,13 +20,6 @@ async function joinEvent(req, res) {
         message: "You cannot RSVP to your own event."
       });
     }
-
-    if (event.attendees.length >= event.maxAttendees) {
-      return res.status(400).render("error", {
-        message: "This event is already full."
-      });
-    }
-
     const alreadyJoined = event.attendees.some(
       attendeeId => attendeeId.toString() === currentUserId.toString()
     );
@@ -36,6 +29,9 @@ async function joinEvent(req, res) {
         message: "You have already joined this event."
       });
     }
+    if (event.attendees.length >= event.maxAttendees) {
+      return res.status(400).render("waitlist-prompt",{message: "This event is already full. Would you like to be placed on the waitlist?",eventId: eventId})
+      }
 
     event.attendees.push(currentUserId);
     await event.save();
@@ -100,9 +96,54 @@ async function getMyRSVPs(req, res) {
     res.status(500).send(error.message);
   }
 }
+async function waitlistRSVPs (req,res){
+  try {
+    if (!req.session || !req.session.user) {
+      return res.redirect("/login");
+    }
+    const eventId = req.params.id;
+    const currentUserId = req.session.user.id;
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+      return res.status(404).render("error", { message: "Event not found." });
+    }
+    // ensure there is an array present
+    if (!event.attendees) event.attendees = [];
+    if (!event.waitlist) event.waitlist = [];
+
+    //Check if user is already in the attendees list
+    const alreadyJoined = event.attendees.some(
+      id => id.toString() === currentUserId.toString()
+    );
+    if (alreadyJoined) {
+      return res.status(400).render("error", { message: "You are already attending this event." });
+    }
+
+    //Check if they are already on the waitlist
+    const alreadyWaitlisted = event.waitlist.some(
+      id => id.toString() === currentUserId.toString()
+    );
+    if (alreadyWaitlisted) {
+      return res.status(400).render("error", { message: "You are already on the waitlist." });
+    }
+
+    //Add to waitlist
+    event.waitlist.push(currentUserId);
+    await event.save();
+    console.log(event.waitlist)
+    res.redirect(`/events/${eventId}`);
+
+  } catch (error) { 
+    console.error("waitlistRSVPs error:", error);
+    res.status(500).send(error.message);
+  }
+}
+
 
 module.exports = {
   joinEvent,
   cancelRSVP,
-  getMyRSVPs
+  getMyRSVPs,
+  waitlistRSVPs
 };

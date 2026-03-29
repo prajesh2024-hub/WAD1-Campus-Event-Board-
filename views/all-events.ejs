@@ -46,8 +46,19 @@
                 <strong>Category:</strong> <%= event.category %><br><br>
                 <strong>Organizer:</strong> <%= event.organizer %><br><br>
                 <strong>Attendees:</strong> <%= event.attendees.length %> / <%= event.maxAttendees %><br><br>
-                <form action="/events/<%= event._id %>/rsvp" method="post">
-                    <button type="submit">Join Event</button>
+                    <% if (event.attendees.length >= event.maxAttendees) { %>
+                        <div class="waitlist-notice">
+                            <p>This event is currently full, but you can join the waitlist!</p>
+                        </div>
+                        <form action="/events/<%= event._id %>/waitlist" method="POST">
+                            <button type="submit">Join Waitlist</button>
+                        </form>
+                        <% } else { %>
+                        <form action="/events/<%= event._id %>/rsvp" method="POST">
+                            <button type="submit">Join Event</button>
+                        </form>
+
+                        <% } %>
                 </form>
             </div>
             <% } %>
