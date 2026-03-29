@@ -25,8 +25,11 @@ router.post("/events/:id/edit", eventController.postEditEvent);
 router.get("/events/:id/delete", eventController.getDeleteEvent);
 router.post("/events/:id/delete", eventController.deleteEvent);
 
-//getting event details
+//removing participants from an event
+router.get('/events/:id/participants', eventController.getParticipants); 
+router.post('/events/:id/participants/remove', eventController.postParticipants); 
 
+//getting event details
 router.get("/events/:id", eventController.getEventDetails);
 // EXPORT
 module.exports = router;

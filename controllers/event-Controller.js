@@ -280,6 +280,58 @@ async function deleteEvent(req, res) {
   }
 }
 
+async function getParticipants(req, res) {
+    if (!req.session || !req.session.user) {
+    return res.redirect("/login");
+  }
+
+  const id = req.params.id; 
+  try {
+    const event = await Events.findById(id).populate("attendees");     
+    const participants = event.attendees;
+    res.render('my-participants', {participants, event}) 
+  } catch (error) {
+    console.error("deleteEvent error:", error);
+    res.send("Error deleting event");
+  }
+}
+
+async function postParticipants(req, res) {
+  if (!req.session || !req.session.user) {
+    return res.redirect("/login");
+  }
+
+  const id = req.params.id;
+
+  // get the specific user id to remove — this comes from the hidden input
+  // in the EJS form: <input type="hidden" name="userId" value="<%= attendee._id %>">
+  // without this, the server wouldn't know WHICH participant the Remove button was clicked for
+  const userId = req.body.userId;
+
+  try {
+    const event = await Events.findById(id);
+
+    if (!event) {
+      return res.status(404).render("error", { message: "Event not found." });
+    }
+
+    // filter() loops through the attendees array and builds a NEW array
+    // keeping only people whose ID does NOT match the userId we want to remove
+    // .toString() is needed because MongoDB IDs are objects, not plain strings
+    event.attendees = event.attendees.filter(
+      attendeeId => attendeeId.toString() !== userId.toString()
+    );
+    // save the updated attendees array back to MongoDB
+    await event.save();
+
+    // redirect back to the participants page to show the updated list
+    res.redirect(`/events/${id}/participants`);
+  } catch (error) {
+    console.error("postParticipants error:", error);
+    res.send("Error removing participant");
+  }
+}
+
 module.exports = {
   getHome,
   getEventDetails,
@@ -290,5 +342,7 @@ module.exports = {
   editEvent,
   postEditEvent,
   getDeleteEvent,
-  deleteEvent
+  deleteEvent,
+  getParticipants,
+  postParticipants,
 };

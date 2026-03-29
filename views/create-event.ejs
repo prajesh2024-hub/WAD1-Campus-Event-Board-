@@ -13,8 +13,8 @@
     <% } %>
 <% } %>
 
-<form action="/create-event" method="POST">
-    <table border = '1'>
+<form action="/create-event" method="POST" class="create-event-form">
+    <table>
         <tr>
             <td><label>Event Title *</label></td>
             <td><input type="text" name="title" placeholder="e.g. Spring Hackathon 2026" value="<%= title %>"></td>
@@ -62,7 +62,8 @@
         </tr>
 
     </table>
-    <br>
-    <a href="/events">Cancel</a>
-    <button type="submit">Create Event</button>
+    <div class="form-actions">
+        <button type="submit" class="btn-primary">Create Event</button>
+        <a href="/events" class="btn-cancel">Cancel</a>
+    </div>
 </form>

@@ -6,7 +6,7 @@
 <% if (eventslist.length === 0) { %>
     <p>You have not created any events yet.</p>
 <% } else { %>
-    <table border="1">
+    <table class="my-events-table">
         <tr>
             <th>Title</th>
             <th>Date</th>
@@ -31,9 +31,12 @@
             <td><%= event.category %></td>
             <td><%= event.maxAttendees %></td>
             <td>
-                <a href="/events/<%= event._id %>/edit">Edit</a>
-                <a href="/events/<%= event._id %>/delete">Delete</a>
-                <a href="/events/<%= event._id %>/reviews">View Reviews</a>
+                <div class="action-links">
+                    <a href="/events/<%= event._id %>/edit">Edit</a>
+                    <a href="/events/<%= event._id %>/delete">Delete</a>
+                    <a href="/events/<%= event._id %>/reviews">View Reviews</a>
+                    <a href="/events/<%= event._id %>/participants">Participants</a>
+                </div>
             </td>
         </tr>
         <% }); %>

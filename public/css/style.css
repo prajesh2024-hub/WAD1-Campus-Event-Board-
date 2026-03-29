@@ -120,3 +120,138 @@ hr {
 .footer p {
   margin: 0;
 }
+
+/* ── Create Event Form ── */
+.create-event-form {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 24px;
+  max-width: 700px;
+}
+
+.create-event-form table {
+  width: 100%;
+  border-collapse: collapse;
+  border: none;
+}
+
+.create-event-form table tr {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.create-event-form table td {
+  padding: 10px 8px;
+  border: none;
+  vertical-align: top;
+}
+
+.create-event-form table td:first-child {
+  width: 160px;
+  font-weight: 500;
+  color: #444;
+  padding-top: 12px;
+}
+
+.create-event-form input[type="text"],
+.create-event-form input[type="date"],
+.create-event-form input[type="time"],
+.create-event-form input[type="number"],
+.create-event-form textarea,
+.create-event-form select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+.create-event-form textarea {
+  resize: vertical;
+}
+
+.create-event-form input:focus,
+.create-event-form textarea:focus,
+.create-event-form select:focus {
+  outline: none;
+  border-color: #1d4ed8;
+}
+
+.form-actions {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-primary {
+  padding: 8px 18px;
+  background: #1d4ed8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #1e40af;
+}
+
+.btn-cancel {
+  color: #555;
+  font-size: 14px;
+}
+
+/* ── My Events Table ── */
+.my-events-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.my-events-table th {
+  background: #f0f4ff;
+  color: #333;
+  font-weight: 600;
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 2px solid #ddd;
+}
+
+.my-events-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+  color: #333;
+}
+
+.my-events-table tr:last-child td {
+  border-bottom: none;
+}
+
+.my-events-table tr:hover td {
+  background: #fafafa;
+}
+
+.action-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.action-links a {
+  font-size: 13px;
+  padding: 3px 8px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  color: #1d4ed8;
+}
+
+.action-links a:hover {
+  background: #f0f4ff;
+  text-decoration: none;
+}
