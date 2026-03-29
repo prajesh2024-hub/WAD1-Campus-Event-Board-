@@ -14,13 +14,9 @@ router.get('/login', usersController.loginGet);
 
 router.post('/login', usersController.loginPost);
 
-router.get('/profile', usersController.profile);
+router.get('/profile', authMiddleware.isLoggedIn, usersController.profile);
 
-
-// to possibly add later if necessary
-
-// router.get('/profile',authMiddleware.isLoggedIn, usersController.profile);
-// router.get('/admin-profile',authMiddleware.isAdmin, usersController.adminProfile);
+// router.get('/admin-profile', usersController.adminProfile);
 
 router.get('/logout', usersController.logout);
 
