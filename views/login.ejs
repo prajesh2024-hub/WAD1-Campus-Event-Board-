@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
     <title>Login</title>
     <p><h2>Login</h2>
     Sign in to your Campus Event Board account.</p>
     <br>
 </head>
 <body>
-     
     <form action="/login" method="POST">
       <label for="email">Email</label><br>
       <input type="text" name="email" size='40' placeholder="you@university.edu.sg" required />

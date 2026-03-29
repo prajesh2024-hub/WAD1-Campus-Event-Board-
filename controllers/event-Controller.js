@@ -83,6 +83,10 @@ async function postCreateEvent(req, res) {
 // GET /all-events
 async function allEvents(req, res) {
   try {
+    if (!req.session || !req.session.user) {
+      return res.redirect("/login");
+    }
+
     const { search, category, dateFrom, dateTo } = req.query;
     let eventslist;
 
@@ -161,6 +165,10 @@ async function getEventDetails(req, res) {
 // GET /events/:id/edit
 async function editEvent(req, res) {
   try {
+    if (!req.session || !req.session.user) {
+      return res.redirect("/login");
+    }
+
     const event = await Events.findById(req.params.id);
 
     if (!event) {
@@ -181,6 +189,10 @@ async function editEvent(req, res) {
 
 // POST /events/:id/edit
 async function postEditEvent(req, res) {
+  if (!req.session || !req.session.user) {
+    return res.redirect("/login");
+  }
+
   const id = req.params.id;
   const title = req.body.title;
   const description = req.body.description;
@@ -234,6 +246,10 @@ async function postEditEvent(req, res) {
 
 // GET /events/:id/delete
 async function getDeleteEvent(req, res) {
+  if (!req.session || !req.session.user) {
+    return res.redirect("/login");
+  }
+
   const id = req.params.id;
   try {
     const event = await Events.findById(id);
@@ -249,6 +265,10 @@ async function getDeleteEvent(req, res) {
 
 // POST /events/:id/delete
 async function deleteEvent(req, res) {
+  if (!req.session || !req.session.user) {
+    return res.redirect("/login");
+  }
+
   const id = req.params.id;
   try {
     await Events.deleteEvent(id);
