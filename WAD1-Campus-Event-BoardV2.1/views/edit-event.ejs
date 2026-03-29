@@ -1,0 +1,69 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+<%- include('partials/flash-message') %>
+
+<p><a href="/my-events">← Back to Event</a></p>
+
+<h2>Edit Event</h2>
+<p>Update the details for "<%= event.title %>"</p>
+
+<form action="/events/<%= event._id %>/edit" method="POST">
+    <table border="1">
+        <tr>
+            <td><label>Event Title *</label></td>
+            <td><input type="text" name="title" value="<%= event.title %>"></td>
+        </tr>
+        <tr>
+            <td><label>Description *</label></td>
+            <td><textarea name="description" rows="6"><%= event.description %></textarea></td>
+        </tr>
+        <tr>
+            <td><label>From Date *</label></td>
+            <td><input type="date" name="startDate" value="<%= event.startDate ? event.startDate.toISOString().split('T')[0] : '' %>"></td>
+        </tr>
+        <tr>
+            <td><label>To Date *</label></td>
+            <td><input type="date" name="endDate" value="<%= event.endDate ? event.endDate.toISOString().split('T')[0] : '' %>"></td>
+        </tr>
+        <tr>
+            <td><label>Time *</label></td>
+            <td><input type="time" name="time" value="<%= event.time %>"></td>
+        </tr>
+        <tr>
+            <td><label>Location *</label></td>
+            <td><input type="text" name="venue" value="<%= event.venue %>"></td>
+        </tr>
+        <tr>
+            <td><label>Category *</label></td>
+            <td>
+                <select name="category">
+                    <option value="academic" <%= event.category === 'academic' ? 'selected' : '' %>>Academic</option>
+                    <option value="social" <%= event.category === 'social' ? 'selected' : '' %>>Social</option>
+                    <option value="sports" <%= event.category === 'sports' ? 'selected' : '' %>>Sports</option>
+                    <option value="workshop" <%= event.category === 'workshop' ? 'selected' : '' %>>Workshop</option>
+                    <option value="other" <%= event.category === 'other' ? 'selected' : '' %>>Other</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td><label>Max Attendees *</label></td>
+            <td><input type="number" name="maxAttendees" value="<%= event.maxAttendees %>"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <a href="/my-events">Cancel</a>
+                <button type="submit">Update Event</button>
+            </td>
+        </tr>
+    </table>
+</form>
+
+<% if (clicked) { %>
+    <% if (error.length > 0) { %>
+        <p style="color: red;"><%= error[0] %></p>
+    <% } else { %>
+        <p style="color: green;">Event updated successfully!</p>
+    <% } %>
+<% } %>
+

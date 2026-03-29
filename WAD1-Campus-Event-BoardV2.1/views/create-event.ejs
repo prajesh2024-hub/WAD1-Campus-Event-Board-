@@ -1,0 +1,68 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+<%- include('partials/flash-message') %>
+
+<h2>Create New Event</h2>
+<p>Fill in the details below to create a new campus event.</p>
+
+<% if (clicked) { %>
+    <% if (error.length > 0) { %>
+        <p style="color: red;"><%= error[0] %></p>
+    <% } else { %>
+        <p style="color: green;">Event has been successfully added!</p>
+    <% } %>
+<% } %>
+
+<form action="/create-event" method="POST">
+    <table border = '1'>
+        <tr>
+            <td><label>Event Title *</label></td>
+            <td><input type="text" name="title" placeholder="e.g. Spring Hackathon 2026" value="<%= title %>"></td>
+        </tr>
+        <tr>
+            <td><label>Description *</label></td>
+            <td><textarea name="description" placeholder="Describe your event, what attendees can expect, what to bring, etc." rows="6"><%= description %></textarea></td>
+        </tr>
+        <tr>
+            <td><label>From Date *</label></td>
+            <td><input type="date" name="dateFrom" value="<%= dateFrom %>" required></td>
+        </tr>
+        <tr>
+            <td><label>To Date *</label></td>
+            <td><input type="date" name="dateTo" value="<%= dateTo %>" required></td>
+        </tr>
+        <tr>
+            <td><label>Time *</label></td>
+            <td><input type="time" name="time" value="<%= time %>"></td>
+        </tr>
+        <tr>
+            <td><label>Location *</label></td>
+            <td><input type="text" name="venue" placeholder="e.g. Engineering Building, Room 301" value="<%= venue %>"></td>
+        </tr>
+        <tr>
+            <td><label>Category *</label></td>
+            <td>
+                <select name="category">
+                    <option value="" disabled <%= category === '' ? 'selected' : '' %>>Select a category</option>
+                    <option value="academic" <%= category === 'academic'%>>Academic</option>
+                    <option value="social" <%= category === 'social'%>>Social</option>
+                    <option value="sports" <%= category === 'sports'%>>Sports</option>
+                    <option value="workshop" <%= category === 'workshop'%>>Workshop</option>
+                    <option value="other" <%= category === 'other' %>>Other</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td><label>Max Attendees *</label></td>
+            <td><input type="number" name="maxAttendees" placeholder="e.g. 50" value="<%= maxAttendees %>"></td>
+        </tr>
+        <tr>
+            <td><label>Organizer *</label></td>
+            <td><input type="text" name="organizer" placeholder="e.g. Computer Science Club" value="<%= organizer %>" required></td>
+        </tr>
+
+    </table>
+    <br>
+    <a href="/events">Cancel</a>
+    <button type="submit">Create Event</button>
+</form>

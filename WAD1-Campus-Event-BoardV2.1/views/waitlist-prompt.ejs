@@ -1,0 +1,18 @@
+<%- include("partials/header") %>
+<%- include("partials/navbar") %>
+
+<div class="container">
+  <h1>Event is Full</h1>
+  
+  <p><strong><%= message %></strong></p>
+
+  <hr>
+
+  <form action="/events/<%= eventId %>/waitlist" method="POST" style="display: inline-block;">
+    <button type="submit">Yes, Join Waitlist</button>
+  </form>
+
+  <a href="/events/<%= eventId %>">
+    <button type="button">No, Go Back</button>
+  </a>
+</div>
