@@ -7,8 +7,8 @@
 <h2>Edit Event</h2>
 <p>Update the details for "<%= event.title %>"</p>
 
-<form action="/events/<%= event._id %>/edit" method="POST">
-    <table border="1">
+<form action="/events/<%= event._id %>/edit" method="POST" class="create-event-form">
+    <table>
         <tr>
             <td><label>Event Title *</label></td>
             <td><input type="text" name="title" value="<%= event.title %>"></td>
@@ -49,21 +49,20 @@
             <td><label>Max Attendees *</label></td>
             <td><input type="number" name="maxAttendees" value="<%= event.maxAttendees %>"></td>
         </tr>
-        <tr>
-            <td></td>
-            <td>
-                <a href="/my-events">Cancel</a>
-                <button type="submit">Update Event</button>
-            </td>
-        </tr>
     </table>
+    <div class="form-actions">
+        <button type="submit" class="btn-primary">Update Event</button>
+        <a href="/my-events" class="btn-cancel">Cancel</a>
+    </div>
 </form>
 
 <% if (clicked) { %>
     <% if (error.length > 0) { %>
-        <p style="color: red;"><%= error[0] %></p>
+        <p class="form-feedback error"><%= error[0] %></p>
     <% } else { %>
-        <p style="color: green;">Event updated successfully!</p>
+        <p class="form-feedback success">Event updated successfully!</p>
     <% } %>
 <% } %>
+
+<%- include('partials/footer') %>
 
