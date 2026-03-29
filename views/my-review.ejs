@@ -1,0 +1,37 @@
+<%- include("partials/header") %>
+<%- include("partials/navbar") %>
+
+<div class="container">
+  <div style="margin-bottom: 20px;">
+    <a href="/my-events">← Back to My Events</a>
+  </div>
+
+  <h1>Reviews for <%= event.title %></h1>
+
+  <% if (!reviews || reviews.length === 0) { %>
+    <p style="font-style: italic; color: #666;">No reviews yet. Keep checking back!</p>
+  <% } else { %>
+    <div style="margin-top: 20px;">
+      <h3><%= reviews.length %> Review(s)</h3>
+      
+      <% reviews.forEach(review => { %>
+        <div style="background: #f9f9f9; padding: 15px; margin-bottom: 15px; border-left: 4px solid #1d4ed8; border-radius: 4px;">
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div>
+              <p style="margin: 0; font-weight: bold;"><%= review.userName %></p>
+              <p style="margin: 5px 0 0 0; color: #fbbf24; font-size: 18px;">
+                <% for (let i = 0; i < review.rating; i++) { %>⭐<% } %>
+              </p>
+            </div>
+            <small style="color: #999;">
+              <%= new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' }) %>
+            </small>
+          </div>
+          <p style="margin: 10px 0 0 0; line-height: 1.6;"><%= review.reviewText %></p>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</div>
+
+<%- include("partials/footer") %>

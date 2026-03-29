@@ -26,6 +26,7 @@ router.get("/events/:id/delete", eventController.getDeleteEvent);
 router.post("/events/:id/delete", eventController.deleteEvent);
 
 //getting event details
+
 router.get("/events/:id", eventController.getEventDetails);
 // EXPORT
 module.exports = router;

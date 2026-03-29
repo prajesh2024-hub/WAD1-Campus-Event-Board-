@@ -60,8 +60,19 @@ const eventSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  }
-  
+  },
+  reviews: [
+    {
+      userId: mongoose.Schema.Types.ObjectId,
+      userName: String,
+      rating: Number,
+      reviewText: String,
+      createdAt: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ]
 });
 
 const Event = mongoose.model("Event", eventSchema);
