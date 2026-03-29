@@ -37,6 +37,7 @@ async function postRegister(req, res) {
   }
 }
 
+
 // GET /login
 async function getLogin(req, res) {
   res.render("login", { errors: [] });
