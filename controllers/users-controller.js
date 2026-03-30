@@ -46,7 +46,7 @@ exports.loginPost = async (req, res) => {
 
         if (!user) {
             console.log("User not found");
-            return res.send(`User: ${user} does not exist. Please register before trying again. <br>
+            return res.send(`User: ${req.body.email} does not exist. Please register before trying again. <br>
                 <a href='/register'> Register </a>`)
         }
 
