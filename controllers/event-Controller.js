@@ -105,6 +105,7 @@ async function allEvents(req, res) {
     if (!req.session || !req.session.user) {
       return res.redirect("/login");
     }
+    const userRole = req.session.user.role;
     const { search, category, dateFrom, dateTo } = req.query;
     let eventslist;
 
@@ -114,7 +115,7 @@ async function allEvents(req, res) {
       eventslist = await Events.retrieveAll();
     }
 
-    res.render("all-events", { eventslist, search, category, dateFrom, dateTo });
+    res.render("all-events", { eventslist, search, category, dateFrom, dateTo, userRole });
   } catch (error) {
     console.error("allEvents error:", error);
     res.send("Error reading database");
@@ -323,7 +324,7 @@ async function deleteEvent(req, res) {
   // delete event based on the id and redirect to my-events
     await Events.deleteEvent(id);
     console.log("Event deleted:", id);
-    res.redirect("/my-events");
+    res.redirect("/all-events");
   // standard error catch
   } catch (error) {
     console.error("deleteEvent error:", error);
@@ -389,6 +390,7 @@ async function postParticipants(req, res) {
     res.send("Error removing participant");
   }
 }
+
 
 module.exports = {
   getHome,

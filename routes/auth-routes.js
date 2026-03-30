@@ -18,6 +18,6 @@ router.get('/profile', authMiddleware.isLoggedIn, usersController.profile);
 
 // router.get('/admin-profile', usersController.adminProfile);
 
-router.get('/logout', usersController.logout);
+router.get('/logout', authMiddleware.isLoggedIn, usersController.logout);
 
 module.exports = router;

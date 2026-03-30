@@ -1,7 +1,7 @@
 const User = require('../model/user-model');
 
 exports.isLoggedIn = (req, res, next) => {
-    if (!req.session.user.username) {
+    if (!req.session.user) {
         console.log("User not logged in, redirecting to login");
         return res.redirect('/login');
         //return res.status(401).render('login', { error: "Please log in first!" });

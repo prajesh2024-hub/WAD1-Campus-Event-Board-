@@ -55,9 +55,14 @@
                         </form>
                         <% } else { %>
                         <form action="/events/<%= event._id %>/rsvp" method="POST">
-                            <button type="submit">Join Event</button>
+                            <button type="submit" button style="width: 130px">Join Event</button>
                         </form>
 
+                        <% } %>
+                        <% if (userRole=='admin'){ %>
+                        <form action="/events/<%= event._id %>/delete" method="GET">
+                            <button type="submit" button style="width: 130px">Delete Event</button>
+                        </form>
                         <% } %>
                 </form>
             </div>
