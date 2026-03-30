@@ -290,6 +290,39 @@ hr {
   color: #2e7d32;
 }
 
+/* ── My Participants Table ── */
+.participants-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.participants-table th {
+  background: #f0f4ff;
+  color: #333;
+  font-weight: 600;
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 2px solid #ddd;
+}
+
+.participants-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+  color: #333;
+}
+
+.participants-table tr:last-child td {
+  border-bottom: none;
+}
+
+.participants-table tr:hover td {
+  background: #fafafa;
+}
+
 /* ── Delete confirmation page ── */
 .delete-card {
   background: white;

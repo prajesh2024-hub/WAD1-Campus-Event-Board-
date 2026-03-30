@@ -60,7 +60,7 @@ const eventSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  },
+  }, // it make is it deafults so that the time created is now
   reviews: [
     {
       userId: mongoose.Schema.Types.ObjectId,
@@ -72,16 +72,18 @@ const eventSchema = new mongoose.Schema({
         default: Date.now
       }
     }
-  ]
+  ] // plis help explain what is this
 });
 
+
+// set the mongoose model under and object called event
 const Event = mongoose.model("Event", eventSchema);
 
+//export event 
 module.exports = Event;
 
 // helper: check duplicate event
 // checks for duplicates if there is any found within it
-// 
 module.exports.eventExists = async function(title, description, dateFrom, dateTo, time, venue, category, maxAttendees, organizer) {
   const existing = await Event.findOne({
     title: title,
