@@ -43,7 +43,7 @@ const eventSchema = new mongoose.Schema({
       ref: "User"
     }
   ],
-  waitList:[
+  waitlist:[
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User"
@@ -102,7 +102,7 @@ module.exports.addEvent = async function(title, description, startDate, endDate,
     createdBy,
     createdByUsername,
     attendees: [],
-    attendeeWaitList: [],
+    waitlist: [],
   });
 
   return await newEvent.save();

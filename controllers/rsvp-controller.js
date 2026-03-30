@@ -34,6 +34,7 @@ async function joinEvent(req, res) {
       }
 
     event.attendees.push(currentUserId);
+    console.log(event.attendees)
     await event.save();
 
     res.redirect(`/events/${eventId}`);
@@ -81,7 +82,10 @@ async function getMyRSVPs(req, res) {
     const currentUserId = req.session.user.id;
 
     const events = await Event.find({
-      attendees: currentUserId
+      $or: [
+        { attendees: currentUserId },
+        { waitlist: currentUserId }
+      ]
     })
       .populate("createdBy")
       .populate("attendees")
@@ -96,6 +100,21 @@ async function getMyRSVPs(req, res) {
     res.status(500).send(error.message);
   }
 }
+
+async function PromptWaitlist (req,res){
+  try{
+    const eventId = req.params.id;
+    const currentUserId = req.session.user.id;
+    const event = await Event.findById(eventId);
+
+    res.render('waitlist-prompt', {event})
+  } catch (error) {
+    console.error("waitlistRSVPs error:", error);
+    res.status(500).send(error.message);
+  }
+}
+
+
 async function waitlistRSVPs (req,res){
   try {
     if (!req.session || !req.session.user) {
@@ -104,11 +123,11 @@ async function waitlistRSVPs (req,res){
     const eventId = req.params.id;
     const currentUserId = req.session.user.id;
     const event = await Event.findById(eventId);
-
+    console.log(event)
     if (!event) {
       return res.status(404).render("error", { message: "Event not found." });
     }
-    // ensure there is an array present
+
     if (!event.attendees) event.attendees = [];
     if (!event.waitlist) event.waitlist = [];
 
@@ -129,10 +148,12 @@ async function waitlistRSVPs (req,res){
     }
 
     //Add to waitlist
+
     event.waitlist.push(currentUserId);
     await event.save();
-    console.log(event.waitlist)
+    console.log(event.waitlist) 
     res.redirect(`/events/${eventId}`);
+    // res.render(`/waitlist-prompt`);
 
   } catch (error) { 
     console.error("waitlistRSVPs error:", error);
@@ -145,5 +166,6 @@ module.exports = {
   joinEvent,
   cancelRSVP,
   getMyRSVPs,
-  waitlistRSVPs
+  waitlistRSVPs,
+  PromptWaitlist
 };
