@@ -27,11 +27,20 @@
   <% } else { %>
     <ul>
       <% event.attendees.forEach(attendee => { %>
-        <li><%= attendee.name %> - <%= attendee.email %></li>
+        <li><%= attendee.username %> - <%= attendee.email %></li>
       <% }) %>
     </ul>
   <% } %>
-
+  <% if (event.waitlist.length === 0) { %>
+    <h3> No Waitlisted Attendees</h3>
+  <% } else { %>
+    <h3>Waitlist</h3>
+    <ul>
+      <% event.waitlist.forEach(waitlst => { %>
+        <li><%= waitlst.username %> - <%= waitlst.email %> </li>
+      <% }); %>
+    <% } %>
+    </ul>
   <hr>
 
   <% if (!currentUser) { %>
