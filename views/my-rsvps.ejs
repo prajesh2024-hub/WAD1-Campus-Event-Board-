@@ -96,18 +96,7 @@
           </p>
           <p><strong>Time:</strong> <%= event.time %></p>
           <p><strong>Venue:</strong> <%= event.venue %></p>
-          <p><strong>Status:</strong> 
-            <% 
-              let waitlistPosition = 0;
-              if (event.waitlist && Array.isArray(event.waitlist)) {
-                waitlistPosition = event.waitlist.findIndex(id => 
-                  id && id.toString() === currentUser.id.toString()
-                ) + 1;
-              }
-            %>
-            <span class="waitlist-badge">On Waitlist (Position: <%= waitlistPosition %>)</span>
-          </p>
-          
+          <p><strong>Status:</strong> <span class="waitlist-badge">On Waitlist (Position: <%= event.waitList.findIndex(currentUser.id) + 1 %>)</span></p>
           <p><strong>Organizer:</strong> <%= event.createdBy ? event.createdBy.name : 'Unknown' %></p>
 
           <p><a href="/events/<%= event._id %>">View Details</a></p>
