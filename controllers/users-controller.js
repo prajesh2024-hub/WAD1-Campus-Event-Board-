@@ -6,15 +6,16 @@ exports.gethome = (req, res) => res.redirect('events');
 
 exports.registerGet = (req, res) => {
     res.render('register');
-}
+};
 
 exports.registerPost = async (req, res) => {
     const username = req.body.username;
+    const email = req.body.email;
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     try {
         const newUser = {
             username,
-            email: req.body.email,
+            email,
             phone: req.body.phone,
             password: hashedPassword,
             role: req.body.role
@@ -22,10 +23,18 @@ exports.registerPost = async (req, res) => {
 
         // error handling for existing username
         if (await User.findByUsername(username)) {
-            return res.send(`Username ${username} already exists. Please try again with a different username. <br>
+            console.log("User already in use, redirecting to register");
+            return res.send(`The username: ${username} is not available. Please try again with a different username. <br>
                 <a href='/register'> Register </a>`)
-        }
-        // error handling for existing email is implemented as middleware
+        };
+
+        // error handling for existing email
+        if (await User.findByEmail(email)) {
+            console.log("Email already in use, redirecting to register");
+            return res.send(`The email address: ${email} is in use. Please try again with a different email address. <br>
+                    <a href='/register'> Register </a>`);
+
+        };
 
         await User.createAccount(newUser);
         console.log('new usr created')
@@ -34,11 +43,11 @@ exports.registerPost = async (req, res) => {
         console.error(err);
         res.redirect('/register');
     }
-}
+};
 
 exports.loginGet = (req, res) => {
     res.render('login');
-}
+};
 
 exports.loginPost = async (req, res) => {
     try {
@@ -69,7 +78,7 @@ exports.loginPost = async (req, res) => {
         console.error(err);
         res.redirect('/login');
     }
-}
+};
 
 exports.profile = async (req, res) => {
 
@@ -85,23 +94,80 @@ exports.profile = async (req, res) => {
         res.render('admin-profile', { user: passedUser });
     }
 
-}
+};
 
-// exports.adminProfile = async (req, res) => {
-//     // if (!req.session.user) {
-//     //     console.log("User not logged in, redirecting to /login");
-//     //     return res.redirect('/login');
-//     // };
-//     if (req.session.user.role !== "admin") {
-//         console.log("Not an admin user, redirecting to /profile");
-//         return res.redirect('/profile');
-//     }
-//     const passedUser = await User.findByUsername(req.session.user.username);
-//     res.render('admin-profile', { user: passedUser });
-// }
+exports.getEditInfo = async (req, res) => {
+
+    const userdetails = await User.findByUsername(req.session.user.username);
+    res.render('edit-info', { user: userdetails })
+};
+
+exports.postEditInfo = async (req, res) => {
+    const userId = req.session.user.id //filter
+
+    const newUsername = req.body.username;
+    const newEmail = req.body.email;
+    const newPhone = req.body.phone;
+
+    let updateDocument = { $set: {} }
+
+    try {
+
+        let updateDocument = { $set: {} };
+
+        if (newUsername && newUsername.trim() !== "") {
+            updateDocument.$set.username = newUsername;
+            req.session.user.username = newUsername;
+        }
+
+        if (newEmail && newEmail.trim() !== "") {
+            updateDocument.$set.email = newEmail;
+            req.session.user.email = newEmail;
+        }
+
+        if (newPhone && newPhone.trim() !== "") {
+            updateDocument.$set.phone = newPhone;
+            req.session.user.phone = newPhone;
+        }
+
+        if (Object.keys(updateDocument.$set).length === 0) {
+            return res.send(`No changes provided. <br> <a href="/profile">Profile</a>`);
+        }
+
+        const result = await User.editParticulars({ _id: userId }, updateDocument);
+
+        console.log('Particulars updated:', result);
+        res.send('Your particulars have been successfully edited. <br> <a href="/profile">Profile</a>');
+    }
+    catch (error) {
+        console.log(`Error: ${error} Please try again.`)
+    }
+
+};
+
+exports.deleteAcc = async (req, res) => {
+    res.render('delete-acc')
+};
+
+
+exports.postDeleteAcc = async (req, res) => {
+    const userId = req.session.user.id;
+
+    if (await User.deleteAccount(userId)) {
+        console.log("Your account has been successfully deleted.")
+        req.session.destroy(() => {
+            res.redirect('/login');
+        })
+    }
+    else {
+        console.log('Your attempt was unsuccessful, please try again.')
+        return res.send(`Your attempt was unsuccessful, please try again. <br>
+                <a href='/profile'> Profile </a>`)
+    }
+};
 
 exports.logout = (req, res) => {
     req.session.destroy(() => {
         res.redirect('/login');
-    });
-}
+    })
+};

@@ -38,3 +38,12 @@ exports.createAccount = function(newAcc) {
 exports.findByUsername = function(username) {
     return User.findOne({username: username})
 };
+
+exports.editParticulars = function(userId, updateDocument) {
+  console.log(userId)
+  return User.updateOne(userId, updateDocument)
+};
+
+exports.deleteAccount = function(userId) {
+  return User.deleteOne({_id: userId})
+};

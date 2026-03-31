@@ -1,0 +1,16 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<h2>Delete Event</h2>
+
+<div class="delete-card">
+    <p>Are you sure you want to delete your account? This cannot be undone.</p>
+    <div class="form-actions">
+        <form action="/delete-acc" method="POST">
+            <button type="submit" class="btn-danger">Yes, delete it</button>
+        </form>
+        <a href="/" class="btn-cancel">No, go back</a>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

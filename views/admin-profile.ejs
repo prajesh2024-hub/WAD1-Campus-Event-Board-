@@ -1,10 +1,10 @@
  <%- include('partials/header') %>
     <%- include('partials/navbar') %>
 
-        <head>
+       <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Welcome</title>
+            <title>Profile</title>
         </head>
 
         <body>
@@ -18,21 +18,15 @@
                 </colgroup>
                 <tr>
                     <td>Email:</td>
-                    <td>
-                        <%= user.email %>
-                    </td>
+                    <td><%= user.email %></td>
                 </tr>
                 <tr>
                     <td>Phone:</td>
-                    <td>
-                        <%= user.phone %>
-                    </td>
+                    <td><%= user.phone %></td>
                 </tr>
                 <tr>
                     <td>Your account type:</td>
-                    <td>
-                        <%= user.role %>
-                    </td>
+                    <td><%= user.role %></td>
                 </tr>
             </table>
             </p>
@@ -45,18 +39,10 @@
                     <col style="width: 200px;">
                 </colgroup>
                 <tr>
-                    <td>
-                        <a href="/my-events">Edit your Particulars</a>
-                    </td>
-                    <td>
-                        <a href="/my-events">Delete your Account</a>
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-                        <a href="/logout">Click to Log out</a>
-                    </td>
+                    <td><a href="/edit-info">Edit your Particulars</a></td>
+                    <td><a href="/delete-acc">Delete your Account</a></td>
+                    <td></td>
+                    <td><a href="/logout">Click to Log out</a></td>
                 </tr>
             </table>
             
