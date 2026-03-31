@@ -108,6 +108,8 @@ async function eventList(req, res) {
 
     const eventslist = await Events.find({ createdBy: req.session.user.id })
       .populate("attendees")
+      .populate("createdBy")
+      .populate("waitlist")
       .sort({ startDate: 1 });
 
     res.render("my-events", {
