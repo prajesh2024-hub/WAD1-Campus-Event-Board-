@@ -125,8 +125,6 @@ async function eventList(req, res) {
 async function getEventDetails(req, res) {
   try {
     const event = await Events.findById(req.params.id)
-      .populate("attendees");
-
       .populate("createdBy")
       .populate("attendees")
       .populate("waitlist")

@@ -124,11 +124,6 @@ async function PromptWaitlist (req,res){
     res.status(500).send(error.message);
   }
 }
-<<<<<<< Updated upstream
-
-
-=======
->>>>>>> Stashed changes
 async function waitlistRSVPs (req,res){
   try {
     if (!req.session || !req.session.user) {
