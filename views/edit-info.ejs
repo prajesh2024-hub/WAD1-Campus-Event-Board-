@@ -2,53 +2,64 @@
     <%- include('partials/navbar') %>
 
         <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Edit Particulars</title>
+            <div class="container">
+                
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Edit Particulars</title>
+                <h2>Edit your particulars</h2>
+                
+            </div>
         </head>
 
         <body>
-            <p><strong>Your info: </strong><br>
+            <div class="container">
+                <br>
+                <p><strong>Your current info: </strong><br></p>
+                
+                <table>
+                    <colgroup>
+                        <col style="width: 200px;">
+                        <col style="width: 200px;">
+                    </colgroup>
+                    <tr>
+                        <td>Username:</td>
+                        <td>
+                            <%= user.username %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Email:</td>
+                        <td>
+                            <%= user.email %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Phone:</td>
+                        <td>
+                            <%= user.phone %>
+                        </td>
+                    </tr>
+                </table>
+            
+                <br><hr><br>
+                <p><strong>Update: </strong><br>
+                    <i style="color:#686868;">Enter the information in the field you would like to edit</i>
+                <form action="/edit-info" method="POST">
+                    <label for="username">Username</label><br>
+                    <input type="text" name="username" size='40' placeholder="e.g. jsmith" optional>
+                    <br><br>
+                    <label for="email">Email</label><br>
+                    <input type="email" name="email" size='40' placeholder="e.g. jsmith@university.edu.sg" optional>
+                    <br><br>
+                    <label for="phone">Phone</label><br>
+                    <input type="text" name="phone" size='40' optional>
 
-            <table>
-                <colgroup>
-                    <col style="width: 200px;">
-                    <col style="width: 200px;">
-                </colgroup>
-                <tr>
-                    <td>Username:</td>
-                    <td>
-                        <%= user.username %>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Email:</td>
-                    <td>
-                        <%= user.email %>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Phone:</td>
-                    <td>
-                        <%= user.phone %>
-                    </td>
-                </tr>
-            </table>
-            <br>
-            <form action="/edit-info" method="POST">
-                <label for="username">Username</label><br>
-                <input type="text" name="username" size='40' placeholder="e.g. jsmith" optional>
-                <br><br>
-                <label for="email">Email</label><br>
-                <input type="email" name="email" size='40' placeholder="e.g. jsmith@university.edu.sg" optional>
-                <br><br>
-                <label for="phone">Phone</label><br>
-                <input type="text" name="phone" size='40' optional>
-
-                <br><br><br>
-                <button type="submit">Submit</button>
-            </form>
-
+                    <br><br><br>
+                    <button type="submit">Submit</button>
+                </form>
+                </p>
+            </div>
             <%- include('partials/footer') %>
 
         </body>
