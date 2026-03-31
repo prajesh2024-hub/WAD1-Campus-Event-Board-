@@ -3,6 +3,17 @@
 
 <h2>My Wishlist</h2>
 
+<div class="create-collection-section" style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+  <h3>Create New Collection</h3>
+  <form action="/my-wishlist/collections" method="POST" style="display:flex; gap:10px; align-items:center;">
+    <input type="text" name="collectionName" placeholder="Enter collection name" style="padding:8px; width: 250px;" required />
+    <button type="submit" class="btn-primary">Create Collection</button>
+  </form>
+  <% if (collectionError) { %>
+    <p style="color: #d32f2f; margin-top: 10px; font-size: 14px;"><%= collectionError %></p>
+  <% } %>
+</div>
+
 <% if (!collections || collections.length === 0) { %>
   <div class="message">
     <p>You have not yet created any wishlist collections.</p>
@@ -11,16 +22,22 @@
 <% } %>
 
 <% collections.forEach(collection => { %>
-  <div class="event-card" style="margin-bottom: 20px;">
+  <div class="event-card" style="margin-bottom: 20px; width: 48%; display: inline-block; vertical-align: top; padding-right: 1%; box-sizing: border-box;">
     <form action="/my-wishlist/collections/<%= collection._id %>/edit" method="POST" style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
-      <input type="text" name="collectionName" value="<%= collection.name %>" style="padding:8px; width: 250px;" required />
+      <input type="text" name="collectionName" value="<%= collection.name %>" style="padding:8px; width: 180px;" required />
       <button type="submit" class="btn-primary">Update Collection Name</button>
+    </form>
+    <% if (collectionEditError && collection._id.toString() === activeCollectionId) { %>
+      <p style="color: #d32f2f; margin-top: 8px; font-size: 14px;"><%= collectionEditError %></p>
+    <% } %>
+    <form action="/my-wishlist/collections/<%= collection._id %>/delete" method="POST" style="margin-bottom:10px;">
+      <button type="submit" class="btn-secondary" onclick="return confirm('Delete this collection and all saved events?');">Delete Collection</button>
     </form>
 
     <% if (!collection.items || collection.items.length === 0) { %>
-      <p>This collection is empty.</p>
+      <p>This collection is empty. <a href="/all-events">Go to All Events</a>.</p>
     <% } else { %>
-      <table class="my-events-table" style="margin-top:8px;">
+      <table class="my-events-table" style="margin-top:8px; width:100%; font-size: 0.88em;">
         <thead>
           <tr>
             <th></th>
@@ -44,22 +61,13 @@
               <td><%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
               <td><%= event.venue %></td>
               <td class="action-links">
-                <form action="/events/<%= event._id %>/rsvp" method="POST">
-                  <button type="submit">Join Event</button>
-                </form>
-
-                <form action="/my-wishlist/collections/<%= collection._id %>/events/<%= event._id %>/move" method="POST" style="display:inline-block;">
-                  <select name="targetCollectionId" required>
-                    <% collections.forEach(target => { %>
-                      <% if (target._id.toString() !== collection._id.toString()) { %>
-                        <option value="<%= target._id %>"><%= target.name %></option>
-                      <% } %>
-                    <% }); %>
-                  </select>
-                  <% if (collections.length > 1) { %>
-                    <button type="submit">Change collection</button>
-                  <% } %>
-                </form>
+                <% if (rsvpStatus && rsvpStatus[event._id]) { %>
+                  <p style="margin:0; color: #28a745; font-weight:bold;">You have joined this event</p>
+                <% } else { %>
+                  <form action="/events/<%= event._id %>/rsvp" method="POST">
+                    <button type="submit">Join Event</button>
+                  </form>
+                <% } %>
               </td>
             </tr>
           <% }); %>

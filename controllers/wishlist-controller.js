@@ -5,6 +5,10 @@ function getCurrentUserId(req) {
   return req.session && req.session.user && (req.session.user.id || req.session.user._id);
 }
 
+function normalizeName(name) {
+  return name.toLowerCase().replace(/\s+/g, '');
+}
+
 async function getMyWishlist(req, res) {
   try {
     if (!req.session || !req.session.user) {
@@ -15,9 +19,40 @@ async function getMyWishlist(req, res) {
 
     const collections = await WishlistCollection.find({ userId: currentUserId }).populate('items.event');
 
+    // Build RSVP status map for all events in wishlist
+    const rsvpStatus = {};
+    if (collections && collections.length > 0) {
+      collections.forEach(collection => {
+        if (collection.items && collection.items.length > 0) {
+          collection.items.forEach(item => {
+            if (item.event) {
+              const isAttendee = item.event.attendees && item.event.attendees.some(
+                attendeeId => attendeeId.toString() === currentUserId.toString()
+              );
+              rsvpStatus[item.event._id] = isAttendee;
+            }
+          });
+        }
+      });
+    }
+
+    // Get error messages from session
+    const collectionError = req.session.collectionError || null;
+    const collectionEditError = req.session.collectionEditError || null;
+    const activeCollectionId = req.session.activeCollectionId || null;
+
+    // Clear error messages after capturing them
+    req.session.collectionError = null;
+    req.session.collectionEditError = null;
+    req.session.activeCollectionId = null;
+
     res.render('my-wishlist', {
       collections,
-      currentUser: req.session.user
+      currentUser: req.session.user,
+      rsvpStatus,
+      collectionError,
+      collectionEditError,
+      activeCollectionId
     });
   } catch (error) {
     console.error('getMyWishlist error:', error);
@@ -151,64 +186,102 @@ async function editCollectionName(req, res) {
     const newName = req.body.collectionName && req.body.collectionName.trim();
 
     if (!newName) {
-      return res.status(400).render('error', { message: 'Collection name cannot be empty.' });
+      req.session.collectionEditError = 'Collection name cannot be empty.';
+      req.session.activeCollectionId = collectionId;
+      return res.redirect('/my-wishlist');
     }
 
     const collection = await WishlistCollection.findOne({ _id: collectionId, userId });
     if (!collection) {
-      return res.status(404).render('error', { message: 'Wishlist collection not found.' });
+      req.session.collectionEditError = 'Wishlist collection not found.';
+      return res.redirect('/my-wishlist');
+    }
+
+    // Check for duplicate names (ignoring case and spaces)
+    const normalizedNewName = normalizeName(newName);
+    const existingCollections = await WishlistCollection.find({ userId });
+    const duplicateName = existingCollections.some(
+      col => col._id.toString() !== collectionId && normalizeName(col.name) === normalizedNewName
+    );
+    if (duplicateName) {
+      req.session.collectionEditError = 'A collection with the same name already exists.';
+      req.session.activeCollectionId = collectionId;
+      return res.redirect('/my-wishlist');
     }
 
     collection.name = newName;
     await collection.save();
 
+    req.session.collectionEditError = null;
+    req.session.activeCollectionId = null;
     res.redirect('/my-wishlist');
   } catch (error) {
     console.error('editCollectionName error:', error);
-    res.status(500).render('error', { message: 'Failed to update wishlist collection name.' });
+    req.session.collectionEditError = 'Failed to update wishlist collection name.';
+    res.redirect('/my-wishlist');
   }
 }
 
-async function moveWishlistEvent(req, res) {
+async function deleteCollection(req, res) {
   try {
     if (!req.session || !req.session.user) {
       return res.redirect('/login');
     }
 
     const userId = getCurrentUserId(req);
-    const fromCollectionId = req.params.collectionId;
-    const eventId = req.params.eventId;
-    const targetCollectionId = req.body.targetCollectionId;
+    const collectionId = req.params.collectionId;
 
-    if (!targetCollectionId) {
-      return res.status(400).render('error', { message: 'Target collection is required.' });
+    const collection = await WishlistCollection.findOneAndDelete({ _id: collectionId, userId });
+    if (!collection) {
+      return res.status(404).render('error', { message: 'Wishlist collection not found.' });
     }
 
-    if (fromCollectionId === targetCollectionId) {
+    req.session.collectionError = null;
+    res.redirect('/my-wishlist');
+  } catch (error) {
+    console.error('createCollection error:', error);
+    req.session.collectionError = 'Failed to create wishlist collection.';
+    res.redirect('/my-wishlist');
+  }
+}
+
+async function createCollection(req, res) {
+  try {
+    if (!req.session || !req.session.user) {
+      return res.redirect('/login');
+    }
+
+    const userId = getCurrentUserId(req);
+    const collectionName = req.body.collectionName && req.body.collectionName.trim();
+
+    if (!collectionName) {
+      req.session.collectionError = 'Collection name cannot be empty.';
       return res.redirect('/my-wishlist');
     }
 
-    const fromCollection = await WishlistCollection.findOne({ _id: fromCollectionId, userId });
-    const toCollection = await WishlistCollection.findOne({ _id: targetCollectionId, userId });
-
-    if (!fromCollection || !toCollection) {
-      return res.status(404).render('error', { message: 'Collection not found.' });
+    // Check for duplicate names (ignoring case and spaces)
+    const normalizedName = normalizeName(collectionName);
+    const existingCollections = await WishlistCollection.find({ userId });
+    const duplicateName = existingCollections.some(
+      col => normalizeName(col.name) === normalizedName
+    );
+    if (duplicateName) {
+      req.session.collectionError = 'A collection with the same name already exists.';
+      return res.redirect('/my-wishlist');
     }
 
-    fromCollection.items = fromCollection.items.filter(item => item.event.toString() !== eventId);
+    await WishlistCollection.create({
+      userId,
+      name: collectionName,
+      items: []
+    });
 
-    const existsInTarget = toCollection.items.some(item => item.event.toString() === eventId);
-    if (!existsInTarget) {
-      toCollection.items.push({ event: eventId });
-    }
-
-    await fromCollection.save();
-    await toCollection.save();
-
+    req.session.collectionError = null;
     res.redirect('/my-wishlist');
   } catch (error) {
-    console.error('moveWishlistEvent error:', error);
-    res.status(500).render('error', { message: 'Failed to move event between collections.' });
+    console.error('createCollection error:', error);
+    req.session.collectionError = 'Failed to create wishlist collection.';
+    res.redirect('/my-wishlist');
   }
 }
 
@@ -219,5 +292,6 @@ module.exports = {
   removeFromWishlist,
   removeEventFromAllCollections,
   editCollectionName,
-  moveWishlistEvent
+  deleteCollection,
+  createCollection
 };
