@@ -68,7 +68,6 @@ exports.loginPost = async (req, res) => {
 
         req.session.user = {
             id: user._id,
-            _id: user._id,
             username: user.username,
             role: user.role
         }

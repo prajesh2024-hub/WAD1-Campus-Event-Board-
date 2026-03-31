@@ -1,5 +1,4 @@
 const Events = require("./../model/events-model");
-const WishlistCollection = require("../model/wishlist-model");
 
 // GET /
 async function getHome(req, res) {
@@ -113,7 +112,6 @@ async function postCreateEvent(req, res) {
 }
 
 // GET /all-events
-
 async function allEvents(req, res) {
   try {
     if (!req.session || !req.session.user) {
@@ -121,7 +119,6 @@ async function allEvents(req, res) {
     }
 
     const userRole = req.session.user.role;
-    const currentUserId = req.session.user._id;
     const { search, category, dateFrom, dateTo } = req.query;
     let eventslist;
 
@@ -131,16 +128,6 @@ async function allEvents(req, res) {
       eventslist = await Events.retrieveAll();
     }
 
-    const userCollections = await WishlistCollection.find({ userId: currentUserId });
-    const wishlistMap = {};
-    userCollections.forEach(collection => {
-      collection.items.forEach(item => {
-        const eventIdStr = item.event.toString();
-        if (!wishlistMap[eventIdStr]) wishlistMap[eventIdStr] = [];
-        wishlistMap[eventIdStr].push({ collectionId: collection._id.toString(), name: collection.name });
-      });
-    });
-
     res.render("all-events", {
       eventslist,
       search,
@@ -148,7 +135,6 @@ async function allEvents(req, res) {
       dateFrom,
       dateTo,
       userRole,
-      wishlistMap,
       currentUser: req.session.user
     });
   } catch (error) {
