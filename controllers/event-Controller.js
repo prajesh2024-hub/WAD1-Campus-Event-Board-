@@ -127,6 +127,8 @@ async function getEventDetails(req, res) {
     const event = await Events.findById(req.params.id)
       .populate("attendees");
 
+      .populate("createdBy")
+      .populate("attendees")
       .populate("waitlist")
     // checks if event even exists if not return error
     if (!event) {
