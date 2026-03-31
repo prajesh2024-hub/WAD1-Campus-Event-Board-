@@ -16,7 +16,7 @@
   <p><strong>Venue:</strong> <%= event.venue %></p>
   <p><strong>Category:</strong> <%= event.category %></p>
   <p><strong>Organizer:</strong> <%= event.organizer %></p>
-  <p><strong>Event Host:</strong> <%= event.createdBy.name %></p>
+  <p><strong>Event Host:</strong> <%= event.createdByUsername %></p>
 
   <hr>
 
@@ -27,11 +27,20 @@
   <% } else { %>
     <ul>
       <% event.attendees.forEach(attendee => { %>
-        <li><%= attendee.name %> - <%= attendee.email %></li>
+        <li><%= attendee.username %> - <%= attendee.email %></li>
       <% }) %>
     </ul>
   <% } %>
-
+  <% if (event.waitlist.length === 0) { %>
+    <h3> No Waitlisted Attendees</h3>
+  <% } else { %>
+    <h3>Waitlist</h3>
+    <ul>
+      <% event.waitlist.forEach(person => { %>
+        <li><%= person.username %> - <%= person.email %> </li>
+      <% }); %>
+    <% } %>
+    </ul>
   <hr>
 
   <% if (!currentUser) { %>
@@ -49,5 +58,7 @@
     </form>
   <% } %>
 </div>
+
+<a href="/all-events">&larr; Back to All Events</a>
 
 <%- include('partials/footer') %>

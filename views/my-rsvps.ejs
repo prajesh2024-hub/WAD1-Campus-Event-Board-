@@ -3,13 +3,15 @@
 
 <div class="container">
   <h1>My RSVPs</h1>
-
   <% 
-    const now = new Date();
-    const upcomingEvents = events.filter(event => new Date(event.startDate) > now);
-    const pastEvents = events.filter(event => new Date(event.endDate) < now);
-    const waitlistEvents = events.filter(event => event.waitList && event.waitList.length > 0);
-  %>
+  const now = new Date();
+  const attendingEvents = events.filter(event => 
+    event.attendees && event.attendees.some(attendee => attendee._id.toString() === currentUser.id.toString()));
+  const upcomingEvents = attendingEvents.filter(event => new Date(event.startDate) >= now);
+  const pastEvents = attendingEvents.filter(event => new Date(event.endDate) < now);
+  const waitlistEvents = events.filter(event => 
+    event.waitlist && event.waitlist.some(id => id.toString() === currentUser.id.toString())
+  ); %>
 
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('bookings')">Bookings (<%= upcomingEvents.length %>)</button>
@@ -66,7 +68,17 @@
           </p>
           <p><strong>Time:</strong> <%= event.time %></p>
           <p><strong>Venue:</strong> <%= event.venue %></p>
-          <p><strong>Status:</strong> <span class="waitlist-badge">On Waitlist (Position: <%= event.waitList.indexOf(currentUser.id) + 1 %>)</span></p>
+          <p><strong>Status:</strong> 
+            <% 
+              let waitlistPosition = 0;
+              if (event.waitlist && Array.isArray(event.waitlist)) {
+                waitlistPosition = event.waitlist.findIndex(id => 
+                  id && id.toString() === currentUser.id.toString()
+                ) + 1;
+              }
+            %>
+            <span class="waitlist-badge">On Waitlist (Position: <%= waitlistPosition %>)</span>
+          </p>
           <p><strong>Organizer:</strong> <%= event.createdBy ? event.createdBy.name : 'Unknown' %></p>
 
           <p><a href="/events/<%= event._id %>">View Details</a></p>
@@ -102,6 +114,7 @@
       <% }) %>
     <% } %>
   </div>
+
 </div>
 
 <style>
