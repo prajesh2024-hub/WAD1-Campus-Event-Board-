@@ -153,6 +153,7 @@ async function eventList(req, res) {
     const eventslist = await Events.find({ createdBy: req.session.user._id })
       .populate("attendees")
       .populate("createdBy")
+      .populate("waitlist")
       .sort({ startDate: 1 });
 
     res.render("my-events", {
@@ -169,9 +170,10 @@ async function eventList(req, res) {
 async function getEventDetails(req, res) {
   try {
     const event = await Events.findById(req.params.id)
+      .populate("createdBy")
       .populate("attendees")
-      .populate("createdBy");
-
+      .populate("waitlist")
+    // checks if event even exists if not return error
     if (!event) {
       return res.status(404).render("error", { message: "Event not found." });
     }

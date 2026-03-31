@@ -62,6 +62,17 @@ async function cancelRSVP(req, res) {
     event.attendees = event.attendees.filter(
       attendeeId => attendeeId.toString() !== currentUserId.toString()
     );
+    // checks if there are waitlisted people
+    if(!event.waitlist) {
+        event.waitlist = []
+    };
+
+    // Add waitlisted person if conditions are fulfilled
+    if (event.attendees.length < event.maxAttendees && event.waitlist.length>0){
+      const nextPerson = event.waitlist.shift();
+      console.log(nextPerson)
+      event.attendees.push(nextPerson);
+    }
 
     await event.save();
 
@@ -122,11 +133,11 @@ async function waitlistRSVPs (req,res){
     const eventId = req.params.id;
     const currentUserId = req.session.user.id;
     const event = await Event.findById(eventId);
-    console.log(event)
+
     if (!event) {
       return res.status(404).render("error", { message: "Event not found." });
     }
-
+    // remove this part once old databases are removed
     if (!event.attendees) event.attendees = [];
     if (!event.waitlist) event.waitlist = [];
 
