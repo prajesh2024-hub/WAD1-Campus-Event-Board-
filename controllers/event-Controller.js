@@ -183,9 +183,9 @@ async function getEventDetails(req, res) {
     let isOwner = false;
 
     if (req.session && req.session.user) {
-      const currentUserId = req.session.user._id.toString();
+      const currentUserId = req.session.user.id.toString();
 
-      if (event.createdBy && event.createdBy._id.toString() === currentUserId) {
+      if (event.createdBy && event.createdBy.id.toString() === currentUserId) {
         isOwner = true;
       }
 
