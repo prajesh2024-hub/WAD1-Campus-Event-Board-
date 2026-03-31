@@ -64,13 +64,13 @@
                     <td><%= event.attendees.length %> / <%= event.maxAttendees %></td>
                     <td><a href="/events/<%= event._id %>">View Details</a></td>
                     <td>
-                      <% const inWishlist = wishlistMap && wishlistMap[event._id.toString()] && wishlistMap[event._id.toString()].length > 0; %>
+                      <% const inWishlist = wishlistMap && wishlistMap[event._id.toString()]; %>
                       <% if (inWishlist) { %>
                         <form action="/my-wishlist/events/<%= event._id %>/remove" method="POST" style="display:inline;">
                           <button type="submit" title="Remove from wishlist" class="star-button">★</button>
                         </form>
                       <% } else { %>
-                        <form action="/events/<%= event._id %>/wishlist/select" method="GET" style="display:inline;">
+                        <form action="/events/<%= event._id %>/wishlist" method="POST" style="display:inline;">
                           <button type="submit" title="Add to wishlist" class="star-button">☆</button>
                         </form>
                       <% } %>

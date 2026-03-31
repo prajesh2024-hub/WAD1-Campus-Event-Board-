@@ -1,15 +1,12 @@
 const mongoose = require('mongoose');
 
-const wishlistCollectionSchema = new mongoose.Schema({
+const wishlistSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
+    unique: true,
     index: true,
-  },
-  name: {
-    type: String,
-    required: true,
   },
   items: [
     {
@@ -24,12 +21,9 @@ const wishlistCollectionSchema = new mongoose.Schema({
       },
     }
   ],
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  }
 });
 
-const WishlistCollection = mongoose.model('WishlistCollection', wishlistCollectionSchema);
+// Keep model name 'WishlistCollection' so existing DB data is still accessible
+const Wishlist = mongoose.model('WishlistCollection', wishlistSchema);
 
-module.exports = WishlistCollection;
+module.exports = Wishlist;

@@ -3,70 +3,64 @@
 
 <h2>My Wishlist</h2>
 
-<% if (!collections || collections.length === 0) { %>
-  <div class="message">
-    <p>You have not yet created any wishlist collections.</p>
-    <p><a href="/all-events">Browse events</a> and add some to your wishlist.</p>
-  </div>
-<% } %>
-
-<% collections.forEach(collection => { %>
-  <div class="event-card" style="margin-bottom: 20px;">
-    <form action="/my-wishlist/collections/<%= collection._id %>/edit" method="POST" style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
-      <input type="text" name="collectionName" value="<%= collection.name %>" style="padding:8px; width: 250px;" required />
-      <button type="submit" class="btn-primary">Update Collection Name</button>
-    </form>
-
-    <% if (!collection.items || collection.items.length === 0) { %>
-      <p>This collection is empty.</p>
-    <% } else { %>
-      <table class="my-events-table" style="margin-top:8px;">
-        <thead>
-          <tr>
-            <th></th>
-            <th>Title</th>
-            <th>Date</th>
-            <th>Venue</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% collection.items.forEach(item => { %>
-            <% const event = item.event; %>
-            <% if (!event) return; %>
-            <tr>
-              <td>
-                <form action="/my-wishlist/collections/<%= collection._id %>/events/<%= event._id %>/remove" method="POST" style="display:inline;">
-                  <button type="submit" title="Remove from collection" class="star-button">★</button>
+<% if (!events || events.length === 0) { %>
+  <p>Your wishlist is empty. <a href="/all-events">Browse events</a> and add some.</p>
+<% } else { %>
+  <table class="my-events-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Title</th>
+        <th>Date &amp; Time</th>
+        <th>Venue</th>
+        <th>Category</th>
+        <th>Organizer</th>
+        <th>Attendees</th>
+        <th>Details</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% events.forEach(event => { %>
+        <% if (event) { %>
+        <tr>
+          <td>
+            <form action="/my-wishlist/events/<%= event._id %>/remove" method="POST" style="display:inline;">
+              <button type="submit" title="Remove from wishlist" class="star-button">★</button>
+            </form>
+          </td>
+          <td><strong><%= event.title %></strong></td>
+          <td>
+            <% if (new Date(event.startDate).toDateString() === new Date(event.endDate).toDateString()) { %>
+              <%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+            <% } else { %>
+              <%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %> to <%= new Date(event.endDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+            <% } %>
+            <br><%= event.time %>
+          </td>
+          <td><%= event.venue %></td>
+          <td><%= event.category %></td>
+          <td><%= event.organizer %></td>
+          <td><%= event.attendees ? event.attendees.length : 0 %> / <%= event.maxAttendees %></td>
+          <td><a href="/events/<%= event._id %>">View Details</a></td>
+          <td>
+            <div class="action-links">
+              <% if (event.attendees && event.attendees.length >= event.maxAttendees) { %>
+                <form action="/events/<%= event._id %>/waitlist" method="POST">
+                  <button type="submit">Join Waitlist</button>
                 </form>
-              </td>
-              <td><a href="/events/<%= event._id %>"><%= event.title %></a></td>
-              <td><%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
-              <td><%= event.venue %></td>
-              <td class="action-links">
+              <% } else { %>
                 <form action="/events/<%= event._id %>/rsvp" method="POST">
                   <button type="submit">Join Event</button>
                 </form>
-
-                <form action="/my-wishlist/collections/<%= collection._id %>/events/<%= event._id %>/move" method="POST" style="display:inline-block;">
-                  <select name="targetCollectionId" required>
-                    <% collections.forEach(target => { %>
-                      <% if (target._id.toString() !== collection._id.toString()) { %>
-                        <option value="<%= target._id %>"><%= target.name %></option>
-                      <% } %>
-                    <% }); %>
-                  </select>
-                  <% if (collections.length > 1) { %>
-                    <button type="submit">Change collection</button>
-                  <% } %>
-                </form>
-              </td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
-    <% } %>
-  </div>
-<% }); %>
+              <% } %>
+            </div>
+          </td>
+        </tr>
+        <% } %>
+      <% }); %>
+    </tbody>
+  </table>
+<% } %>
 
 <%- include('partials/footer') %>

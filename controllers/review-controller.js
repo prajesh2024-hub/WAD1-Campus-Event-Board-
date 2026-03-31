@@ -90,8 +90,10 @@ async function getEventReviews(req, res) {
   }
 }
 
+
 module.exports = {
   getReview,
   postReview,
-  getEventReviews
+  getEventReviews,
+  
 };

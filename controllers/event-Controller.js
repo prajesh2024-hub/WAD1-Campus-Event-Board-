@@ -131,15 +131,13 @@ async function allEvents(req, res) {
       eventslist = await Events.retrieveAll();
     }
 
-    const userCollections = await WishlistCollection.find({ userId: currentUserId });
+    const userWishlist = await WishlistCollection.findOne({ userId: currentUserId });
     const wishlistMap = {};
-    userCollections.forEach(collection => {
-      collection.items.forEach(item => {
-        const eventIdStr = item.event.toString();
-        if (!wishlistMap[eventIdStr]) wishlistMap[eventIdStr] = [];
-        wishlistMap[eventIdStr].push({ collectionId: collection._id.toString(), name: collection.name });
+    if (userWishlist) {
+      userWishlist.items.forEach(item => {
+        wishlistMap[item.event.toString()] = true;
       });
-    });
+    }
 
     res.render("all-events", {
       eventslist,
@@ -211,11 +209,27 @@ async function getEventDetails(req, res) {
       }
     }
 
+    // Fetch host's other past events that have at least one review
+    let hostPastReviews = [];
+    if (event.createdBy) {
+      const now = new Date();
+      const pastEvents = await Events.find({
+        createdBy: event.createdBy._id,
+        endDate: { $lt: now },
+        _id: { $ne: event._id },
+        "reviews.0": { $exists: true }
+      })
+        .select("title endDate reviews")
+        .sort({ endDate: -1 });
+      hostPastReviews = pastEvents;
+    }
+
     res.render("event-details", {
       event,
       attendeeCount,
       hasJoined,
       isOwner,
+      hostPastReviews,
       currentUser: req.session && req.session.user ? req.session.user : null
     });
   } catch (error) {

@@ -11,11 +11,7 @@ router.post("/events/:id/waitlisted", rsvpController.waitlistRSVPs);
 router.post("/events/:id/waitlist", rsvpController.waitlistRSVPs);
 
 router.get("/my-wishlist", wishlistController.getMyWishlist);
-router.get("/events/:id/wishlist/select", wishlistController.showAddToWishlistForm);
 router.post("/events/:id/wishlist", wishlistController.addToWishlist);
-router.post("/my-wishlist/collections/:collectionId/edit", wishlistController.editCollectionName);
-router.post("/my-wishlist/collections/:collectionId/events/:eventId/remove", wishlistController.removeFromWishlist);
-router.post("/my-wishlist/events/:eventId/remove", wishlistController.removeEventFromAllCollections);
-router.post("/my-wishlist/collections/:collectionId/events/:eventId/move", wishlistController.moveWishlistEvent);
+router.post("/my-wishlist/events/:eventId/remove", wishlistController.removeFromWishlist);
 
 module.exports = router;
