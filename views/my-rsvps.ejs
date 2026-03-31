@@ -4,6 +4,7 @@
 <div class="container">
   <h1>My RSVPs</h1>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
   <% if (!events || events.length === 0) { %>
     <p>You have not joined any events yet.</p>
@@ -33,6 +34,11 @@
     <% }) %>
   <% } %>
 =======
+=======
+  <% if (!events || events.length === 0) { %>
+    <p>You have not joined any events yet.</p>
+    <% } %>
+>>>>>>> Stashed changes
   <% 
   const now = new Date();
   const attendingEvents = events.filter(event => 
@@ -42,7 +48,11 @@
   const waitlistEvents = events.filter(event => 
     event.waitlist && event.waitlist.some(id => id.toString() === currentUser.id.toString())
   ); %>
+<<<<<<< Updated upstream
  
+=======
+
+>>>>>>> Stashed changes
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('bookings')">Bookings (<%= upcomingEvents.length %>)</button>
     <button class="tab-btn" onclick="switchTab('waitlist')">Waitlist (<%= waitlistEvents.length %>)</button>
@@ -109,6 +119,10 @@
             %>
             <span class="waitlist-badge">On Waitlist (Position: <%= waitlistPosition %>)</span>
           </p>
+<<<<<<< Updated upstream
+=======
+          
+>>>>>>> Stashed changes
           <p><strong>Organizer:</strong> <%= event.createdBy ? event.createdBy.name : 'Unknown' %></p>
 
           <p><a href="/events/<%= event._id %>">View Details</a></p>

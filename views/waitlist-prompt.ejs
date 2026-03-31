@@ -4,6 +4,7 @@
 <div class="container">
   <h1>Event is Full</h1>
   
+<<<<<<< Updated upstream
   <p><strong>Do you Want to join the Waitlist?</strong></p>
 
   <hr>
@@ -13,6 +14,17 @@
   </form>
 
   <a href="/events/<%= event._id %>">
+=======
+  <p><strong>Do you want to join the Waitlist?</strong></p>
+
+  <hr>
+
+  <form action="/events/<%= event._id %>/waitlist" method="POST" style="display: inline-block;">
+    <button type="submit">Yes, Join Waitlist</button>
+  </form>
+
+  <a href="/events/<%= event_.id %>">
+>>>>>>> Stashed changes
     <button type="button">No, Go Back</button>
   </a>
 </div>
