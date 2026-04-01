@@ -85,9 +85,16 @@
                   <% for (let i = 0; i < review.rating; i++) { %>⭐<% } %>
                 </span>
               </div>
-              <small style="color: #9ca3af;">
-                <%= new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' }) %>
-              </small>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <small style="color: #9ca3af;">
+                  <%= new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' }) %>
+                </small>
+                <% if (currentUser && currentUser.role === 'admin') { %>
+                  <form action="/events/<%= pastEvent._id %>/reviews/<%= review._id %>/delete" method="POST" style="display: inline; margin: 0;">
+                    <button type="submit" class="delete-review-btn" onclick="return confirm('Delete this review?')">Delete</button>
+                  </form>
+                <% } %>
+              </div>
             </div>
             <p class="host-review-text"><%= review.reviewText %></p>
           </div>
@@ -143,6 +150,21 @@
     margin: 0;
     color: #374151;
     line-height: 1.6;
+  }
+
+  .delete-review-btn {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .delete-review-btn:hover {
+    background-color: #dc2626;
   }
 </style>
 
