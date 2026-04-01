@@ -52,8 +52,8 @@
 
             <% for (let i = 0; i < eventslist.length; i++) { %>
                 <% let event = eventslist[i]; %>
+                <% if (event.endDate >= new Date()) { %>
                 <tr>
-
                     <!-- Event title -->
                     <td><strong><%= event.title %></strong></td>
 
@@ -103,9 +103,9 @@
                         </div>
                     </td>
 
-                </tr>
-            <% } %>
-
+                </tr>   
+                <% } %>
+             <% } %>
         </tbody>
     </table>
 <% } %>

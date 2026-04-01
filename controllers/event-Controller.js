@@ -101,7 +101,7 @@ async function postCreateEvent(req, res) {
       category,
       maxAttendees,
       organizer,
-      req.session.user._id,
+      req.session.user.id,
       req.session.user.username
     );
 
@@ -124,6 +124,7 @@ async function allEvents(req, res) {
     const currentUserId = req.session.user.id.toString();
     const eventslist = await Events.retrieveAll();
 
+    // userwishlist
     const userWishlist = await WishlistCollection.findOne({ userId: currentUserId });
     const wishlistMap = {};
     if (userWishlist) {
@@ -195,7 +196,7 @@ async function eventList(req, res) {
     if (!req.session || !req.session.user) {
       return res.redirect("/login");
     }
-    const eventslist = await Events.retrieveFromUser(req.session.user._id);
+    const eventslist = await Events.retrieveFromUser(req.session.user.id);
 
     res.render("my-events", {
       eventslist,
@@ -231,7 +232,7 @@ async function getEventDetails(req, res) {
       }
 
       for (const attendee of event.attendees) {
-        if (attendee._id.toString() === currentUserId) {
+        if (attendee.id.toString() === currentUserId) {
           hasJoined = true;
           break;
         }
@@ -243,7 +244,7 @@ async function getEventDetails(req, res) {
     if (event.createdBy) {
 
       // Step 1 - Get all events by the same host
-      const hostEvents = await Events.find({ createdBy: event.createdBy._id })
+      const hostEvents = await Events.find({ createdBy: event.createdBy.id })
         .select("title endDate reviews");
 
       // Step 2 - Filter in JavaScript
@@ -253,7 +254,7 @@ async function getEventDetails(req, res) {
         let hostEvent = hostEvents[i];
 
         // Skip the current event we're already viewing
-        let isDifferentEvent = hostEvent._id.toString() !== event._id.toString();
+        let isDifferentEvent = hostEvent.id.toString() !== event.id.toString();
 
         // Check if the event has already ended
         let isInThePast = new Date(hostEvent.endDate) < now;
