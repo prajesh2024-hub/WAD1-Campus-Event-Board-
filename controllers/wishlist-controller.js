@@ -32,7 +32,7 @@ async function addToWishlist(req, res) {
     }
 
     const userId = getCurrentUserId(req);
-    const eventId = req.params.id;
+    const eventId = req.params.eventId;
 
     const event = await Event.findById(eventId);
     if (!event) {

@@ -11,7 +11,7 @@ router.post("/events/:id/waitlisted", rsvpController.waitlistRSVPs);
 router.post("/events/:id/waitlist", rsvpController.waitlistRSVPs);
 
 router.get("/my-wishlist", wishlistController.getMyWishlist);
-router.post("/events/:id/wishlist", wishlistController.addToWishlist);
+router.post("/my-wishlist/events/:eventId/add", wishlistController.addToWishlist);
 router.post("/my-wishlist/events/:eventId/remove", wishlistController.removeFromWishlist);
 
 module.exports = router;
