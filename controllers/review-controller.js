@@ -13,7 +13,7 @@ async function getReview(req, res) {
       return res.status(404).render("error", { message: "Event not found." });
     }
 
-    res.render("reviews", {
+    res.render("review-prompt", {
       event,
       currentUser: req.session.user
     });
@@ -79,7 +79,7 @@ async function getEventReviews(req, res) {
       return res.status(403).render("error", { message: "You can only view reviews for your own events." });
     }
 
-    res.render("my-review", {
+    res.render("reviews", {
       event,
       reviews: event.reviews || [],
       currentUser: req.session.user
@@ -91,9 +91,99 @@ async function getEventReviews(req, res) {
 }
 
 
+// GET /my-reviews — all reviews the logged-in user has written
+async function getMyReviews(req, res) {
+  try {
+    if (!req.session || !req.session.user) {
+      return res.redirect("/login");
+    }
+
+    const userId = req.session.user.id.toString();
+
+    const events = await Event.find({ "reviews.userId": userId }).select("title reviews");
+
+    // Flatten to just the user's own reviews, keeping the parent event info
+    const myReviews = [];
+    events.forEach(event => {
+      event.reviews.forEach(review => {
+        if (review.userId && review.userId.toString() === userId) {
+          myReviews.push({ event, review });
+        }
+      });
+    });
+
+    myReviews.sort((a, b) => new Date(b.review.createdAt) - new Date(a.review.createdAt));
+
+    res.render("my-reviews", { myReviews, currentUser: req.session.user });
+  } catch (error) {
+    console.error("getMyReviews error:", error);
+    res.status(500).send("Failed to load your reviews.");
+  }
+}
+
+// POST /events/:id/reviews/:reviewId/update
+async function updateReview(req, res) {
+  try {
+    if (!req.session || !req.session.user) {
+      return res.redirect("/login");
+    }
+
+    const { id: eventId, reviewId } = req.params;
+    const { rating, reviewText } = req.body;
+    const userId = req.session.user.id.toString();
+
+    const event = await Event.findById(eventId);
+    if (!event) return res.status(404).render("error", { message: "Event not found." });
+
+    const review = event.reviews.id(reviewId);
+    if (!review || review.userId.toString() !== userId) {
+      return res.status(403).render("error", { message: "Not authorised to edit this review." });
+    }
+
+    review.rating = parseInt(rating);
+    review.reviewText = reviewText;
+    await event.save();
+
+    res.redirect("/my-reviews");
+  } catch (error) {
+    console.error("updateReview error:", error);
+    res.status(500).send("Failed to update review.");
+  }
+}
+
+// POST /events/:id/reviews/:reviewId/delete
+async function deleteReview(req, res) {
+  try {
+    if (!req.session || !req.session.user) {
+      return res.redirect("/login");
+    }
+
+    const { id: eventId, reviewId } = req.params;
+    const userId = req.session.user.id.toString();
+
+    const event = await Event.findById(eventId);
+    if (!event) return res.status(404).render("error", { message: "Event not found." });
+
+    const review = event.reviews.id(reviewId);
+    if (!review || review.userId.toString() !== userId) {
+      return res.status(403).render("error", { message: "Not authorised to delete this review." });
+    }
+
+    review.deleteOne();
+    await event.save();
+
+    res.redirect("/my-reviews");
+  } catch (error) {
+    console.error("deleteReview error:", error);
+    res.status(500).send("Failed to delete review.");
+  }
+}
+
 module.exports = {
   getReview,
   postReview,
   getEventReviews,
-  
+  getMyReviews,
+  updateReview,
+  deleteReview,
 };
