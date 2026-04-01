@@ -64,7 +64,7 @@
   function toggleEdit(reviewId) {
     const view = document.getElementById('view-' + reviewId);
     const form = document.getElementById('edit-' + reviewId);
-    const isEditing = form.style.display !== 'none';
+    const isEditing = form.style.display !== 'none'; 
     view.style.display = isEditing ? 'block' : 'none';
     form.style.display = isEditing ? 'none' : 'block';
   }
