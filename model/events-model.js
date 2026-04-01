@@ -139,6 +139,15 @@ module.exports.addEvent = async function (
   return await newEvent.save();
 };
 
+// get all events created by a specific user
+module.exports.retrieveFromUser = function (userId) {
+  return Event.find({ createdBy: userId })
+    .populate("attendees")
+    .populate("createdBy")
+    .populate("waitlist")
+    .sort({ startDate: 1 });
+};
+
 // get all events
 module.exports.retrieveAll = function () {
   return Event.find()

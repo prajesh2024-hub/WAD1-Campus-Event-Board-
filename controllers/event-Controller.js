@@ -195,12 +195,7 @@ async function eventList(req, res) {
     if (!req.session || !req.session.user) {
       return res.redirect("/login");
     }
-
-    const eventslist = await Events.find({ createdBy: req.session.user._id })
-      .populate("attendees")
-      .populate("createdBy")
-      .populate("waitlist")
-      .sort({ startDate: 1 });
+    const eventslist = await Events.retrieveFromUser(req.session.user._id);
 
     res.render("my-events", {
       eventslist,
@@ -246,16 +241,30 @@ async function getEventDetails(req, res) {
     // Fetch host's other past events that have at least one review
     let hostPastReviews = [];
     if (event.createdBy) {
+
+      // Step 1 - Get all events by the same host
+      const hostEvents = await Events.find({ createdBy: event.createdBy._id })
+        .select("title endDate reviews");
+
+      // Step 2 - Filter in JavaScript
       const now = new Date();
-      const pastEvents = await Events.find({
-        createdBy: event.createdBy._id,
-        endDate: { $lt: now },
-        _id: { $ne: event._id },
-        "reviews.0": { $exists: true }
-      })
-        .select("title endDate reviews")
-        .sort({ endDate: -1 });
-      hostPastReviews = pastEvents;
+
+      for (let i = 0; i < hostEvents.length; i++) {
+        let hostEvent = hostEvents[i];
+
+        // Skip the current event we're already viewing
+        let isDifferentEvent = hostEvent._id.toString() !== event._id.toString();
+
+        // Check if the event has already ended
+        let isInThePast = new Date(hostEvent.endDate) < now;
+
+        // Check if the event has at least one review
+        let hasReviews = hostEvent.reviews.length > 0;
+
+        if (isDifferentEvent && isInThePast && hasReviews) {
+          hostPastReviews.push(hostEvent);
+        }
+      }
     }
 
     res.render("event-details", {
