@@ -1,5 +1,24 @@
+
+//Get Service Model
 const Events = require("./../model/events-model");
 const WishlistCollection = require("../model/wishlist-model");
+
+
+// get home route
+async function getHome(req, res) {
+  try {
+    const events = await Events.retrieveAll().limit(3);
+
+    res.render("index", {
+      events,
+      currentUser: req.session && req.session.user ? req.session.user : null
+    });
+  } catch (error) {
+    console.error("getHome error:", error);
+    res.status(500).render("error", { message: "Failed to load home page." });
+  }
+}
+
 
 // GET /create-event
 async function getCreateEvent(req, res) {
@@ -7,7 +26,7 @@ async function getCreateEvent(req, res) {
     if (!req.session || !req.session.user) {
       return res.redirect("/login");
     }
-
+    //renders an empty form for the ejs
     res.render("create-event", {
       title: "",
       description: "",
@@ -22,6 +41,7 @@ async function getCreateEvent(req, res) {
       error: [],
       currentUser: req.session.user
     });
+    //standard error catch
   } catch (error) {
     console.error("getCreateEvent error:", error);
     res.status(500).render("error", { message: "Failed to load create event page." });
@@ -29,7 +49,9 @@ async function getCreateEvent(req, res) {
 }
 
 // POST /create-event
+//postint the result
 async function postCreateEvent(req, res) {
+  // gathers all info of the user inputs
   const title = req.body.title;
   const description = req.body.description;
   const dateFrom = req.body.dateFrom;
@@ -39,14 +61,19 @@ async function postCreateEvent(req, res) {
   const category = req.body.category;
   const maxAttendees = req.body.maxAttendees || 50;
   const organizer = req.body.organizer;
+  //create an emppty list to store errors
   const error = [];
+  //set clicked as true
   const clicked = true;
 
   try {
+    //check if there is a session going on and if there's a user tied to it.
+    //if none then redirect to login
     if (!req.session || !req.session.user) {
       return res.redirect("/login");
     }
 
+    //check if event exists, returns true or false
     const result = await Events.eventExists(
       title,
       description,
@@ -60,7 +87,9 @@ async function postCreateEvent(req, res) {
     );
 
     if (result) {
+      //push error message to the list
       error.push("Error adding event: a duplicate event already exists.");
+      // renders the form with their previous answers for the users to change the event to avoid duplicates
       return res.render("create-event", {
         title,
         description,
@@ -77,6 +106,8 @@ async function postCreateEvent(req, res) {
       });
     }
 
+    // adds the new event, and also stores the creators ID and username
+    // to know who created it and also loads up all events created by that particular user
     await Events.addEvent(
       title,
       description,
@@ -90,18 +121,21 @@ async function postCreateEvent(req, res) {
       req.session.user.id,
       req.session.user.username
     );
-
+   
     res.redirect("/my-events");
+    //standard catch for error
   } catch (err) {
     console.error("postCreateEvent error:", err);
     res.status(500).render("error", { message: "Error creating event." });
   }
 }
 
-// GET /all-events
+// GET /all-events (Yit Fong?)
 
 async function allEvents(req, res) {
   try {
+     //check if there is a session going on and if there's a user tied to it.
+    //if none then redirect to login
     if (!req.session || !req.session.user) {
       return res.redirect("/login");
     }
@@ -150,6 +184,7 @@ async function postAllEvents(req, res) {
     const dateTo = req.body.dateTo;
   
     // Get filtered events from the model
+    
     const eventslist = await Events.retrieveFiltered(search, category, dateFrom, dateTo);
 
     const userWishlist = await WishlistCollection.findOne({ userId: currentUserId });
@@ -179,6 +214,8 @@ async function postAllEvents(req, res) {
 // GET /my-events
 async function eventList(req, res) {
   try {
+     //check if there is a session going on and if there's a user tied to it.
+    //if none then redirect to login
     if (!req.session || !req.session.user) {
       return res.redirect("/login");
     }
