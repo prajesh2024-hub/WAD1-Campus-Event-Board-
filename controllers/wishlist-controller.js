@@ -65,6 +65,8 @@ async function removeFromWishlist(req, res) {
 
     const userId = getCurrentUserId(req);
     const eventId = req.params.eventId;
+    // get path name to determine if it's from all-events or my-wishlist
+    const pathName = req.route.path;
 
     const wishlist = await Wishlist.findOne({ userId });
     if (wishlist) {
@@ -72,6 +74,10 @@ async function removeFromWishlist(req, res) {
       await wishlist.save();
     }
 
+    // redirect back to the appropriate page based on where the request came from
+    if (pathName.includes('/my-wishlist')) {
+      return res.redirect('/my-wishlist');
+    }
     res.redirect('/all-events');
   } catch (error) {
     console.error('removeFromWishlist error:', error);
