@@ -2,8 +2,6 @@ const User = require('./../model/user-model');
 
 const bcrypt = require('bcrypt');
 
-exports.gethome = (req, res) => res.redirect('events');
-
 exports.registerGet = (req, res) => {
     res.render('register');
 };

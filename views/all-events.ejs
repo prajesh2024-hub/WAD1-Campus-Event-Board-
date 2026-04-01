@@ -11,11 +11,11 @@
     <label for="category">Category:</label>
     <select name="category" id="category">
         <option value="">All Categories</option>
-        <option value="academic" <%= category === 'academic' ? 'selected' : '' %>>Academic</option>
-        <option value="social" <%= category === 'social' ? 'selected' : '' %>>Social</option>
-        <option value="sports" <%= category === 'sports' ? 'selected' : '' %>>Sports</option>
-        <option value="workshop" <%= category === 'workshop' ? 'selected' : '' %>>Workshop</option>
-        <option value="other" <%= category === 'other' ? 'selected' : '' %>>Other</option>
+        <option value="academic"  <%= category === 'academic'  ? 'selected' : '' %>>Academic</option>
+        <option value="social"    <%= category === 'social'    ? 'selected' : '' %>>Social</option>
+        <option value="sports"    <%= category === 'sports'    ? 'selected' : '' %>>Sports</option>
+        <option value="workshop"  <%= category === 'workshop'  ? 'selected' : '' %>>Workshop</option>
+        <option value="other"     <%= category === 'other'     ? 'selected' : '' %>>Other</option>
     </select>
 
     <label for="dateFrom">From Date:</label>
@@ -28,14 +28,17 @@
     <a href="/all-events" style="margin-left: 10px;">Clear Filters</a>
 </form>
 
-<% if (eventslist.length===0) { %>
-<p>No events found.</p>
+<!-- Show message if no events found -->
+<% if (eventslist.length === 0) { %>
+    <p>No events found.</p>
+
 <% } else { %>
     <table class="my-events-table">
         <thead>
             <tr>
                 <th>Title</th>
-                <th>Date &amp; Time</th>
+                <th>Start Date</th>
+                <th>End Date</th>
                 <th>Venue</th>
                 <th>Category</th>
                 <th>Organizer</th>
@@ -46,35 +49,40 @@
             </tr>
         </thead>
         <tbody>
-            <% eventslist.forEach(event=> { %>
-                <% if (event) { %>
+
+            <% for (let i = 0; i < eventslist.length; i++) { %>
+                <% let event = eventslist[i]; %>
                 <tr>
+
+                    <!-- Event title -->
                     <td><strong><%= event.title %></strong></td>
-                    <td>
-                        <% if (new Date(event.startDate).toDateString() === new Date(event.endDate).toDateString()) { %>
-                            <%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %>
-                        <% } else { %>
-                            <%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %> to <%= new Date(event.endDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %>
-                        <% } %>
-                        <br><%= event.time %>
-                    </td>
+
+                    <!-- Event start and end date -->
+                    <td><%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
+                    <td><%= new Date(event.endDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
+
                     <td><%= event.venue %></td>
                     <td><%= event.category %></td>
                     <td><%= event.organizer %></td>
+
                     <td><%= event.attendees.length %> / <%= event.maxAttendees %></td>
-                    <td><a href="/events/<%= event._id %>">View Details</a></td>
+
+                    <td><a href="/events/<%= event.id %>">View Details</a></td>
+
                     <td>
-                      <% const inWishlist = wishlistMap && wishlistMap[event._id.toString()]; %>
-                      <% if (inWishlist) { %>
-                        <form action="/my-wishlist/events/<%= event._id %>/remove" method="POST" style="display:inline;">
-                          <button type="submit" title="Remove from wishlist" class="star-button">★</button>
-                        </form>
-                      <% } else { %>
-                        <form action="/events/<%= event._id %>/wishlist" method="POST" style="display:inline;">
-                          <button type="submit" title="Add to wishlist" class="star-button">☆</button>
-                        </form>
-                      <% } %>
+                        <% let inWishlist = wishlistMap && wishlistMap[event._id.toString()]; %>
+                        <% if (inWishlist) { %>
+                            <form action="/my-wishlist/events/<%= event._id %>/remove" method="POST" style="display:inline;">
+                                <button type="submit" title="Remove from wishlist" class="star-button">★</button>
+                            </form>
+                        <% } else { %>
+                            <form action="/events/<%= event._id %>/wishlist" method="POST" style="display:inline;">
+                                <button type="submit" title="Add to wishlist" class="star-button">☆</button>
+                            </form>
+                        <% } %>
                     </td>
+
+                    <!-- Join event or join waitlist depending on capacity, admin can delete -->
                     <td>
                         <div class="action-links">
                             <% if (event.attendees.length >= event.maxAttendees) { %>
@@ -86,20 +94,20 @@
                                     <button type="submit">Join Event</button>
                                 </form>
                             <% } %>
-                            <% if (userRole=='admin'){ %>
+
+                            <% if (userRole === 'admin') { %>
                                 <form action="/events/<%= event._id %>/delete" method="GET">
                                     <button type="submit">Delete Event</button>
                                 </form>
                             <% } %>
                         </div>
                     </td>
+
                 </tr>
-                <% } %>
-            <% }); %>
+            <% } %>
+
         </tbody>
     </table>
-
 <% } %>
 
 <%- include('partials/footer') %>
-

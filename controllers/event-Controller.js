@@ -4,7 +4,7 @@ const WishlistCollection = require("../model/wishlist-model");
 // GET /
 async function getHome(req, res) {
   try {
-    const events = await Events.retrieveAll().limit(3);
+    const events = await Events.retrieveAll().limit(3).sort({ startDate: 1 });
 
     res.render("index", {
       events,
@@ -121,7 +121,16 @@ async function allEvents(req, res) {
     }
 
     const userRole = req.session.user.role;
+    const currentUserId = req.session.user.id.toString();
     const eventslist = await Events.retrieveAll();
+
+    const userWishlist = await WishlistCollection.findOne({ userId: currentUserId });
+    const wishlistMap = {};
+    if (userWishlist) {
+      userWishlist.items.forEach(item => {
+        wishlistMap[item.event.toString()] = true;
+      });
+    }
 
     res.render("all-events", {
       eventslist,
@@ -130,6 +139,7 @@ async function allEvents(req, res) {
       dateFrom: "",
       dateTo: "",
       userRole,
+      wishlistMap,
       currentUser: req.session.user
     });
   } catch (error) {
@@ -146,14 +156,14 @@ async function postAllEvents(req, res) {
     }
 
     const userRole = req.session.user.role;
-    const { search, category, dateFrom, dateTo } = req.body;
-    let eventslist;
-
-    if (search || category || dateFrom || dateTo) {
-      eventslist = await Events.retrieveFiltered(search, category, dateFrom, dateTo);
-    } else {
-      eventslist = await Events.retrieveAll();
-    }
+    const currentUserId = req.session.user.id.toString();
+    const search = req.body.search;
+    const category = req.body.category;
+    const dateFrom = req.body.dateFrom;
+    const dateTo = req.body.dateTo;
+  
+    // Get filtered events from the model
+    const eventslist = await Events.retrieveFiltered(search, category, dateFrom, dateTo);
 
     const userWishlist = await WishlistCollection.findOne({ userId: currentUserId });
     const wishlistMap = {};
