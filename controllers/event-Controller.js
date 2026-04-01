@@ -1,20 +1,6 @@
 const Events = require("./../model/events-model");
 const WishlistCollection = require("../model/wishlist-model");
 
-// GET /
-async function getHome(req, res) {
-  try {
-    const events = await Events.retrieveAll().limit(3).sort({ startDate: 1 });
-
-    res.render("index", {
-      events,
-      currentUser: req.session && req.session.user ? req.session.user : null
-    });
-  } catch (error) {
-    console.error("getHome error:", error);
-  }
-}
-
 // GET /create-event
 async function getCreateEvent(req, res) {
   try {
@@ -452,7 +438,6 @@ async function postParticipants(req, res) {
 }
 
 module.exports = {
-  getHome,
   getCreateEvent,
   postCreateEvent,
   allEvents,

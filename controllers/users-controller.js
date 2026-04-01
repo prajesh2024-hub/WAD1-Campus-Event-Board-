@@ -71,7 +71,9 @@ exports.loginPost = async (req, res) => {
             role: user.role
         }
 
-        res.redirect('/profile');
+        req.session.save(() => {
+            res.redirect('/index');
+        });
 
     } catch (err) {
         console.error(err);

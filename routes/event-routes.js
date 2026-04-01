@@ -3,8 +3,10 @@ const eventController = require("../controllers/event-Controller");
 
 const router = express.Router();
 
-// root homepage route
-router.get("/index", eventController.getHome);
+// homepage route
+router.get("/index", (req, res) => {
+  res.render("index");
+});
 
 // get-post routing for creating event
 router.get("/create-event", eventController.getCreateEvent);
