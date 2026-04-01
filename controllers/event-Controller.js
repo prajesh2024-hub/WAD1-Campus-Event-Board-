@@ -426,9 +426,13 @@ async function postParticipants(req, res) {
     if (!event) {
       return res.status(404).render("error", { message: "Event not found." });
     }
-    event.attendees = event.attendees.filter(
-      attendeeId => attendeeId.toString() !== userId.toString()
-    );
+    const updatedAttendees = [];
+    for (let attendee of event.attendees) {
+      if (attendee.toString() !== userId.toString()) {
+        updatedAttendees.push(attendee);
+      }
+    }
+    event.attendees = updatedAttendees;
     await event.save();
     res.redirect(`/events/${id}/participants`);
   } catch (error) {
