@@ -24,7 +24,13 @@ router.post('/edit-info', authMiddleware.isLoggedIn, usersController.postEditInf
 
 router.get('/delete-acc', authMiddleware.isLoggedIn, usersController.deleteAcc);
 
-router.post('/delete-acc', authMiddleware.isLoggedIn, usersController.postDeleteAcc)
+router.post('/delete-acc', authMiddleware.isLoggedIn, usersController.postDeleteAcc);
+
+router.get('/reset-password', usersController.passwordAuth);
+
+router.post('/reset-password', usersController.postPasswordAuth);
+
+router.post('/update-password', usersController.resetPassword);
 
 router.get('/logout', authMiddleware.isLoggedIn, usersController.logout);
 

@@ -9,4 +9,5 @@ router.post("/events/:id/review", reviewController.postReview);
 // View reviews for event (only organizer)
 router.get("/events/:id/reviews", reviewController.getEventReviews);
 
+
 module.exports = router;

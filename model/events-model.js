@@ -139,9 +139,9 @@ module.exports.addEvent = async function (
   return await newEvent.save();
 };
 
-// get all events
+// get all events (upcoming/active only)
 module.exports.retrieveAll = function () {
-  return Event.find()
+  return Event.find({ endDate: { $gte: new Date() } })
     .populate("attendees")
     .populate("createdBy")
     .sort({ startDate: 1 });

@@ -2,18 +2,23 @@
     <%- include('partials/navbar') %>
 
        <head>
+         <div class="container">
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Profile</title>
+        </div>
         </head>
 
         <body>
+             <div class="container">
+                <br>
             <h2>Welcome, <%= user.username %>!</h2><br>
             <p><strong>Your info: </strong><br>
 
             <table>
                 <colgroup>
                     <col style="width: 200px;">
+                    
                     <col style="width: 200px;">
                 </colgroup>
                 <tr>
@@ -41,11 +46,11 @@
                 <tr>
                     <td><a href="/edit-info">Edit your Particulars</a></td>
                     <td><a href="/delete-acc">Delete your Account</a></td>
-                    <td></td>
+         
                     <td><a href="/logout">Click to Log out</a></td>
                 </tr>
             </table>
-            
+            </div>
             
         </body>
 

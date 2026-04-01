@@ -1,4 +1,5 @@
 const Events = require("./../model/events-model");
+const WishlistCollection = require("../model/wishlist-model");
 
 // GET /
 async function getHome(req, res) {
@@ -112,6 +113,7 @@ async function postCreateEvent(req, res) {
 }
 
 // GET /all-events
+
 async function allEvents(req, res) {
   try {
     if (!req.session || !req.session.user) {
@@ -153,6 +155,14 @@ async function postAllEvents(req, res) {
       eventslist = await Events.retrieveAll();
     }
 
+    const userWishlist = await WishlistCollection.findOne({ userId: currentUserId });
+    const wishlistMap = {};
+    if (userWishlist) {
+      userWishlist.items.forEach(item => {
+        wishlistMap[item.event.toString()] = true;
+      });
+    }
+
     res.render("all-events", {
       eventslist,
       search: search || "",
@@ -160,6 +170,7 @@ async function postAllEvents(req, res) {
       dateFrom: dateFrom || "",
       dateTo: dateTo || "",
       userRole,
+      wishlistMap,
       currentUser: req.session.user
     });
   } catch (error) {
@@ -222,11 +233,27 @@ async function getEventDetails(req, res) {
       }
     }
 
+    // Fetch host's other past events that have at least one review
+    let hostPastReviews = [];
+    if (event.createdBy) {
+      const now = new Date();
+      const pastEvents = await Events.find({
+        createdBy: event.createdBy._id,
+        endDate: { $lt: now },
+        _id: { $ne: event._id },
+        "reviews.0": { $exists: true }
+      })
+        .select("title endDate reviews")
+        .sort({ endDate: -1 });
+      hostPastReviews = pastEvents;
+    }
+
     res.render("event-details", {
       event,
       attendeeCount,
       hasJoined,
       isOwner,
+      hostPastReviews,
       currentUser: req.session && req.session.user ? req.session.user : null
     });
   } catch (error) {

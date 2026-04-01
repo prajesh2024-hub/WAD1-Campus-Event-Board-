@@ -40,7 +40,6 @@ exports.findByUsername = function(username) {
 };
 
 exports.editParticulars = function(userId, updateDocument) {
-  console.log(userId)
   return User.updateOne(userId, updateDocument)
 };
 

@@ -68,6 +68,7 @@ exports.loginPost = async (req, res) => {
 
         req.session.user = {
             id: user._id,
+            _id: user._id,
             username: user.username,
             role: user.role
         }
@@ -136,7 +137,7 @@ exports.postEditInfo = async (req, res) => {
 
         const result = await User.editParticulars({ _id: userId }, updateDocument);
 
-        console.log('Particulars updated:', result);
+        console.log('Particulars updated.');
         res.send('Your particulars have been successfully edited. <br> <a href="/profile">Profile</a>');
     }
     catch (error) {
@@ -156,13 +157,70 @@ exports.postDeleteAcc = async (req, res) => {
     if (await User.deleteAccount(userId)) {
         console.log("Your account has been successfully deleted.")
         req.session.destroy(() => {
-            res.redirect('/login');
+            res.redirect('/register');
         })
     }
     else {
         console.log('Your attempt was unsuccessful, please try again.')
         return res.send(`Your attempt was unsuccessful, please try again. <br>
                 <a href='/profile'> Profile </a>`)
+    }
+};
+
+exports.passwordAuth = async (req, res) => {
+    res.render('password-auth')
+};
+
+exports.postPasswordAuth = async (req, res) => {
+    const passedEmail = req.body.email;
+    const passedPhone = req.body.phone;
+
+    try {
+        passedUser = await User.findByEmail(passedEmail);
+
+        if (passedUser.phone == passedPhone) {
+            req.session.user = {
+            email: passedEmail
+        }
+            res.render('update-password')
+        } else {
+            return res.send(`Your entry did not match our records, please try again. <br>
+                 <a href='/reset-password'> Reset </a>`)
+        }
+
+    } catch (error) {
+        console.log(`Error: ${error}. Please try again.`)
+        return res.send(`Error: ${error}. Please try again. <br>
+                 <a href='/reset-password'> Reset </a>`)
+    }
+};
+
+exports.resetPassword = async (req, res) => {
+    const email = req.session.user.email;
+    const password1 = req.body.password1;
+    const password2 = req.body.password2;
+    let updateDocument = { $set: {} };
+
+    try {
+        if (password1 === password2) {
+            updateDocument.$set.password = await bcrypt.hash(password1, 10);
+            const result = await User.editParticulars({ email: email }, updateDocument);
+
+            console.log(`${password1} Password has been updated.`)
+            req.session.destroy
+            res.send(`Your password has been updated. <br> 
+            <a href='/login'> Login </a>`)
+        } else {
+            console.log('Password mismatch')
+            req.session.destroy
+            return res.send(`Passwords do not match, please try again. <br>
+                <a href='/reset-password'> Reset </a>`)
+        }
+    } catch (error) {
+        console.log(`Error: ${error}.`)
+        req.session.destroy
+        return res.send(`Error: ${error}. Please try again.<br>
+                <a href='/reset-password'> Reset </a>`)
     }
 };
 
