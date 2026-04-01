@@ -9,6 +9,7 @@ router.get("/create-event", eventController.getCreateEvent);
 router.post("/create-event", eventController.postCreateEvent);
 
 router.get("/all-events", eventController.allEvents);
+router.post("/all-events", eventController.postAllEvents);
 router.get("/my-events", eventController.eventList);
 
 router.get("/events/:id/edit", eventController.editEvent);

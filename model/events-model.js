@@ -147,31 +147,40 @@ module.exports.retrieveAll = function () {
     .sort({ startDate: 1 });
 };
 
-// filtered events
+// Get all events, then narrow them down based on what the user searched for
 module.exports.retrieveFiltered = async function (search, category, dateFrom, dateTo) {
-  let query = {};
 
-  if (search) {
-    query.$or = [
-      { title: { $regex: search, $options: "i" } },
-      { description: { $regex: search, $options: "i" } }
-    ];
-  }
-
-  if (category) {
-    query.category = category;
-  }
-
-  if (dateFrom || dateTo) {
-    query.startDate = {};
-    if (dateFrom) query.startDate.$gte = new Date(dateFrom);
-    if (dateTo) query.startDate.$lte = new Date(dateTo);
-  }
-
-  return await Event.find(query)
+  // Step 1 - Get all events from the database
+  let allEvents = await Event.find()
     .populate("attendees")
     .populate("createdBy")
     .sort({ startDate: 1 });
+
+  // Step 2 - Loop through every event and only keep ones that match the filters
+  let filteredEvents = [];
+
+  for (let i = 0; i < allEvents.length; i++) {
+    let event = allEvents[i];
+
+    // Check if the event title matches the search word (if no search was given, this is always true)
+    let matchesSearch = !search || event.title.toLowerCase().includes(search.toLowerCase());
+
+    // Check if the event category matches the selected category (if no category was given, this is always true)
+    let matchesCategory = !category || event.category === category;
+
+    // Check if the event starts on or after the from date (if no from date was given, this is always true)
+    let matchesDateFrom = !dateFrom || new Date(event.startDate) >= new Date(dateFrom);
+
+    // Check if the event starts on or before the to date (if no to date was given, this is always true)
+    let matchesDateTo = !dateTo || new Date(event.startDate) <= new Date(dateTo);
+
+    // If the event passed all 4 checks, add it to the results list
+    if (matchesSearch && matchesCategory && matchesDateFrom && matchesDateTo) {
+      filteredEvents.push(event);
+    }
+  }
+
+  return filteredEvents;
 };
 
 module.exports.updateevents = function (
@@ -186,10 +195,7 @@ module.exports.updateevents = function (
   maxAttendees
 ) {
   return Event.findByIdAndUpdate(
-    id,
-    { title, description, startDate, endDate, time, venue, category, maxAttendees },
-    { new: true }
-  );
+    id,{ title, description, startDate, endDate, time, venue, category, maxAttendees },{ new: true });
 };
 
 module.exports.deleteEvent = async function (id) {

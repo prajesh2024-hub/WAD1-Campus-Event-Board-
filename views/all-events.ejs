@@ -4,26 +4,26 @@
 <h2>All Events</h2>
 
 <!-- Search and Filter Bar -->
-<form action="/all-events" method="GET" style="margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+<form action="/all-events" method="POST" style="margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
     <label for="search">Search:</label>
-    <input type="text" name="search" id="search" placeholder="Search by title or description" value="<%= typeof search !== 'undefined' ? search : '' %>">
-    
+    <input type="text" name="search" id="search" placeholder="Search by title or description" value="<%= search %>">
+
     <label for="category">Category:</label>
     <select name="category" id="category">
         <option value="">All Categories</option>
-        <option value="academic" <%= typeof category !== 'undefined' && category === 'academic' ? 'selected' : '' %>>Academic</option>
-        <option value="social" <%= typeof category !== 'undefined' && category === 'social' ? 'selected' : '' %>>Social</option>
-        <option value="sports" <%= typeof category !== 'undefined' && category === 'sports' ? 'selected' : '' %>>Sports</option>
-        <option value="workshop" <%= typeof category !== 'undefined' && category === 'workshop' ? 'selected' : '' %>>Workshop</option>
-        <option value="other" <%= typeof category !== 'undefined' && category === 'other' ? 'selected' : '' %>>Other</option>
+        <option value="academic" <%= category === 'academic' ? 'selected' : '' %>>Academic</option>
+        <option value="social" <%= category === 'social' ? 'selected' : '' %>>Social</option>
+        <option value="sports" <%= category === 'sports' ? 'selected' : '' %>>Sports</option>
+        <option value="workshop" <%= category === 'workshop' ? 'selected' : '' %>>Workshop</option>
+        <option value="other" <%= category === 'other' ? 'selected' : '' %>>Other</option>
     </select>
-    
+
     <label for="dateFrom">From Date:</label>
-    <input type="date" name="dateFrom" id="dateFrom" value="<%= typeof dateFrom !== 'undefined' ? dateFrom : '' %>">
-    
+    <input type="date" name="dateFrom" id="dateFrom" value="<%= dateFrom %>">
+
     <label for="dateTo">To Date:</label>
-    <input type="date" name="dateTo" id="dateTo" value="<%= typeof dateTo !== 'undefined' ? dateTo : '' %>">
-    
+    <input type="date" name="dateTo" id="dateTo" value="<%= dateTo %>">
+
     <button type="submit">Filter</button>
     <a href="/all-events" style="margin-left: 10px;">Clear Filters</a>
 </form>

@@ -119,7 +119,32 @@ async function allEvents(req, res) {
     }
 
     const userRole = req.session.user.role;
-    const { search, category, dateFrom, dateTo } = req.query;
+    const eventslist = await Events.retrieveAll();
+
+    res.render("all-events", {
+      eventslist,
+      search: "",
+      category: "",
+      dateFrom: "",
+      dateTo: "",
+      userRole,
+      currentUser: req.session.user
+    });
+  } catch (error) {
+    console.error("allEvents error:", error);
+    res.status(500).render("error", { message: "Error reading database." });
+  }
+}
+
+// POST /all-events
+async function postAllEvents(req, res) {
+  try {
+    if (!req.session || !req.session.user) {
+      return res.redirect("/login");
+    }
+
+    const userRole = req.session.user.role;
+    const { search, category, dateFrom, dateTo } = req.body;
     let eventslist;
 
     if (search || category || dateFrom || dateTo) {
@@ -130,15 +155,15 @@ async function allEvents(req, res) {
 
     res.render("all-events", {
       eventslist,
-      search,
-      category,
-      dateFrom,
-      dateTo,
+      search: search || "",
+      category: category || "",
+      dateFrom: dateFrom || "",
+      dateTo: dateTo || "",
       userRole,
       currentUser: req.session.user
     });
   } catch (error) {
-    console.error("allEvents error:", error);
+    console.error("postAllEvents error:", error);
     res.status(500).render("error", { message: "Error reading database." });
   }
 }
@@ -341,12 +366,10 @@ async function getParticipants(req, res) {
   if (!req.session || !req.session.user) {
     return res.redirect("/login");
   }
-
   const id = req.params.id;
   try {
     const event = await Events.findById(id).populate("attendees");
     const participants = event.attendees;
-
     res.render("my-participants", {
       participants,
       event,
@@ -363,23 +386,17 @@ async function postParticipants(req, res) {
   if (!req.session || !req.session.user) {
     return res.redirect("/login");
   }
-
   const id = req.params.id;
   const userId = req.body.userId;
-
   try {
     const event = await Events.findById(id);
-
     if (!event) {
       return res.status(404).render("error", { message: "Event not found." });
     }
-
     event.attendees = event.attendees.filter(
       attendeeId => attendeeId.toString() !== userId.toString()
     );
-
     await event.save();
-
     res.redirect(`/events/${id}/participants`);
   } catch (error) {
     console.error("postParticipants error:", error);
@@ -392,6 +409,7 @@ module.exports = {
   getCreateEvent,
   postCreateEvent,
   allEvents,
+  postAllEvents,
   eventList,
   getEventDetails,
   editEvent,
