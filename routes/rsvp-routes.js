@@ -6,7 +6,7 @@ const wishlistController = require("../controllers/wishlist-controller");
 router.post("/events/:id/rsvp", rsvpController.joinEvent);
 router.post("/events/:id/cancel-rsvp", rsvpController.cancelRSVP);
 router.get("/my-rsvps", rsvpController.getMyRSVPs);
-router.post("/events/:id/waitlist", rsvpController.PromptWaitlist);
+router.post("/events/:id/waitlist", rsvpController.promptWaitlist);
 router.post("/events/:id/waitlisted", rsvpController.waitlistRSVPs);
 router.post("/events/:id/waitlist", rsvpController.waitlistRSVPs);
 

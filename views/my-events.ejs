@@ -3,7 +3,7 @@
 
 <h2>My Events</h2>
 
-<% if (eventslist.length === 0) { %>
+<% if (eventsList.length === 0) { %>
     <p>You have not created any events yet.</p>
 <% } else { %>
     <table class="my-events-table">
@@ -16,7 +16,7 @@
             <th>Max Attendees</th>
             <th>Actions</th>
         </tr>
-        <% eventslist.forEach(event => { %>
+        <% eventsList.forEach(event => { %>
         <tr>
             <td><%= event.title %></td>
             <td>

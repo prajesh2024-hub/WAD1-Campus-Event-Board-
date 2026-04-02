@@ -80,22 +80,23 @@ const Event = mongoose.model("Event", eventSchema);
 module.exports = Event;
 
 // check duplicate event
-module.exports.eventExists = async function (
-  title,
-  dateFrom,
-  dateTo,
-  time,
-  venue,
-  ) {
-  const existing = await Event.findOne({
-    title: title,
-    startDate: new Date(dateFrom),
-    endDate: new Date(dateTo),
-    time: time,
-    venue: venue,
-  });
+module.exports.eventExists = async function (title, dateFrom, dateTo, time, venue, category) {
+  const events = await Event.find();
 
-  return existing !== null;
+  for (let e of events) {  
+    const titleMatch = e.title.toLowerCase().trim() === title.toLowerCase().trim();
+    const venueMatch = e.venue.toLowerCase().trim() === venue.toLowerCase().trim();
+    const categoryMatch = e.category.toLowerCase().trim() === category.toLowerCase().trim();
+    const timeMatch = e.time.trim() === time.trim();
+    const startMatch = new Date(e.startDate).toDateString() === new Date(dateFrom).toDateString();
+    const endMatch = new Date(e.endDate).toDateString() === new Date(dateTo).toDateString();
+
+    if (titleMatch && venueMatch && categoryMatch && timeMatch && startMatch && endMatch) {
+      return true;
+    }
+  }
+
+  return false;
 };
 
 // add event
@@ -184,7 +185,7 @@ module.exports.retrieveFiltered = async function (search, category, dateFrom, da
   return filteredEvents;
 };
 
-module.exports.updateevents = function (
+module.exports.updateEvents = function (
   id,
   title,
   description,
@@ -203,7 +204,7 @@ module.exports.deleteEvent = async function (id) {
   return await Event.findByIdAndDelete(id);
 };
 
-module.exports.findbyid = async function (id) {
+module.exports.findEventById = async function (id) {
   return await Event.findById(id)
     .populate("attendees")
     .populate("createdBy");

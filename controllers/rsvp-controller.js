@@ -113,7 +113,7 @@ async function getMyRSVPs(req, res) {
   }
 }
 
-async function PromptWaitlist (req,res){
+async function promptWaitlist (req,res){
   try{
     const eventId = req.params.id;
     const currentUserId = req.session.user.id;
@@ -178,5 +178,5 @@ module.exports = {
   cancelRSVP,
   getMyRSVPs,
   waitlistRSVPs,
-  PromptWaitlist
+  promptWaitlist
 };

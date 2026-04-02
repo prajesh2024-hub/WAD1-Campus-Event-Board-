@@ -3,23 +3,6 @@
 const Events = require("./../model/events-model");
 const WishlistCollection = require("../model/wishlist-model");
 
-
-// get home route
-async function getHome(req, res) {
-  try {
-    const events = await Events.retrieveAll().limit(3);
-
-    res.render("index", {
-      events,
-      currentUser: req.session && req.session.user ? req.session.user : null
-    });
-  } catch (error) {
-    console.error("getHome error:", error);
-    res.status(500).render("error", { message: "Failed to load home page." });
-  }
-}
-
-
 // GET /create-event
 async function getCreateEvent(req, res) {
   try {
@@ -66,6 +49,25 @@ async function postCreateEvent(req, res) {
   //set clicked as true
   const clicked = true;
 
+   if (new Date(dateFrom) > new Date(dateTo)){
+       error.push("Error adding event: dateFrom cannot be later than dateTo.");
+      // renders the form with their previous answers
+      return res.render("create-event", {
+        title,
+        description,
+        dateFrom,
+        dateTo,
+        time,
+        venue,
+        category,
+        maxAttendees,
+        organizer,
+        clicked,
+        error,
+        currentUser: req.session.user
+      });
+  }
+
   try {
     //check if there is a session going on and if there's a user tied to it.
     //if none then redirect to login
@@ -80,6 +82,7 @@ async function postCreateEvent(req, res) {
       dateTo,
       time,
       venue,
+      category
     );
 
     if (result) {
@@ -138,7 +141,7 @@ async function allEvents(req, res) {
 
     const userRole = req.session.user.role;
     const currentUserId = req.session.user.id.toString();
-    const eventslist = await Events.retrieveAll();
+    const eventsList = await Events.retrieveAll();
 
     // userwishlist
     const userWishlist = await WishlistCollection.findOne({ userId: currentUserId });
@@ -150,7 +153,7 @@ async function allEvents(req, res) {
     }
     // the form is for the search part
     res.render("all-events", {
-      eventslist,
+      eventsList,
       search: "",
       category: "",
       dateFrom: "",
@@ -180,7 +183,7 @@ async function postAllEvents(req, res) {
     const dateTo = req.body.dateTo;
   
     // Get filtered events from the model
-    const eventslist = await Events.retrieveFiltered(search, category, dateFrom, dateTo);
+    const eventsList = await Events.retrieveFiltered(search, category, dateFrom, dateTo);
 
     const userWishlist = await WishlistCollection.findOne({ userId: currentUserId });
     const wishlistMap = {};
@@ -191,7 +194,7 @@ async function postAllEvents(req, res) {
     }
 
     res.render("all-events", {
-      eventslist,
+      eventsList,
       search: search || "",
       category: category || "",
       dateFrom: dateFrom || "",
@@ -214,10 +217,10 @@ async function eventList(req, res) {
     if (!req.session || !req.session.user) {
       return res.redirect("/login");
     }
-    const eventslist = await Events.retrieveFromUser(req.session.user.id);
+    const eventsList = await Events.retrieveFromUser(req.session.user.id);
 
     res.render("my-events", {
-      eventslist,
+      eventsList,
       currentUser: req.session.user
     });
   } catch (error) {
@@ -243,11 +246,13 @@ async function getEventDetails(req, res) {
     let hasJoined = false;
     let isOwner = false;
 
+    //checks as per individual event to see if the user is the owner of the event
     if (req.session && req.session.user) {
       const currentUserId = req.session.user.id.toString();
       if (event.createdBy && event.createdBy.id.toString() === currentUserId) {
         isOwner = true;
       }
+      // checks if the user is an attendee for the event itslef
       for (let attendee of event.attendees) {
         if (attendee.id.toString() === currentUserId) {
           hasJoined = true;
@@ -367,8 +372,17 @@ async function postEditEvent(req, res) {
         currentUser: req.session.user
       });
     }
+    // double checks if the startsdate is not greater then the end date
+    if (new Date(startDate) > new Date(endDate)) {
+      return res.render("edit-event", {
+        event: existing,
+        clicked: true,
+        error: ["Error: start date cannot be later than end date."],
+        currentUser: req.session.user
+      });
+    }
 
-    await Events.updateevents(
+    await Events.updateEvents(
       id,
       title,
       description,
@@ -473,7 +487,6 @@ async function postParticipants(req, res) {
     res.status(500).render("error", { message: "Error removing participant." });
   }
 }
-
 
 module.exports = {
   getCreateEvent,

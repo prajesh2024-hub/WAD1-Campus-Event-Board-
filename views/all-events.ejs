@@ -29,7 +29,7 @@
 </form>
 
 <!-- Show message if no events found -->
-<% if (eventslist.length === 0) { %>
+<% if (eventsList.length === 0) { %>
     <p>No events found.</p>
 
 <% } else { %>
@@ -51,8 +51,8 @@
         </thead>
         <tbody>
 
-            <% for (let i = 0; i < eventslist.length; i++) { %>
-                <% let event = eventslist[i]; %>
+            <% for (let i = 0; i < eventsList.length; i++) { %>
+                <% let event = eventsList[i]; %>
                 <% if (event.endDate >= new Date()) { %>
                 <tr>
                     <!-- Event title -->
