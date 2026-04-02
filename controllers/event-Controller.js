@@ -130,7 +130,7 @@ async function postCreateEvent(req, res) {
   }
 }
 
-// GET /all-events (Yit Fong?)
+// GET /all-events
 
 async function allEvents(req, res) {
   try {
@@ -184,7 +184,7 @@ async function postAllEvents(req, res) {
     const dateTo = req.body.dateTo;
   
     // Get filtered events from the model
-    
+
     const eventslist = await Events.retrieveFiltered(search, category, dateFrom, dateTo);
 
     const userWishlist = await WishlistCollection.findOne({ userId: currentUserId });
@@ -288,7 +288,6 @@ async function getEventDetails(req, res) {
         }
       }
     }
-
     res.render("event-details", {
       event,
       attendeeCount,
@@ -313,13 +312,10 @@ async function editEvent(req, res) {
     if (!req.session || !req.session.user) {
       return res.redirect("/login");
     }
-
     const event = await Events.findById(req.params.id);
-
     if (!event) {
       return res.status(404).render("error", { message: "Event not found." });
     }
-
     res.render("edit-event", {
       event,
       clicked,
@@ -354,7 +350,9 @@ async function postEditEvent(req, res) {
     if (!existing) {
       return res.status(404).render("error", { message: "Event not found." });
     }
-
+    // checks if there is any changes made at all for each of the field
+    // if there is changes it would return false
+    // if there is no changes it would return true
     const noChanges =
       existing.title === title &&
       existing.description === description &&

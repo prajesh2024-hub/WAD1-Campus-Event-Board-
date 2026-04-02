@@ -162,7 +162,6 @@ module.exports.retrieveFiltered = async function (search, category, dateFrom, da
   // Step 1 - Get all events from the database
   let allEvents = await Event.retrieveAll()
 
-
   // Step 2 - Loop through every event and only keep ones that match the filters
   let filteredEvents = [];
 
@@ -170,7 +169,7 @@ module.exports.retrieveFiltered = async function (search, category, dateFrom, da
     let event = allEvents[i];
 
     // Check if the event title matches the search word (if no search was given, this is always true)
-    // so basically it's trying to say of if serach is indeed there and it exists and the       
+    // so basically it's trying to say of if search is indeed there and it exists and the       
     // includes return true, then it would mean false or true, which is true entirely, if !search 
     //  is true then it won't bother going to the include part correct 
     let matchesSearch = !search || event.title.toLowerCase().includes(search.toLowerCase());
