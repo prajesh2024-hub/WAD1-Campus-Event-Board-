@@ -3,6 +3,11 @@ const eventController = require("../controllers/event-Controller");
 
 const router = express.Router();
 
+// display homepage at localhost:8000
+router.get("/", (req, res) => {
+  res.render("index");
+});
+
 // homepage route
 router.get("/index", (req, res) => {
   res.render("index");
