@@ -159,6 +159,15 @@ async function getEventDetails(req, res) {
       }
     }
 
+    // Checks if user is inside the waitlist
+    let isWaitlisted = false;
+
+    for (let waitlisted of event.waitlist){
+      if (waitlisted.id.toString() === req.session.user.id.toString()) {
+        isWaitlisted = true;
+      }
+    }
+
 
     // Fetch host's other past events that have at least one review
     let hostPastReviews = [];
