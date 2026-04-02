@@ -115,10 +115,10 @@ async function getMyRSVPs(req, res) {
 async function PromptWaitlist (req,res){
   try{
     const eventId = req.params.id;
-    const currentUserId = req.session.user.id;
+    const currentUser = req.session.user;
     const event = await Event.findById(eventId);
 
-    res.render('waitlist-prompt', {event})
+    res.render('waitlist-prompt', {event, currentUser})
   } catch (error) {
     console.error("waitlistRSVPs error:", error);
     res.status(500).send(error.message);
@@ -170,11 +170,38 @@ async function waitlistRSVPs (req,res){
   }
 }
 
+async function cancelWaitlist (req,res){
+  try{
+    if (!req.session || !req.session.user) {
+      return res.redirect("/login");
+    }
+
+    const eventId = req.params.id
+    const currentUserId = req.session.user.id
+
+    const event = await Event.findById(eventId);
+      if (!event) {
+        return res.status(404).render("error",{message:"Event not found."})
+      }
+    // loops through all waitlisted and doesnt add current user back
+    event.waitlist = event.waitlist.filter(
+      waitlistId => waitlistId.toString() !== currentUserId.toString()
+    )
+
+    await event.save();
+    // redirect to event details
+    res.redirect(`/events/${eventId}`);
+  } catch (error) { 
+    console.error("cancelWaitlist error:", error);
+    res.status(500).send(error.message);
+  }
+}
 
 module.exports = {
   joinEvent,
   cancelRSVP,
   getMyRSVPs,
   waitlistRSVPs,
-  PromptWaitlist
+  promptWaitlist,
+  cancelWaitlist
 };

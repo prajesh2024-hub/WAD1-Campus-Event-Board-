@@ -135,6 +135,7 @@ async function getEventDetails(req, res) {
       return res.status(404).render("error", { message: "Event not found." });
     }
 
+    // Backend Checks for error handling
     const attendeeCount = event.attendees.length;
 
     let hasJoined = false;
@@ -149,12 +150,52 @@ async function getEventDetails(req, res) {
       );
     }
 
+    // Checks if user is inside the waitlist
+    let isWaitlisted = false;
+
+    for (let waitlisted of event.waitlist){
+      if (waitlisted.id.toString() === req.session.user.id.toString()) {
+        isWaitlisted = true;
+      }
+    }
+
+
+    // Fetch host's other past events that have at least one review
+    let hostPastReviews = [];
+    if (event.createdBy) {
+      // Step 1 - Get all events by the same host
+      const hostEvents = await Events.find({
+        createdBy: event.createdBy.id,
+      }).select("title endDate reviews");
+
+      // Step 2 - Filter in JavaScript
+      const now = new Date();
+
+      for (let i = 0; i < hostEvents.length; i++) {
+        let hostEvent = hostEvents[i];
+
+        // Skip the current event we're already viewing
+        let isDifferentEvent = hostEvent.id.toString() !== event.id.toString();
+
+        // Check if the event has already ended
+        let isInThePast = new Date(hostEvent.endDate) < now;
+
+        // Check if the event has at least one review
+        let hasReviews = hostEvent.reviews.length > 0;
+
+        if (isDifferentEvent && isInThePast && hasReviews) {
+          hostPastReviews.push(hostEvent);
+        }
+      }
+    }
     res.render("event-details", {
       event,
       attendeeCount,
       hasJoined,
       isOwner,
-      currentUser: req.session && req.session.user ? req.session.user : null
+      isWaitlisted,
+      hostPastReviews,
+      currentUser: req.session && req.session.user ? req.session.user : null,
     });
   } catch (error) {
     console.error("getEventDetails error:", error);
