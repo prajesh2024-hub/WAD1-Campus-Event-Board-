@@ -19,22 +19,17 @@
               <%= new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' }) %>
             </span>
           </div>
+        
           <div class="review-actions">
-            <button class="btn-edit" onclick="toggleEdit('<%= review._id %>')">Edit</button>
+              <a href="/my-reviews?editing=<%= review._id %>" class="btn-edit">Edit</a>
             <form action="/events/<%= event._id %>/reviews/<%= review._id %>/delete" method="POST" style="display:inline;" onsubmit="return confirm('Delete this review?')">
               <button type="submit" class="btn-delete">Delete</button>
             </form>
           </div>
         </div>
-
-        <!-- Read-only view -->
-        <div id="view-<%= review._id %>">
-          <p class="stars"><% for (let i = 0; i < review.rating; i++) { %>⭐<% } %></p>
-          <p class="review-text"><%= review.reviewText %></p>
-        </div>
-
-        <!-- Edit form (hidden by default) -->
-        <form id="edit-<%= review._id %>" class="edit-form" action="/events/<%= event._id %>/reviews/<%= review._id %>/update" method="POST" style="display:none;">
+        <% if (editingId === review._id.toString()) { %>
+        <!-- show the edit form -->
+          <form id="edit-<%= review._id %>" class="edit-form" action="/events/<%= event._id %>/reviews/<%= review._id %>/update" method="POST" >
           <div class="form-group">
             <label for="rating-<%= review._id %>">Rating</label>
             <select id="rating-<%= review._id %>" name="rating" required>
@@ -51,24 +46,22 @@
           </div>
           <div class="edit-form-actions">
             <button type="submit" class="btn-save">Save</button>
-            <button type="button" class="btn-cancel" onclick="toggleEdit('<%= review._id %>')">Cancel</button>
+            <a href="/my-reviews" class="btn-cancel">Cancel</a>
           </div>
         </form>
-
+        <% } else { %>
+        <!-- show the read only view -->
+         <div id="view-<%= review._id %>">
+          <p class="stars"><% for (let i = 0; i < review.rating; i++) { %>⭐<% } %></p>
+          <p class="review-text"><%= review.reviewText %></p>
+        </div>
+        <% } %>
+        
       </div>
     <% }) %>
   <% } %>
 </div>
 
-<script>
-  function toggleEdit(reviewId) {
-    const view = document.getElementById('view-' + reviewId);
-    const form = document.getElementById('edit-' + reviewId);
-    const isEditing = form.style.display !== 'none'; 
-    view.style.display = isEditing ? 'block' : 'none';
-    form.style.display = isEditing ? 'none' : 'block';
-  }
-</script>
 
 <style>
   .review-card {

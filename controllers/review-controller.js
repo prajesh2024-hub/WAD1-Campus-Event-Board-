@@ -13,9 +13,15 @@ async function getReview(req, res) {
       return res.status(404).render("error", { message: "Event not found." });
     }
 
+    const userId = req.session.user.id.toString();
+    const alreadyReviewed = (event.reviews || []).some(
+      r => r.userId && r.userId.toString() === userId
+    );
+
     res.render("review-prompt", {
       event,
-      currentUser: req.session.user
+      currentUser: req.session.user,
+      alreadyReviewed
     });
 
   } catch (error) {
@@ -41,6 +47,15 @@ async function postReview(req, res) {
     // Initialize reviews array if it doesn't exist
     if (!event.reviews) {
       event.reviews = [];
+    }
+
+    // Prevent duplicate reviews from the same user
+    const userId = req.session.user.id.toString();
+    const alreadyReviewed = event.reviews.some(
+      review => review.userId && review.userId.toString() === userId
+    );
+    if (alreadyReviewed) {
+      return res.status(400).render("error", { message: "You have already submitted a review for this event." });
     }
 
     // Add new review
@@ -96,6 +111,9 @@ async function getMyReviews(req, res) {
     const userId = req.session.user.id.toString();
 
     const events = await Event.find({ "reviews.userId": userId }).select("title reviews");
+
+    const editingId = req.query.editing || null;
+    res.render("my-reviews", { myReviews, currentUser: req.session.user, editingId });
 
     // Flatten to just the user's own reviews, keeping the parent event info
     const myReviews = [];
