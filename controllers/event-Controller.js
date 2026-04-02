@@ -1,11 +1,29 @@
-//Get Service Model
-const Events = require("./../model/events-model");
-const WishlistCollection = require("../model/wishlist-model");
+const Events = require('./../model/events-model');
 
-// GET /create-event
-async function getCreateEvent(req, res) {
+// GET /
+async function getHome(req, res) {
+  //tries to fect all the events 
   try {
-    //renders an empty form for the ejs
+    const events = await Events.retrieveAll().limit(3);
+
+    res.render("index", {
+      events,
+      currentUser: req.session && req.session.user ? req.session.user : null
+    });
+  } catch (error) {
+    console.error("getHome error:", error);
+    res.status(500).send(error.message);
+  }
+}
+
+// create events
+async function getCreateEvent(req, res) {
+  //check if there is a session going on and if there's a user tied to it.
+  try {
+    if (!req.session || !req.session.user) {
+      return res.redirect("/login");
+    }
+
     res.render("create-event", {
       title: "",
       description: "",
@@ -15,25 +33,18 @@ async function getCreateEvent(req, res) {
       venue: "",
       category: "",
       maxAttendees: "",
-      duration: "",
-      organizer: req.session.user.username || "",
+      organizer: "",
       clicked: false,
-      error: [],
-      currentUser: req.session.user,
+      error: []
     });
-    //standard error catch
   } catch (error) {
     console.error("getCreateEvent error:", error);
-    res
-      .status(500)
-      .render("error", { message: "Failed to load create event page." });
+    res.status(500).send("Failed to load create event page.");
   }
 }
 
 // POST /create-event
-//postint the result
 async function postCreateEvent(req, res) {
-  // gathers all info of the user inputs
   const title = req.body.title;
   const description = req.body.description;
   const dateFrom = req.body.dateFrom;
@@ -42,182 +53,73 @@ async function postCreateEvent(req, res) {
   const venue = req.body.venue;
   const category = req.body.category;
   const maxAttendees = req.body.maxAttendees || 50;
-  const duration = req.body.duration;
   const organizer = req.body.organizer;
-  //create an emppty list to store errors
   const error = [];
-  //set clicked as true
   const clicked = true;
 
-  if (new Date(dateFrom) > new Date(dateTo)) {
-    error.push("Error adding event: dateFrom cannot be later than dateTo.");
-    // renders the form with their previous answers
-    return res.render("create-event", {
-      title,
-      description,
-      dateFrom,
-      dateTo,
-      time,
-      venue,
-      category,
-      maxAttendees,
-      duration,
-      organizer,
-      clicked,
-      error,
-      currentUser: req.session.user,
-    });
-  }
-
   try {
-    //check if event exists, returns true or false
-    const result = await Events.eventExists(
-      title,
-      dateFrom,
-      dateTo,
-      time,
-      venue,
-      category,
-      duration,
-    );
-
-    if (result) {
-      //push error message to the list
-      error.push("Error adding event: a duplicate event already exists.");
-      // renders the form with their previous answers for the users to change the event to avoid duplicates
-      return res.render("create-event", {
-        title,
-        description,
-        dateFrom,
-        dateTo,
-        time,
-        venue,
-        category,
-        maxAttendees,
-        duration,
-        organizer,
-        clicked,
-        error,
-        currentUser: req.session.user,
-      });
+    if (!req.session || !req.session.user) {
+      return res.redirect("/login");
     }
 
-    // adds the new event, and also stores the creators ID and username
-    // to know who created it and also loads up all events created by that particular user
-    await Events.addEvent(
-      title,
-      description,
-      dateFrom,
-      dateTo,
-      time,
-      venue,
-      category,
-      maxAttendees,
-      duration,
-      organizer,
-      req.session.user.id,
-      req.session.user.username,
-    );
-
-    res.redirect("/my-events");
-    //standard catch for error
+    const result = await Events.eventExists(title, description, dateFrom, dateTo, time, venue, category, maxAttendees, organizer);
+    if (result) {
+      error.push("Error adding event: a duplicate event already exists.");
+      res.render("create-event", { title, description, dateFrom, dateTo, time, venue, category, maxAttendees, organizer, clicked, error });
+    } else {
+      await Events.addEvent(
+        title, description, dateFrom, dateTo, time, venue, category, maxAttendees, organizer,
+        req.session.user.id,
+        req.session.user.username
+      );
+      res.render("create-event", { title: '', description: '', dateFrom: '', dateTo: '', time: '', venue: '', category: '', maxAttendees: '', organizer: '', clicked, error });
+    }
   } catch (err) {
     console.error("postCreateEvent error:", err);
-    res.status(500).render("error", { message: "Error creating event." });
+    res.send("Error reading database");
   }
 }
 
 // GET /all-events
-
 async function allEvents(req, res) {
   try {
-    const userRole = req.session.user.role;
-    const currentUserId = req.session.user.id.toString();
-    const eventsList = await Events.retrieveAll();
+    const { search, category, dateFrom, dateTo } = req.query;
+    let eventslist;
 
-    // userwishlist
-    const userWishlist = await WishlistCollection.findOne({
-      userId: currentUserId,
-    });
-    const wishlistMap = {};
-    if (userWishlist) {
-      userWishlist.items.forEach((item) => {
-        wishlistMap[item.event.toString()] = true;
-      });
+    if (search || category || dateFrom || dateTo) {
+      eventslist = await Events.retrieveFiltered(search, category, dateFrom, dateTo);
+    } else {
+      eventslist = await Events.retrieveAll();
     }
-    // the form is for the search part
-    res.render("all-events", {
-      eventsList,
-      search: "",
-      category: "",
-      dateFrom: "",
-      dateTo: "",
-      userRole,
-      wishlistMap,
-      currentUser: req.session.user,
-    });
+
+    res.render("all-events", { eventslist, search, category, dateFrom, dateTo });
   } catch (error) {
     console.error("allEvents error:", error);
-    res.status(500).render("error", { message: "Error reading database." });
-  }
-}
-
-// POST /all-events
-async function postAllEvents(req, res) {
-  try {
-    const userRole = req.session.user.role;
-    const currentUserId = req.session.user.id.toString();
-    const search = req.body.search;
-    const category = req.body.category;
-    const dateFrom = req.body.dateFrom;
-    const dateTo = req.body.dateTo;
-
-    // Get filtered events from the model
-    const eventsList = await Events.retrieveFiltered(
-      search,
-      category,
-      dateFrom,
-      dateTo,
-    );
-
-    const userWishlist = await WishlistCollection.findOne({
-      userId: currentUserId,
-    });
-    const wishlistMap = {};
-    if (userWishlist) {
-      userWishlist.items.forEach((item) => {
-        wishlistMap[item.event.toString()] = true;
-      });
-    }
-
-    res.render("all-events", {
-      eventsList,
-      search: search || "",
-      category: category || "",
-      dateFrom: dateFrom || "",
-      dateTo: dateTo || "",
-      userRole,
-      wishlistMap,
-      currentUser: req.session.user,
-    });
-  } catch (error) {
-    console.error("postAllEvents error:", error);
-    res.status(500).render("error", { message: "Error reading database." });
+    res.send("Error reading database");
   }
 }
 
 // GET /my-events
 async function eventList(req, res) {
   try {
-    const eventsList = await Events.retrieveFromUser(req.session.user.id);
+    if (!req.session || !req.session.user) {
+      return res.redirect("/login");
+    }
+
+    const eventslist = await Events.find({ createdBy: req.session.user.id })
+      .populate("attendees")
+      .populate("createdBy")
+      .populate("waitlist")
+      .sort({ startDate: 1 });
 
     res.render("my-events", {
-      eventsList,
-      currentUser: req.session.user,
+      eventslist,
+      currentUser: req.session.user
     });
+
   } catch (error) {
     console.error("eventList error:", error);
-    res.status(500).render("error", { message: "Error reading database." });
+    res.send("Error reading database");
   }
 }
 
@@ -227,32 +129,36 @@ async function getEventDetails(req, res) {
     const event = await Events.findById(req.params.id)
       .populate("createdBy")
       .populate("attendees")
-      .populate("waitlist");
+      .populate("waitlist")
     // checks if event even exists if not return error
     if (!event) {
       return res.status(404).render("error", { message: "Event not found." });
     }
 
-    // event-details check again and see what the logic is used for
+    // Backend Checks for error handling
     const attendeeCount = event.attendees.length;
+
     let hasJoined = false;
     let isOwner = false;
 
-    //checks as per individual event to see if the user is the owner of the event
     if (req.session && req.session.user) {
       const currentUserId = req.session.user.id.toString();
-      if (event.createdBy && event.createdBy.id.toString() === currentUserId) {
-        isOwner = true;
-      }
-      // checks if the user is an attendee for the event itself, if it is then it would break
-      // used for the EJS features
-      for (let attendee of event.attendees) {
-        if (attendee.id.toString() === currentUserId) {
-          hasJoined = true;
-          break;
-        }
+
+      isOwner = event.createdBy ? event.createdBy.toString() === currentUserId : false;
+      hasJoined = event.attendees.some(
+        attendee => attendee._id.toString() === currentUserId
+      );
+    }
+
+    // Checks if user is inside the waitlist
+    let isWaitlisted = false;
+
+    for (let waitlisted of event.waitlist){
+      if (waitlisted.id.toString() === req.session.user.id.toString()) {
+        isWaitlisted = true;
       }
     }
+
 
     // Fetch host's other past events that have at least one review
     let hostPastReviews = [];
@@ -287,36 +193,34 @@ async function getEventDetails(req, res) {
       attendeeCount,
       hasJoined,
       isOwner,
+      isWaitlisted,
       hostPastReviews,
       currentUser: req.session && req.session.user ? req.session.user : null,
     });
   } catch (error) {
     console.error("getEventDetails error:", error);
-    res
-      .status(500)
-      .render("error", { message: "Failed to load event details." });
+    res.status(500).send(error.message);
   }
 }
 
 // GET /events/:id/edit
 async function editEvent(req, res) {
   try {
-    let clicked = false;
-    let error = [];
-    let currentUser = req.session.user;
     const event = await Events.findById(req.params.id);
+
     if (!event) {
       return res.status(404).render("error", { message: "Event not found." });
     }
+
     res.render("edit-event", {
       event,
-      clicked,
-      error,
-      currentUser,
+      clicked: false,
+      error: [],
+      currentUser: req.session && req.session.user ? req.session.user : null
     });
   } catch (error) {
     console.error("editEvent error:", error);
-    res.status(500).render("error", { message: "Error reading database." });
+    res.send("Error reading database");
   }
 }
 
@@ -331,63 +235,45 @@ async function postEditEvent(req, res) {
   const venue = req.body.venue;
   const category = req.body.category;
   const maxAttendees = req.body.maxAttendees;
-  const duration = req.body.duration;
 
   try {
     const existing = await Events.findById(id);
 
+    //check if the event itself exist if it doesn't exist meaning 
+    //that it edits an empty event then ti sends out an error
     if (!existing) {
       return res.status(404).render("error", { message: "Event not found." });
     }
-    // checks if there is any changes made at all for each of the field
-    // if there is changes it would return false
-    // if there is no changes it would return true
+
+    // check every field to see if anything actually changed
     const noChanges =
       existing.title === title &&
       existing.description === description &&
-      existing.startDate.toISOString().split("T")[0] === startDate &&
-      existing.endDate.toISOString().split("T")[0] === endDate &&
+    // since startDate format is under 2026-03-26T00:00:00.000Z, so we need
+    //  to make it into a string first then splitting under T
+      existing.startDate.toISOString().split('T')[0] === startDate &&
+      existing.endDate.toISOString().split('T')[0] === endDate &&
       existing.time === time &&
       existing.venue === venue &&
       existing.category === category &&
-      String(existing.maxAttendees) === String(maxAttendees) &&
-      String(existing.duration) === String(duration);
+      String(existing.maxAttendees) === String(maxAttendees);
 
     if (noChanges) {
       return res.render("edit-event", {
         event: existing,
         clicked: true,
         error: ["No changes were made."],
-        currentUser: req.session.user,
-      });
-    }
-    // double checks if the startsdate is not greater then the end date
-    if (new Date(startDate) > new Date(endDate)) {
-      return res.render("edit-event", {
-        event: existing,
-        clicked: true,
-        error: ["Error: start date cannot be later than end date."],
-        currentUser: req.session.user,
+        currentUser: req.session && req.session.user ? req.session.user : null
       });
     }
 
-    await Events.updateEvents(
-      id,
-      title,
-      description,
-      startDate,
-      endDate,
-      time,
-      venue,
-      category,
-      maxAttendees,
-      duration,
-    );
-
-    res.redirect("/my-events");
+    // otherwise save the update
+    const result = await Events.updateevents(id, title, description, startDate, endDate, time, venue, category, maxAttendees);
+    console.log(result);
+    res.redirect('/my-events');
   } catch (error) {
     console.error("postEditEvent error:", error);
-    res.status(500).render("error", { message: "Error updating database." });
+    res.send("Error updating database");
   }
 }
 
@@ -396,18 +282,13 @@ async function getDeleteEvent(req, res) {
   const id = req.params.id;
   try {
     const event = await Events.findById(id);
-
     if (!event) {
       return res.status(404).render("error", { message: "Event not found." });
     }
-
-    res.render("delete-event", {
-      event,
-      currentUser: req.session.user, // can be removed and checked
-    });
+    res.render("delete-event", { event });
   } catch (error) {
     console.error("getDeleteEvent error:", error);
-    res.status(500).render("error", { message: "Error loading delete page." });
+    res.send("Error loading delete page");
   }
 }
 
@@ -416,66 +297,23 @@ async function deleteEvent(req, res) {
   const id = req.params.id;
   try {
     await Events.deleteEvent(id);
-    res.redirect("/all-events");
+    console.log("Event deleted:", id);
+    res.redirect("/my-events");
   } catch (error) {
     console.error("deleteEvent error:", error);
-    res.status(500).render("error", { message: "Error deleting event." });
-  }
-}
-
-// GET /events/:id/participants
-// current user is apssed for the navbar
-async function getParticipants(req, res) {
-  const id = req.params.id;
-  try {
-    const event = await Events.findById(id).populate("attendees");
-    const participants = event.attendees;
-    res.render("my-participants", {
-      participants,
-      event,
-      currentUser: req.session.user,
-    });
-  } catch (error) {
-    console.error("getParticipants error:", error);
-    res.status(500).render("error", { message: "Error loading participants." });
-  }
-}
-
-// POST /events/:id/participants/remove
-async function postParticipants(req, res) {
-  const id = req.params.id;
-  const userId = req.body.userId;
-  try {
-    const event = await Events.findById(id);
-    if (!event) {
-      return res.status(404).render("error", { message: "Event not found." });
-    }
-    const updatedAttendees = [];
-    for (let attendee of event.attendees) {
-      if (attendee.toString() !== userId.toString()) {
-        updatedAttendees.push(attendee);
-      }
-    }
-    event.attendees = updatedAttendees;
-    await event.save();
-    res.redirect(`/events/${id}/participants`);
-  } catch (error) {
-    console.error("postParticipants error:", error);
-    res.status(500).render("error", { message: "Error removing participant." });
+    res.send("Error deleting event");
   }
 }
 
 module.exports = {
+  getHome,
+  getEventDetails,
   getCreateEvent,
   postCreateEvent,
   allEvents,
-  postAllEvents,
   eventList,
-  getEventDetails,
   editEvent,
   postEditEvent,
   getDeleteEvent,
-  deleteEvent,
-  getParticipants,
-  postParticipants,
+  deleteEvent
 };

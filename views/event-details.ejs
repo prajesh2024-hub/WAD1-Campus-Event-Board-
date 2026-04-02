@@ -13,7 +13,6 @@
     <% } %>
   </p>
   <p><strong>Time:</strong> <%= event.time %></p>
-  <p><strong>Duration:</strong> <%= Math.floor(event.duration / 60) %>h <%= event.duration % 60 + 'm'%></p>
   <p><strong>Venue:</strong> <%= event.venue %></p>
   <p><strong>Category:</strong> <%= event.category %></p>
   <p><strong>Organizer:</strong> <%= event.organizer %></p>
@@ -28,7 +27,7 @@
   <% } else { %>
     <ul>
       <% event.attendees.forEach(attendee => { %>
-        <li><%= attendee.username %></li>
+        <li><%= attendee.username %> - <%= attendee.email %></li>
       <% }) %>
     </ul>
   <% } %>
@@ -49,126 +48,14 @@
   <% } else if (isOwner) { %>
     <p>You cannot join your own event.</p>
   <% } else if (!hasJoined) { %>
-    <form action="/events/<%= event.id %>/rsvp" method="POST">
+    <form action="/events/<%= event._id %>/rsvp" method="POST">
       <button type="submit">Join Event</button>
     </form>
   <% } else { %>
     <p>You have already joined this event.</p>
-    <form action="/events/<%= event.id %>/cancel-rsvp" method="POST">
+    <form action="/events/<%= event._id %>/cancel-rsvp" method="POST">
       <button type="submit">Cancel Booking</button>
     </form>
   <% } %>
 </div>
 
-<hr>
-
-<div class="container">
-  <h2>Reviews from Host's Past Events</h2>
-
-  <% if (!hostPastReviews || hostPastReviews.length === 0) { %>
-    <p style="color: #666; font-style: italic;">This host has no reviews from past events yet.</p>
-  <% } else { %>
-    <% hostPastReviews.forEach(pastEvent => { %>
-      <div class="host-review-event">
-        <h3 class="host-review-event-title">
-          <%= pastEvent.title %>
-          <span class="host-review-event-date">
-            (<%= new Date(pastEvent.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' }) %>)
-          </span>
-        </h3>
-
-        <% pastEvent.reviews.forEach(review => { %>
-          <div class="host-review-card">
-            <div class="host-review-top">
-              <div>
-                <span class="host-reviewer-name"><%= review.userName %></span>
-                <span class="host-review-stars">
-                  <% for (let i = 0; i < review.rating; i++) { %>⭐<% } %>
-                </span>
-              </div>
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <small style="color: #9ca3af;">
-                  <%= new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' }) %>
-                </small>
-                <% if (currentUser && currentUser.role === 'admin') { %>
-                  <form action="/events/<%= pastEvent._id %>/reviews/<%= review._id %>/delete" method="POST" style="display: inline; margin: 0;">
-                    <button type="submit" class="delete-review-btn" onclick="return confirm('Delete this review?')">Delete</button>
-                  </form>
-                <% } %>
-              </div>
-            </div>
-            <p class="host-review-text"><%= review.reviewText %></p>
-          </div>
-        <% }) %>
-      </div>
-    <% }) %>
-  <% } %>
-</div>
-
-<style>
-  .host-review-event {
-    margin-bottom: 28px;
-  }
-
-  .host-review-event-title {
-    font-size: 16px;
-    margin: 0 0 10px 0;
-    color: #1d4ed8;
-  }
-
-  .host-review-event-date {
-    font-size: 13px;
-    font-weight: normal;
-    color: #6b7280;
-  }
-
-  .host-review-card {
-    background: #f9fafb;
-    border-left: 4px solid #1d4ed8;
-    border-radius: 4px;
-    padding: 12px 16px;
-    margin-bottom: 10px;
-  }
-
-  .host-review-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 6px;
-  }
-
-  .host-reviewer-name {
-    font-weight: bold;
-    margin-right: 10px;
-    color: #111827;
-  }
-
-  .host-review-stars {
-    font-size: 14px;
-  }
-
-  .host-review-text {
-    margin: 0;
-    color: #374151;
-    line-height: 1.6;
-  }
-
-  .delete-review-btn {
-    background-color: #ef4444;
-    color: white;
-    border: none;
-    padding: 4px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-
-  .delete-review-btn:hover {
-    background-color: #dc2626;
-  }
-</style>
-
-<a href="/all-events">&larr; Back to All Events</a>
-
-<%- include('partials/footer') %>

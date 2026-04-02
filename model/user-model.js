@@ -8,16 +8,17 @@ const userSchema = new mongoose.Schema({
   },
   email: { 
     type: String, 
-    required: true,
-    unique: true
+    required: true 
   },
   phone: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   password: {
     type: String,
-    required: true 
+    required: true,
+    unique: true
   },
   role: {
     type: String,
@@ -37,12 +38,4 @@ exports.createAccount = function(newAcc) {
 
 exports.findByUsername = function(username) {
     return User.findOne({username: username})
-};
-
-exports.editParticulars = function(userId, updateDocument) {
-  return User.updateOne(userId, updateDocument)
-};
-
-exports.deleteAccount = function(userId) {
-  return User.deleteOne({_id: userId})
 };
