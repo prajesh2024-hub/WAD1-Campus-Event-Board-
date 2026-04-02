@@ -17,7 +17,6 @@ server.use(session({
 const eventsRoutes = require("./routes/event-routes");
 const rsvpRoutes = require("./routes/rsvp-routes");
 const authRoutes = require("./routes/auth-routes");
-const reviewRoutes = require("./routes/review-routes");
 
 // middleware for post
 server.use(express.urlencoded({ extended: true }));
@@ -40,7 +39,6 @@ server.use((req, res, next) => {
 server.use('/', eventsRoutes);
 server.use('/', rsvpRoutes);
 server.use('/', authRoutes);
-server.use('/', reviewRoutes);
 
 // async function to connect to DB
 async function connectDB() {

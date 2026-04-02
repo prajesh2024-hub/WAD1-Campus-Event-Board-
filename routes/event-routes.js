@@ -1,38 +1,31 @@
-const express = require("express");
-const eventController = require("../controllers/event-Controller");
+const express = require('express');
 
-const router = express.Router();
+const eventController = require('../controllers/event-Controller');
 
-// homepage route
-router.get("/index", (req, res) => {
-  res.render("index");
-});
+const router = express.Router(); // creates the router object from express
 
-// get-post routing for creating event
+//root home page
+router.get("/", eventController.getHome);
+
+//create events and showing all events created
 router.get("/create-event", eventController.getCreateEvent);
 router.post("/create-event", eventController.postCreateEvent);
 
-// get-post routing for seeing all events
+//shows all events
 router.get("/all-events", eventController.allEvents);
-router.post("/all-events", eventController.postAllEvents);
 
-// get route for seeing all my events
+//show all events created by the user
 router.get("/my-events", eventController.eventList);
 
-// get-post route for editing events made by the user
+//edit events
 router.get("/events/:id/edit", eventController.editEvent);
 router.post("/events/:id/edit", eventController.postEditEvent);
 
-// get-post route for deleting events made by the user
+//delete event
 router.get("/events/:id/delete", eventController.getDeleteEvent);
 router.post("/events/:id/delete", eventController.deleteEvent);
 
-// get-post route for gathering participants information and removing them
-// from events made by the user
-router.get("/events/:id/participants", eventController.getParticipants);
-router.post("/events/:id/participants/remove", eventController.postParticipants);
-
-// get route for getting events details for an event
+//getting event details
 router.get("/events/:id", eventController.getEventDetails);
-
+// EXPORT
 module.exports = router;
