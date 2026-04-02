@@ -3,7 +3,7 @@
 
 <div class="container">
   <section class="hero">
-    <img src="/css/img/smulogo.png" alt="SMU Logo" class="hero-logo">
+    <img src="/css/img/logo.png" alt="SMU Logo" class="hero-logo">
     <h1>Welcome to the SMU Campus Event Board</h1>
     <p>Your one-stop platform for discovering and creating campus events at Singapore Management University.</p>
   </section>
@@ -24,43 +24,15 @@
 
   <section>
     <h2>Get Started</h2>
-    <p><a href="/all-events">View All Events</a></p>
-    <p><a href="/create-event">Create a New Event</a></p>
     <% if (currentUser) { %>
+      <p><a href="/all-events">View All Events</a></p>
+      <p><a href="/create-event">Create a New Event</a></p>
       <p><a href="/my-rsvps">My RSVPs</a></p>
+      <% } else { %>
+    <p><a href="/login">Login</a></p>
+    <p><a href="/register">Register</a></p>
     <% } %>
   </section>
-
-  <hr>
-
-  <section>
-    <h2>Upcoming Events</h2>
-
-    <% if (!events || events.length === 0) { %>
-      <p>No events available yet.</p>
-    <% } else { %>
-      <div class="event-grid">
-        <% events.forEach(event => { %>
-          <div class="event-card">
-            <h3><%= event.title %></h3>
-            <p><strong>Category:</strong> <%= event.category %></p>
-            <p><%= event.description %></p>
-            <p><strong>Date:</strong> 
-              <% if (new Date(event.startDate).toDateString() === new Date(event.endDate).toDateString()) { %>
-                <%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %>
-              <% } else { %>
-                <%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %> to <%= new Date(event.endDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %>
-              <% } %>
-            </p>
-            <p><strong>Time:</strong> <%= event.time %></p>
-            <p><strong>Venue:</strong> <%= event.venue %></p>
-            <p><strong>Attendance:</strong> <%= event.attendees.length %> / <%= event.maxAttendees %> attending</p>
-            <p><strong>By:</strong> <%= event.createdBy ? event.createdBy.name : "Unknown" %></p>
-            <a href="/events/<%= event._id %>">View Details</a>
-          </div>
-        <% }) %>
-      </div>
-    <% } %>
-  </section>
-
 </div>
+
+<%- include('partials/footer') %>

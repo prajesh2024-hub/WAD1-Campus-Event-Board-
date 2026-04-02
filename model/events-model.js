@@ -33,6 +33,10 @@ const eventSchema = new mongoose.Schema({
     type: Number,
     default: 50
   },
+  duration: {
+    type: Number,
+    required: true
+  },
   organizer: {
     type: String,
     required: true
@@ -43,7 +47,7 @@ const eventSchema = new mongoose.Schema({
       ref: "User"
     }
   ],
-  waitlist:[
+  waitlist: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User"
@@ -60,35 +64,61 @@ const eventSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  }
-  
+  },
+  reviews: [
+    {
+      userId: mongoose.Schema.Types.ObjectId,
+      userName: String,
+      rating: Number,
+      reviewText: String,
+      createdAt: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ]
 });
 
 const Event = mongoose.model("Event", eventSchema);
 
 module.exports = Event;
 
-// helper: check duplicate event
-module.exports.eventExists = async function(title, description, startDate, endDate, time, venue, category, maxAttendees, organizer) {
-  const conditions = [];
-  if (title) conditions.push({ title });
-  if (description) conditions.push({ description });
-  if (startDate) conditions.push({ startDate: new Date(startDate) });
-  if (endDate) conditions.push({ endDate: new Date(endDate) });
-  if (time) conditions.push({ time });
-  if (venue) conditions.push({ venue });
-  if (category) conditions.push({ category });
-  if (maxAttendees) conditions.push({ maxAttendees });
-  if (organizer) conditions.push({ organizer });
+// check duplicate event
+module.exports.eventExists = async function (title, dateFrom, dateTo, time, venue, category, duration) {
+  const events = await Event.find();
 
-  if (conditions.length === 0) return false;
+  for (let e of events) {
+    const titleMatch = e.title.toLowerCase().trim() === title.toLowerCase().trim();
+    const venueMatch = e.venue.toLowerCase().trim() === venue.toLowerCase().trim();
+    const categoryMatch = e.category.toLowerCase().trim() === category.toLowerCase().trim();
+    const timeMatch = e.time.trim() === time.trim();
+    const startMatch = new Date(e.startDate).toDateString() === new Date(dateFrom).toDateString();
+    const endMatch = new Date(e.endDate).toDateString() === new Date(dateTo).toDateString();
+    const durationMatch = Number(e.duration) === Number(duration);
 
-  const existing = await Event.findOne({conditions});
-  return existing !== null;
+    if (titleMatch && venueMatch && categoryMatch && timeMatch && startMatch && endMatch && durationMatch) {
+      return true;
+    }
+  }
+
+  return false;
 };
 
-// helper: add event
-module.exports.addEvent = async function(title, description, startDate, endDate, time, venue, category, maxAttendees, organizer, createdBy = null, createdByUsername = null) {
+// add event
+module.exports.addEvent = async function (
+  title,
+  description,
+  startDate,
+  endDate,
+  time,
+  venue,
+  category,
+  maxAttendees,
+  duration,
+  organizer,
+  createdBy = null,
+  createdByUsername = null
+) {
   const newEvent = new Event({
     title,
     description,
@@ -98,53 +128,92 @@ module.exports.addEvent = async function(title, description, startDate, endDate,
     venue,
     category,
     maxAttendees,
+    duration,
     organizer,
     createdBy,
     createdByUsername,
     attendees: [],
-    waitlist: [],
+    waitlist: []
   });
 
   return await newEvent.save();
 };
 
-// helper: get all events
+// get all events created by a specific user
+module.exports.retrieveFromUser = function (userId) {
+  return Event.find({ createdBy: userId })
+    .populate("attendees")
+    .populate("createdBy")
+    .populate("waitlist")
+    .sort({ startDate: 1 });
+};
+
+// get all events
 module.exports.retrieveAll = function () {
   return Event.find()
     .populate("attendees")
-    .sort({ startDate: 1 })
+    .populate("createdBy")
+    .sort({ startDate: 1 });
 };
 
-// helper: get all filtered events
-module.exports.retrieveFiltered = async function(search, category, dateFrom, dateTo) {
-  let query = {};
+// Get all events, then narrow them down based on what the user searched for
+module.exports.retrieveFiltered = async function (search, category, dateFrom, dateTo) {
 
-  if (search) {
-    query.$or = [
-      { title: { $regex: search, $options: "i" } },
-      { description: { $regex: search, $options: "i" } }
-    ];
+  // Step 1 - Get all events from the database
+  let allEvents = await Event.retrieveAll()
+
+  // Step 2 - Loop through every event and only keep ones that match the filters
+  let filteredEvents = [];
+
+  for (let i = 0; i < allEvents.length; i++) {
+    let event = allEvents[i];
+
+    // Check if the event title matches the search word (if no search was given, this is always true)
+    // so basically it's trying to say of if search is indeed there and it exists and the       
+    // includes return true, then it would mean false or true, which is true entirely, if !search 
+    //  is true then it won't bother going to the include part correct 
+    let matchesSearch = !search || event.title.toLowerCase().includes(search.toLowerCase());
+
+    // Check if the event category matches the selected category (if no category was given, this is always true)
+    let matchesCategory = !category || event.category === category;
+
+    // Check if the event starts on or after the from date (if no from date was given, this is always true)
+    let matchesDateFrom = !dateFrom || new Date(event.startDate) >= new Date(dateFrom);
+
+    // Check if the event starts on or before the to date (if no to date was given, this is always true)
+    let matchesDateTo = !dateTo || new Date(event.startDate) <= new Date(dateTo);
+
+    // If the event passed all 4 checks, add it to the results list
+    if (matchesSearch && matchesCategory && matchesDateFrom && matchesDateTo) {
+      filteredEvents.push(event);
+    }
   }
 
-  if (category) {
-    query.category = category;
-  }
-
-  if (dateFrom || dateTo) {
-    query.startDate = {};
-    if (dateFrom) query.startDate.$gte = new Date(dateFrom);
-    if (dateTo) query.startDate.$lte = new Date(dateTo);
-  }
-
-  return await Event.find(query).populate("attendees").sort({ startDate: 1 });
+  return filteredEvents;
 };
 
-module.exports.updateevents = function(id, title, description, startDate, endDate, time, venue, category, maxAttendees) {
-  return Event.findByIdAndUpdate(id, { title, description, startDate, endDate, time, venue, category, maxAttendees }, { new: true });
+module.exports.updateEvents = function (
+  id,
+  title,
+  description,
+  startDate,
+  endDate,
+  time,
+  venue,
+  category,
+  maxAttendees,
+  duration
+) {
+  return Event.findByIdAndUpdate(
+    id, { title, description, startDate, endDate, time, venue, category, maxAttendees, duration }, { new: true });
 };
 
-module.exports.deleteEvent = async function(id) {
+module.exports.deleteEvent = async function (id) {
   return await Event.findByIdAndDelete(id);
 };
 
-
+module.exports.findEventById = async function (id) {
+  return await Event.findById(id)
+    .populate("attendees")
+    .populate("createdBy");
+};
