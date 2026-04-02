@@ -233,7 +233,7 @@ async function getEventDetails(req, res) {
       return res.status(404).render("error", { message: "Event not found." });
     }
 
-    // event-details check again and see what the logic is used for
+    // Backend Checks for error handling
     const attendeeCount = event.attendees.length;
     let hasJoined = false;
     let isOwner = false;
@@ -253,6 +253,16 @@ async function getEventDetails(req, res) {
         }
       }
     }
+
+    // Checks if user is inside the waitlist
+    let isWaitlisted = false;
+
+    for (let waitlisted of event.waitlist){
+      if (waitlisted.id.toString() === req.session.user.id.toString()) {
+        isWaitlisted = true;
+      }
+    }
+
 
     // Fetch host's other past events that have at least one review
     let hostPastReviews = [];
@@ -287,6 +297,7 @@ async function getEventDetails(req, res) {
       attendeeCount,
       hasJoined,
       isOwner,
+      isWaitlisted,
       hostPastReviews,
       currentUser: req.session && req.session.user ? req.session.user : null,
     });
