@@ -113,7 +113,6 @@ async function getMyReviews(req, res) {
     const events = await Event.find({ "reviews.userId": userId }).select("title reviews");
 
     const editingId = req.query.editing || null;
-    res.render("my-reviews", { myReviews, currentUser: req.session.user, editingId });
 
     // Flatten to just the user's own reviews, keeping the parent event info
     const myReviews = [];
@@ -127,7 +126,7 @@ async function getMyReviews(req, res) {
 
     myReviews.sort((a, b) => new Date(b.review.createdAt) - new Date(a.review.createdAt));
 
-    res.render("my-reviews", { myReviews, currentUser: req.session.user });
+    res.render("my-reviews", { myReviews, currentUser: req.session.user, editingId });
   } catch (error) {
     console.error("getMyReviews error:", error);
     res.status(500).send("Failed to load your reviews.");
@@ -178,18 +177,17 @@ async function deleteReview(req, res) {
     const review = event.reviews.id(reviewId);
     if (!review) return res.status(404).render("error", { message: "Review not found." });
 
-    // Allow delete if: user is an admin
     const isAdmin = req.session.user.role === 'admin';
+    const isOwner = review.userId && review.userId.toString() === userId;
 
-    if (!isAdmin) {
+    if (!isAdmin && !isOwner) {
       return res.status(403).render("error", { message: "Not authorized to delete." });
     }
 
     review.deleteOne();
     await event.save();
 
-    // Redirect based on who deleted it
-    res.redirect(isAdmin ? `/events/${eventId}` : "/my-reviews");
+    res.redirect(isAdmin && !isOwner ? `/events/${eventId}` : "/my-reviews");
   } catch (error) {
     console.error("deleteReview error:", error);
     res.status(500).send("Failed to delete review.");
