@@ -1,5 +1,5 @@
 const User = require('./../model/user-model');
-
+const Event = require('./../model/events-model');
 const bcrypt = require('bcrypt');
 
 exports.registerGet = (req, res) => {
@@ -66,7 +66,6 @@ exports.loginPost = async (req, res) => {
 
         req.session.user = {
             id: user._id,
-            _id: user._id,
             username: user.username,
             role: user.role
         }
@@ -146,28 +145,75 @@ exports.postEditInfo = async (req, res) => {
 
 };
 
-exports.deleteAcc = async (req, res) => {
-    res.render('delete-acc')
+exports.getDeleteAcc = async (req, res) => {
+    const delUserId = req.session.user.id
+    res.render('delete-acc', { delUserId })
 };
 
 
 exports.postDeleteAcc = async (req, res) => {
-    const userId = req.session.user.id;
+    const delUserId = req.body.delUserId;
+    // function to delete all events created by user
+    const delAllEvents = async function (userId) {
+        const allUserEvents = await Event.retrieveFromUser(userId);
+        try {
+            for (const oneEvent of allUserEvents) {
+                await Event.deleteEvent(oneEvent._id);
+            }
+            console.log("All this user's events have been deleted.")
+        }
+        catch (error) {
+            console.error("Error deleting events:", err);
+        }
+    };
 
-    if (await User.deleteAccount(userId)) {
-        console.log("Your account has been successfully deleted.")
-        req.session.destroy(() => {
-            res.redirect('/register');
-        })
-    }
-    else {
+    try {
+        // if user acc being deleted is their own, session gets destroyed. else, redirected to profile
+        if (delUserId === req.session.user.id) {
+            await delAllEvents(delUserId);
+            await User.deleteAccount(delUserId)
+            console.log("Your account has been successfully deleted.")
+            req.session.destroy(() => {
+                res.redirect('/profile');
+            })
+
+        } else {
+            await delAllEvents(delUserId);
+            await User.deleteAccount(delUserId)
+            console.log("Admin: The account has been successfully deleted.")
+            res.redirect('/profile');
+
+        }
+    } catch (error) {
         console.log('Your attempt was unsuccessful, please try again.')
         return res.send(`Your attempt was unsuccessful, please try again. <br>
                 <a href='/profile'> Profile </a>`)
     }
 };
 
-exports.passwordAuth = async (req, res) => {
+exports.getDeleteUserAcc = async (req, res) => {
+    // render ejs file where you can search by username, only accessible by admin acc, then j implement the same delete acc funct 
+    if (req.session.user.role == 'admin') {
+        res.render('admin-user-delete')
+    }
+    else {
+        return res.send(`You do not have authorization to view this page. <br> 
+            <a href='/index'> Home </a>`)
+    }
+};
+
+exports.postDeleteUserAcc = async (req, res) => {
+    const adminPassword = req.body.adminPassword;
+    const delUser = await User.findByUsername(req.body.delUsername);
+
+    const match = await bcrypt.compare(adminPassword, delUser.password);
+    if (match) {
+        res.render('delete-acc-admin', { delUsername: delUser.username, delUserId: delUser.id })
+    }
+};
+
+
+exports.getPasswordAuth = async (req, res) => {
     res.render('password-auth')
 };
 
@@ -180,8 +226,8 @@ exports.postPasswordAuth = async (req, res) => {
 
         if (passedUser.phone == passedPhone) {
             req.session.user = {
-            email: passedEmail
-        }
+                email: passedEmail
+            }
             res.render('update-password')
         } else {
             return res.send(`Your entry did not match our records, please try again. <br>
@@ -194,6 +240,8 @@ exports.postPasswordAuth = async (req, res) => {
                  <a href='/reset-password'> Reset </a>`)
     }
 };
+
+
 
 exports.resetPassword = async (req, res) => {
     const email = req.session.user.email;

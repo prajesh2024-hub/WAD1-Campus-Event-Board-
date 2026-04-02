@@ -8,20 +8,11 @@ exports.isLoggedIn = (req, res, next) => {
     next();
 }
 
-exports.isExistingUser = async (req, res, next) => {
-     const email= req.body.user.email || "";
-            
-    try {
-        let existingUser = await User.findByEmail(email);
-        if (existingUser) {
-            console.log("Email already in use, redirecting to register");
-            return res.send(`Email addres: ${email} already exists. Please try again with a different email address. <br>
-                <a href='/register'> Register </a>`);
-        }
-
-    } catch (error) {
-        console.log("Error" + error);
-        console.error(error)
+exports.isAdminUser = async (req, res, next) => {
+    if (req.session.user.role === 'admin') {
+        next();
+    } else {
+         res.render(`You do not have authorization to view this page. <br> 
+            <a href='/'> Home </a>`)
     }
-    next();
 };
