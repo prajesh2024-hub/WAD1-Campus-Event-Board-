@@ -48,16 +48,6 @@
     <p><a href="/login">Login</a> to RSVP.</p>
   <% } else if (isOwner) { %>
     <p>You cannot join your own event.</p>
-    <% } else if (isWaitlisted) { %>
-    <p>You are already on the waitlist for this event.</p>
-    <form action="/events/<%= event.id %>/leave-waitlist" method="post">
-      <button type="submit">Leave Waitlist</button>
-    </form>
-    <% } else if (attendeeCount = event.maxAttendees) {%>
-      <p>This event is full, would you like to join the waitlist?</p>
-      <form action="/events/<%= event.id %>/waitlisted" method="post">
-        <button type="submit">Join Waitlist</button>
-      </form>
   <% } else if (!hasJoined) { %>
     <form action="/events/<%= event.id %>/rsvp" method="POST">
       <button type="submit">Join Event</button>
