@@ -74,11 +74,6 @@ async function getEventReviews(req, res) {
       return res.status(404).render("error", { message: "Event not found." });
     }
 
-    // Check if current user is the organizer
-    if (event.createdBy._id.toString() !== req.session.user.id.toString()) {
-      return res.status(403).render("error", { message: "You can only view reviews for your own events." });
-    }
-
     res.render("reviews", {
       event,
       reviews: event.reviews || [],
@@ -136,9 +131,7 @@ async function updateReview(req, res) {
     if (!event) return res.status(404).render("error", { message: "Event not found." });
 
     const review = event.reviews.id(reviewId);
-    if (!review || review.userId.toString() !== userId) {
-      return res.status(403).render("error", { message: "Not authorised to edit this review." });
-    }
+    if (!review) return res.status(404).render("error", { message: "Review not found." });
 
     review.rating = parseInt(rating);
     review.reviewText = reviewText;
@@ -165,14 +158,20 @@ async function deleteReview(req, res) {
     if (!event) return res.status(404).render("error", { message: "Event not found." });
 
     const review = event.reviews.id(reviewId);
-    if (!review || review.userId.toString() !== userId) {
-      return res.status(403).render("error", { message: "Not authorised to delete this review." });
+    if (!review) return res.status(404).render("error", { message: "Review not found." });
+
+    // Allow delete if: user is an admin
+    const isAdmin = req.session.user.role === 'admin';
+
+    if (!isAdmin) {
+      return res.status(403).render("error", { message: "Not authorized to delete." });
     }
 
     review.deleteOne();
     await event.save();
 
-    res.redirect("/my-reviews");
+    // Redirect based on who deleted it
+    res.redirect(isAdmin ? `/events/${eventId}` : "/my-reviews");
   } catch (error) {
     console.error("deleteReview error:", error);
     res.status(500).send("Failed to delete review.");
