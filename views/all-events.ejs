@@ -54,7 +54,15 @@
 
             <% for (let i = 0; i < eventsList.length; i++) { %>
                 <% let event = eventsList[i]; %>
-                <% if (event.endDate >= new Date()) { %>
+                <!--finds the event exact hour and minutes for which the event starts ->
+                <!-.map(Number) runs Number() on each element, turning it into [19, 30] -->
+                <!--setHours(hours, minutes, seconds, milliseconds) sets the time portion of a Date object.-->
+                <%
+                    let [evtHours, evtMinutes] = event.time.split(':').map(Number);
+                    let eventStart = new Date(event.startDate);
+                    eventStart.setHours(evtHours, evtMinutes, 0, 0);
+                %>
+                <% if (eventStart >= new Date()) { %>
                 <tr>
                     <!-- Event title -->
                     <td><strong><%= event.title %></strong></td>
