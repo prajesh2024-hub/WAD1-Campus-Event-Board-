@@ -4,10 +4,15 @@
 <div class="container">
   <h1>My RSVPs</h1>
   <% 
+  // get the current date and time to compare events against "now"
   const now = new Date();
+
+  // filter all events and keep only the ones where the current user is attending
   const attendingEvents = events.filter(event => 
     event.attendees && event.attendees.some(attendee => attendee._id.toString() === currentUser.id.toString()));
+  // events where the start date is >= today
   const upcomingEvents = attendingEvents.filter(event => new Date(event.startDate) >= now);
+  //events where the end date already passed
   const pastEvents = attendingEvents.filter(event => new Date(event.endDate) < now);
   const waitlistEvents = events.filter(event => 
     event.waitlist && event.waitlist.some(id => id.toString() === currentUser.id.toString())
@@ -28,6 +33,8 @@
         <div class="event-card">
           <h3><%= event.title %></h3>
           <p><%= event.description %></p>
+
+          <!-- display either a single date or a date range -->
           <p><strong>Date:</strong> 
             <% if (new Date(event.startDate).toDateString() === new Date(event.endDate).toDateString()) { %>
               <%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %>
