@@ -68,7 +68,7 @@ async function postReview(req, res) {
     });
 
     await event.save();
-    res.redirect(`/events/${eventId}`);
+    res.redirect("/my-reviews");
   } catch (error) {
     console.error("postReview error:", error);
     res.status(500).send("Failed to submit review.");
