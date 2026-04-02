@@ -1,26 +1,40 @@
 const Event = require("../model/events-model");
 
 async function getReview(req, res) {
-  //check if there is a session going on and if there's a user tied to it.
+  
   try {
+    //check if there is a session going on and if there's a user tied to it.
     if (!req.session || !req.session.user) {
       return res.redirect("/login");
     }
     const eventId = req.params.id;
     const event = await Event.findById(eventId);
-    
+    const userId = req.session.user.id.toString();
+    const hasAttended = event.attendees.includes(userId);
+
+    // If the user hasn't attended the event, show an error page
+    if (!hasAttended) {
+      return res.status(403).render("error", {
+        message: "You must attend the event to review it."
+      });
+    }
+
+    // If the event doesn't exist, show an error page
     if (!event) {
       return res.status(404).render("error", { message: "Event not found." });
     }
-
-    const userId = req.session.user.id.toString();
-    const alreadyReviewed = (event.reviews || []).some(
-      r => r.userId && r.userId.toString() === userId
-    );
-
+    
+    // Check if the user has already reviewed this event
+    let alreadyReviewed = false;
+    for (const review of event.reviews || []) {
+      if (review.userId && review.userId.toString() === userId) {
+        alreadyReviewed = true;
+        break; // stops early ✓
+      }
+    }
     res.render("review-prompt", {
       event,
-      currentUser: req.session.user,
+      
       alreadyReviewed
     });
 
@@ -38,26 +52,24 @@ async function postReview(req, res) {
 
     const eventId = req.params.id;
     const { rating, reviewText } = req.body;
-
     const event = await Event.findById(eventId);
-    if (!event) {
-      return res.status(404).render("error", { message: "Event not found." });
-    }
+    const userId = req.session.user.id.toString();
+
 
     // Initialize reviews array if it doesn't exist
     if (!event.reviews) {
       event.reviews = [];
     }
 
-    // Prevent duplicate reviews from the same user
-    const userId = req.session.user.id.toString();
-    const alreadyReviewed = event.reviews.some(
-      review => review.userId && review.userId.toString() === userId
-    );
-    if (alreadyReviewed) {
-      return res.status(400).render("error", { message: "You have already submitted a review for this event." });
+    // Check if the user has already reviewed this event
+    let alreadyReviewed = false;
+    for (const review of event.reviews || []) {
+      if (review.userId && review.userId.toString() === userId) {
+        alreadyReviewed = true;
+        break; // stops early ✓
+      }
     }
-
+  
     // Add new review
     event.reviews.push({
       userId: req.session.user.id,
@@ -83,7 +95,16 @@ async function getEventReviews(req, res) {
     }
 
     const eventId = req.params.id;
+    const userId = req.session.user.id;
+    // Fetch event with reviews and organizer info
     const event = await Event.findById(eventId).populate('createdBy');
+
+
+    if (!event.createdBy || event.createdBy._id.toString() !== userId) {
+      return res.status(403).render("error", {
+        message: "Only the event organizer can view reviews."
+      });
+    }
 
     if (!event) {
       return res.status(404).render("error", { message: "Event not found." });
@@ -109,9 +130,10 @@ async function getMyReviews(req, res) {
     }
 
     const userId = req.session.user.id.toString();
-
+    // Find all events that have reviews by this user
     const events = await Event.find({ "reviews.userId": userId }).select("title reviews");
 
+    // Check if we're in edit mode for a specific review
     const editingId = req.query.editing || null;
 
     // Flatten to just the user's own reviews, keeping the parent event info
@@ -123,7 +145,7 @@ async function getMyReviews(req, res) {
         }
       });
     });
-
+    // Sort reviews by most recent first
     myReviews.sort((a, b) => new Date(b.review.createdAt) - new Date(a.review.createdAt));
 
     res.render("my-reviews", { myReviews, currentUser: req.session.user, editingId });
