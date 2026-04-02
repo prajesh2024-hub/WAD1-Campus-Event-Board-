@@ -33,6 +33,10 @@ const eventSchema = new mongoose.Schema({
     type: Number,
     default: 50
   },
+  duration: {
+    type: Number,
+    required: true
+  },
   organizer: {
     type: String,
     required: true
@@ -80,18 +84,19 @@ const Event = mongoose.model("Event", eventSchema);
 module.exports = Event;
 
 // check duplicate event
-module.exports.eventExists = async function (title, dateFrom, dateTo, time, venue, category) {
+module.exports.eventExists = async function (title, dateFrom, dateTo, time, venue, category, duration) {
   const events = await Event.find();
 
-  for (let e of events) {  
+  for (let e of events) {
     const titleMatch = e.title.toLowerCase().trim() === title.toLowerCase().trim();
     const venueMatch = e.venue.toLowerCase().trim() === venue.toLowerCase().trim();
     const categoryMatch = e.category.toLowerCase().trim() === category.toLowerCase().trim();
     const timeMatch = e.time.trim() === time.trim();
     const startMatch = new Date(e.startDate).toDateString() === new Date(dateFrom).toDateString();
     const endMatch = new Date(e.endDate).toDateString() === new Date(dateTo).toDateString();
+    const durationMatch = Number(e.duration) === Number(duration);
 
-    if (titleMatch && venueMatch && categoryMatch && timeMatch && startMatch && endMatch) {
+    if (titleMatch && venueMatch && categoryMatch && timeMatch && startMatch && endMatch && durationMatch) {
       return true;
     }
   }
@@ -109,6 +114,7 @@ module.exports.addEvent = async function (
   venue,
   category,
   maxAttendees,
+  duration,
   organizer,
   createdBy = null,
   createdByUsername = null
@@ -122,6 +128,7 @@ module.exports.addEvent = async function (
     venue,
     category,
     maxAttendees,
+    duration,
     organizer,
     createdBy,
     createdByUsername,
@@ -194,10 +201,11 @@ module.exports.updateEvents = function (
   time,
   venue,
   category,
-  maxAttendees
+  maxAttendees,
+  duration
 ) {
   return Event.findByIdAndUpdate(
-    id,{ title, description, startDate, endDate, time, venue, category, maxAttendees },{ new: true });
+    id, { title, description, startDate, endDate, time, venue, category, maxAttendees, duration }, { new: true });
 };
 
 module.exports.deleteEvent = async function (id) {

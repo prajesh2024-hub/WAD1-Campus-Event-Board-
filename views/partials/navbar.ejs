@@ -4,17 +4,19 @@
     <a href="/index" class="navbar-logo">
         <img src="/css/img/logo.png" alt="SMU Logo">
     </a>
-    <a href="/create-event">Create Events</a>
-    <a href="/my-events">My Events</a>
-    <a href="/all-events">All Events</a>
-  
     <% if (currentUser) { %>
+      <a href="/create-event">Create Events</a>
+      <a href="/my-events">My Events</a>
+      <a href="/all-events">All Events</a>
       <a href="/my-rsvps">My RSVPs</a>
       <a href="/my-wishlist">My Wishlist</a>
       <a href="/my-reviews">My Reviews</a>
       <a href="/profile">Profile</a>
       <a href="/logout">Logout</a>
     <% } else { %>
+      <a href="/login">Create Events</a>
+      <a href="/login">My Events</a>
+      <a href="/login">All Events</a>
       <a href="/login">Login</a>
       <a href="/register">Register</a>
     <% } %>

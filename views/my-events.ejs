@@ -11,6 +11,7 @@
             <th>Title</th>
             <th>Date</th>
             <th>Time</th>
+            <th>Duration</th>
             <th>Location</th>
             <th>Category</th>
             <th>Max Attendees</th>
@@ -27,6 +28,13 @@
               <% } %>
             </td>
             <td><%= event.time %></td>
+            <td>
+                <% if (event.duration >= 60) { %>
+                    <%= Math.floor(event.duration / 60) %>h <%= event.duration % 60 %>m
+                <% } else { %>
+                    <%= event.duration %>m
+                <% } %>
+            </td>
             <td><%= event.venue %></td>
             <td><%= event.category %></td>
             <td><%= event.maxAttendees %></td>

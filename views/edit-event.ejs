@@ -48,6 +48,10 @@
             <td><label>Max Attendees *</label></td>
             <td><input type="number" name="maxAttendees" value="<%= event.maxAttendees %>"></td>
         </tr>
+        <tr>
+            <td><label>Duration (mins) *</label></td>
+            <td><input type="number" name="duration" value="<%= event.duration %>" required></td>
+        </tr>
     </table>
     <div class="form-actions">
         <button type="submit" class="btn-primary">Update Event</button>

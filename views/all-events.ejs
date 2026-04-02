@@ -40,6 +40,7 @@
                 <th>Start Date</th>
                 <th>End Date</th>
                 <th>Time</th>
+                <th>Duration</th>
                 <th>Venue</th>
                 <th>Category</th>
                 <th>Organizer</th>
@@ -62,6 +63,13 @@
                     <td><%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
                     <td><%= new Date(event.endDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
                     <td><%= event.time %></td>
+                    <td>
+                        <% if (event.duration >= 60) { %>
+                            <%= Math.floor(event.duration / 60) %>h <%= event.duration % 60 %>m
+                        <% } else { %>
+                            <%= event.duration %>m
+                        <% } %>
+                    </td>
                     <td><%= event.venue %></td>
                     <td><%= event.category %></td>
                     <td><%= event.organizer %></td>
@@ -77,7 +85,7 @@
                                 <button type="submit" title="Remove from wishlist" class="star-button">★</button>
                             </form>
                         <% } else { %>
-                            <form action="/events/<%= event._id %>/wishlist" method="POST" style="display:inline;">
+                            <form action="/events/<%= event._id %>/add" method="POST" style="display:inline;">
                                 <button type="submit" title="Add to wishlist" class="star-button">☆</button>
                             </form>
                         <% } %>

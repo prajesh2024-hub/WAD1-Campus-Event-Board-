@@ -15,6 +15,7 @@ async function getCreateEvent(req, res) {
       venue: "",
       category: "",
       maxAttendees: "",
+      duration: "",
       organizer: req.session.user.username || "",
       clicked: false,
       error: [],
@@ -41,6 +42,7 @@ async function postCreateEvent(req, res) {
   const venue = req.body.venue;
   const category = req.body.category;
   const maxAttendees = req.body.maxAttendees || 50;
+  const duration = req.body.duration;
   const organizer = req.body.organizer;
   //create an emppty list to store errors
   const error = [];
@@ -59,6 +61,7 @@ async function postCreateEvent(req, res) {
       venue,
       category,
       maxAttendees,
+      duration,
       organizer,
       clicked,
       error,
@@ -75,6 +78,7 @@ async function postCreateEvent(req, res) {
       time,
       venue,
       category,
+      duration,
     );
 
     if (result) {
@@ -90,6 +94,7 @@ async function postCreateEvent(req, res) {
         venue,
         category,
         maxAttendees,
+        duration,
         organizer,
         clicked,
         error,
@@ -108,6 +113,7 @@ async function postCreateEvent(req, res) {
       venue,
       category,
       maxAttendees,
+      duration,
       organizer,
       req.session.user.id,
       req.session.user.username,
@@ -325,6 +331,7 @@ async function postEditEvent(req, res) {
   const venue = req.body.venue;
   const category = req.body.category;
   const maxAttendees = req.body.maxAttendees;
+  const duration = req.body.duration;
 
   try {
     const existing = await Events.findById(id);
@@ -343,7 +350,8 @@ async function postEditEvent(req, res) {
       existing.time === time &&
       existing.venue === venue &&
       existing.category === category &&
-      String(existing.maxAttendees) === String(maxAttendees);
+      String(existing.maxAttendees) === String(maxAttendees) &&
+      String(existing.duration) === String(duration);
 
     if (noChanges) {
       return res.render("edit-event", {
@@ -373,6 +381,7 @@ async function postEditEvent(req, res) {
       venue,
       category,
       maxAttendees,
+      duration,
     );
 
     res.redirect("/my-events");
