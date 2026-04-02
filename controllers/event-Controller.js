@@ -258,7 +258,7 @@ async function getEventDetails(req, res) {
     let isWaitlisted = false;
 
     for (let waitlisted of event.waitlist){
-      if (waitlisted.id.toString() === req.session.user.id.toString()) {
+      if (waitlisted._id.toString() === req.session.user.id.toString()) {
         isWaitlisted = true;
       }
     }
