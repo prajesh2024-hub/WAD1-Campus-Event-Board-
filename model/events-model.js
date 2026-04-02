@@ -139,39 +139,57 @@ module.exports.addEvent = async function (
   return await newEvent.save();
 };
 
-// get all events (upcoming/active only)
+// get all events created by a specific user
+module.exports.retrieveFromUser = function (userId) {
+  return Event.find({ createdBy: userId })
+    .populate("attendees")
+    .populate("createdBy")
+    .populate("waitlist")
+    .sort({ startDate: 1 });
+};
+
+// get all events
 module.exports.retrieveAll = function () {
-  return Event.find({ endDate: { $gte: new Date() } })
+  return Event.find()
     .populate("attendees")
     .populate("createdBy")
     .sort({ startDate: 1 });
 };
 
-// filtered events
+// Get all events, then narrow them down based on what the user searched for
 module.exports.retrieveFiltered = async function (search, category, dateFrom, dateTo) {
-  let query = { endDate: { $gte: new Date() } };
 
-  if (search) {
-    query.$or = [
-      { title: { $regex: search, $options: "i" } },
-      { description: { $regex: search, $options: "i" } }
-    ];
+  // Step 1 - Get all events from the database
+  let allEvents = await Event.retrieveAll()
+
+  // Step 2 - Loop through every event and only keep ones that match the filters
+  let filteredEvents = [];
+
+  for (let i = 0; i < allEvents.length; i++) {
+    let event = allEvents[i];
+
+    // Check if the event title matches the search word (if no search was given, this is always true)
+    // so basically it's trying to say of if search is indeed there and it exists and the       
+    // includes return true, then it would mean false or true, which is true entirely, if !search 
+    //  is true then it won't bother going to the include part correct 
+    let matchesSearch = !search || event.title.toLowerCase().includes(search.toLowerCase());
+
+    // Check if the event category matches the selected category (if no category was given, this is always true)
+    let matchesCategory = !category || event.category === category;
+
+    // Check if the event starts on or after the from date (if no from date was given, this is always true)
+    let matchesDateFrom = !dateFrom || new Date(event.startDate) >= new Date(dateFrom);
+
+    // Check if the event starts on or before the to date (if no to date was given, this is always true)
+    let matchesDateTo = !dateTo || new Date(event.startDate) <= new Date(dateTo);
+
+    // If the event passed all 4 checks, add it to the results list
+    if (matchesSearch && matchesCategory && matchesDateFrom && matchesDateTo) {
+      filteredEvents.push(event);
+    }
   }
 
-  if (category) {
-    query.category = category;
-  }
-
-  if (dateFrom || dateTo) {
-    query.startDate = {};
-    if (dateFrom) query.startDate.$gte = new Date(dateFrom);
-    if (dateTo) query.startDate.$lte = new Date(dateTo);
-  }
-
-  return await Event.find(query)
-    .populate("attendees")
-    .populate("createdBy")
-    .sort({ startDate: 1 });
+  return filteredEvents;
 };
 
 module.exports.updateevents = function (
@@ -186,10 +204,7 @@ module.exports.updateevents = function (
   maxAttendees
 ) {
   return Event.findByIdAndUpdate(
-    id,
-    { title, description, startDate, endDate, time, venue, category, maxAttendees },
-    { new: true }
-  );
+    id,{ title, description, startDate, endDate, time, venue, category, maxAttendees },{ new: true });
 };
 
 module.exports.deleteEvent = async function (id) {

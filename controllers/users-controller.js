@@ -2,8 +2,6 @@ const User = require('./../model/user-model');
 
 const bcrypt = require('bcrypt');
 
-exports.gethome = (req, res) => res.redirect('events');
-
 exports.registerGet = (req, res) => {
     res.render('register');
 };
@@ -73,7 +71,9 @@ exports.loginPost = async (req, res) => {
             role: user.role
         }
 
-        res.redirect('/profile');
+        req.session.save(() => {
+            res.redirect('/index');
+        });
 
     } catch (err) {
         console.error(err);

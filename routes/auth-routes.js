@@ -4,7 +4,6 @@ const router = express.Router();
 const usersController = require('./../controllers/users-controller');
 const authMiddleware = require('./../middleware/authMiddleware');
 
-router.get('/', usersController.gethome);
 
 router.get('/register', usersController.registerGet);
 
