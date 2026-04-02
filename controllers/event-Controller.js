@@ -212,12 +212,10 @@ async function getEventDetails(req, res) {
 
     if (req.session && req.session.user) {
       const currentUserId = req.session.user.id.toString();
-
       if (event.createdBy && event.createdBy.id.toString() === currentUserId) {
         isOwner = true;
       }
-
-      for (const attendee of event.attendees) {
+      for (let attendee of event.attendees) {
         if (attendee.id.toString() === currentUserId) {
           hasJoined = true;
           break;
@@ -271,6 +269,10 @@ async function getEventDetails(req, res) {
 // GET /events/:id/edit
 async function editEvent(req, res) {
   try {
+    let clicked = false;
+    let error = [];
+    let currentUser = req.session.user;
+
     if (!req.session || !req.session.user) {
       return res.redirect("/login");
     }
@@ -283,9 +285,9 @@ async function editEvent(req, res) {
 
     res.render("edit-event", {
       event,
-      clicked: false,
-      error: [],
-      currentUser: req.session.user
+      clicked,
+      error,
+      currentUser
     });
   } catch (error) {
     console.error("editEvent error:", error);

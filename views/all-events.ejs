@@ -39,6 +39,7 @@
                 <th>Title</th>
                 <th>Start Date</th>
                 <th>End Date</th>
+                <th>Time</th>
                 <th>Venue</th>
                 <th>Category</th>
                 <th>Organizer</th>
@@ -60,7 +61,7 @@
                     <!-- Event start and end date -->
                     <td><%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
                     <td><%= new Date(event.endDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
-
+                    <td><%= event.time %></td>
                     <td><%= event.venue %></td>
                     <td><%= event.category %></td>
                     <td><%= event.organizer %></td>
@@ -72,11 +73,11 @@
                     <td>
                         <% let inWishlist = wishlistMap && wishlistMap[event._id.toString()]; %>
                         <% if (inWishlist) { %>
-                            <form action="/my-wishlist/events/<%= event._id %>/remove" method="POST" style="display:inline;">
+                            <form action="/my-wishlist/events/<%= event.id %>/remove" method="POST" style="display:inline;">
                                 <button type="submit" title="Remove from wishlist" class="star-button">★</button>
                             </form>
                         <% } else { %>
-                            <form action="/events/<%= event._id %>/wishlist" method="POST" style="display:inline;">
+                            <form action="/events/<%= event.id %>/wishlist" method="POST" style="display:inline;">
                                 <button type="submit" title="Add to wishlist" class="star-button">☆</button>
                             </form>
                         <% } %>
@@ -86,17 +87,17 @@
                     <td>
                         <div class="action-links">
                             <% if (event.attendees.length >= event.maxAttendees) { %>
-                                <form action="/events/<%= event._id %>/waitlist" method="POST">
+                                <form action="/events/<%= event.id %>/waitlist" method="POST">
                                     <button type="submit">Join Waitlist</button>
                                 </form>
                             <% } else { %>
-                                <form action="/events/<%= event._id %>/rsvp" method="POST">
+                                <form action="/events/<%= event.id %>/rsvp" method="POST">
                                     <button type="submit">Join Event</button>
                                 </form>
                             <% } %>
 
                             <% if (userRole === 'admin') { %>
-                                <form action="/events/<%= event._id %>/delete" method="GET">
+                                <form action="/events/<%= event.id %>/delete" method="GET">
                                     <button type="submit">Delete Event</button>
                                 </form>
                             <% } %>

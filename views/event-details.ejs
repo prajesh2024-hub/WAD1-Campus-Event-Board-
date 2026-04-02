@@ -48,12 +48,12 @@
   <% } else if (isOwner) { %>
     <p>You cannot join your own event.</p>
   <% } else if (!hasJoined) { %>
-    <form action="/events/<%= event._id %>/rsvp" method="POST">
+    <form action="/events/<%= event.id %>/rsvp" method="POST">
       <button type="submit">Join Event</button>
     </form>
   <% } else { %>
     <p>You have already joined this event.</p>
-    <form action="/events/<%= event._id %>/cancel-rsvp" method="POST">
+    <form action="/events/<%= event.id %>/cancel-rsvp" method="POST">
       <button type="submit">Cancel Booking</button>
     </form>
   <% } %>
