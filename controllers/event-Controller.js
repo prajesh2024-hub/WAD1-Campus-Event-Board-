@@ -76,14 +76,10 @@ async function postCreateEvent(req, res) {
     //check if event exists, returns true or false
     const result = await Events.eventExists(
       title,
-      description,
       dateFrom,
       dateTo,
       time,
       venue,
-      category,
-      maxAttendees,
-      organizer
     );
 
     if (result) {
@@ -152,7 +148,7 @@ async function allEvents(req, res) {
         wishlistMap[item.event.toString()] = true;
       });
     }
-
+    // the form is for the search part
     res.render("all-events", {
       eventslist,
       search: "",
@@ -184,7 +180,6 @@ async function postAllEvents(req, res) {
     const dateTo = req.body.dateTo;
   
     // Get filtered events from the model
-
     const eventslist = await Events.retrieveFiltered(search, category, dateFrom, dateTo);
 
     const userWishlist = await WishlistCollection.findOne({ userId: currentUserId });
@@ -243,6 +238,7 @@ async function getEventDetails(req, res) {
       return res.status(404).render("error", { message: "Event not found." });
     }
 
+    // event-details check again and see what the logic is used for 
     const attendeeCount = event.attendees.length;
     let hasJoined = false;
     let isOwner = false;
@@ -407,7 +403,7 @@ async function getDeleteEvent(req, res) {
 
     res.render("delete-event", {
       event,
-      currentUser: req.session.user
+      currentUser: req.session.user // can be removed and checked
     });
   } catch (error) {
     console.error("getDeleteEvent error:", error);
@@ -477,6 +473,7 @@ async function postParticipants(req, res) {
     res.status(500).render("error", { message: "Error removing participant." });
   }
 }
+
 
 module.exports = {
   getCreateEvent,

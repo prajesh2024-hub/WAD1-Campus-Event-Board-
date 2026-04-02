@@ -62,6 +62,7 @@ async function cancelRSVP(req, res) {
     event.attendees = event.attendees.filter(
       attendeeId => attendeeId.toString() !== currentUserId.toString()
     );
+    
     // checks if there are waitlisted people
     if(!event.waitlist) {
         event.waitlist = []

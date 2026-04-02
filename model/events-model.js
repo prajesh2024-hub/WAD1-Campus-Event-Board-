@@ -82,25 +82,17 @@ module.exports = Event;
 // check duplicate event
 module.exports.eventExists = async function (
   title,
-  description,
   dateFrom,
   dateTo,
   time,
   venue,
-  category,
-  maxAttendees,
-  organizer
-) {
+  ) {
   const existing = await Event.findOne({
     title: title,
-    description: description,
     startDate: new Date(dateFrom),
     endDate: new Date(dateTo),
     time: time,
     venue: venue,
-    category: category,
-    maxAttendees: Number(maxAttendees),
-    organizer: organizer
   });
 
   return existing !== null;
