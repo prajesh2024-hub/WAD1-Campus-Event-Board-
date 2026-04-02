@@ -1,0 +1,33 @@
+  <%- include('partials/header') %>
+  <%- include('partials/navbar') %>
+
+  <h2>Participants - <%= event.title %></h2>
+  <a href="/my-events">← Back to My Events</a>
+
+  <% if (event.attendees.length === 0) { %>
+      <p>No participants have joined this event
+  yet.</p>
+  <% } else { %>
+      <table class="participants-table">
+          <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Action</th>
+          </tr>
+          <% event.attendees.forEach(attendee => {
+  %>
+          <tr>
+              <td><%= attendee.username %></td>
+              <td><%= attendee.email %></td>
+              <td>
+                <form action="/events/<%=event._id %>/participants/remove" method="POST">
+                <input type="hidden" name="userId" value="<%= attendee._id %>">
+                <button type="submit">Remove</button>
+                  </form>
+              </td>
+          </tr>
+          <% }); %>
+      </table>
+  <% } %>
+
+        <%- include('partials/footer') %>

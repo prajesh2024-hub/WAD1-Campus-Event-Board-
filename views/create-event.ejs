@@ -1,6 +1,5 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
-<%- include('partials/flash-message') %>
 
 <h2>Create New Event</h2>
 <p>Fill in the details below to create a new campus event.</p>
@@ -13,8 +12,8 @@
     <% } %>
 <% } %>
 
-<form action="/create-event" method="POST">
-    <table border = '1'>
+<form action="/create-event" method="POST" class="create-event-form">
+    <table>
         <tr>
             <td><label>Event Title *</label></td>
             <td><input type="text" name="title" placeholder="e.g. Spring Hackathon 2026" value="<%= title %>"></td>
@@ -37,7 +36,7 @@
         </tr>
         <tr>
             <td><label>Location *</label></td>
-            <td><input type="text" name="venue" placeholder="e.g. Engineering Building, Room 301" value="<%= venue %>"></td>
+            <td><input type="text" name="venue" placeholder="e.g. SOA, SR 2-2" value="<%= venue %>"></td>
         </tr>
         <tr>
             <td><label>Category *</label></td>
@@ -57,12 +56,19 @@
             <td><input type="number" name="maxAttendees" placeholder="e.g. 50" value="<%= maxAttendees %>"></td>
         </tr>
         <tr>
+            <td><label>Duration (mins) *</label></td>
+            <td><input type="number" name="duration" placeholder="e.g. 90" value="<%= duration %>" required></td>
+        </tr>
+        <tr>
             <td><label>Organizer *</label></td>
             <td><input type="text" name="organizer" placeholder="e.g. Computer Science Club" value="<%= organizer %>" required></td>
         </tr>
 
     </table>
-    <br>
-    <a href="/events">Cancel</a>
-    <button type="submit">Create Event</button>
+    <div class="form-actions">
+        <button type="submit" class="btn-primary">Create Event</button>
+        <a href="/events" class="btn-cancel">Cancel</a>
+    </div>
 </form>
+
+<%- include('partials/footer') %>

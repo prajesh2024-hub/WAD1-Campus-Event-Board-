@@ -62,6 +62,7 @@ async function cancelRSVP(req, res) {
     event.attendees = event.attendees.filter(
       attendeeId => attendeeId.toString() !== currentUserId.toString()
     );
+    
     // checks if there are waitlisted people
     if(!event.waitlist) {
         event.waitlist = []
@@ -112,7 +113,7 @@ async function getMyRSVPs(req, res) {
   }
 }
 
-async function PromptWaitlist (req,res){
+async function promptWaitlist (req,res){
   try{
     const eventId = req.params.id;
     const currentUser = req.session.user;
@@ -124,6 +125,7 @@ async function PromptWaitlist (req,res){
     res.status(500).send(error.message);
   }
 }
+
 async function waitlistRSVPs (req,res){
   try {
     if (!req.session || !req.session.user) {

@@ -2,11 +2,16 @@
 <%- include('partials/navbar') %>
 
 <h2>Delete Event</h2>
-<p>Are you sure you want to delete "<%= event.title %>"?</p>
 
-<form action="/events/<%= event._id %>/delete" method="POST">
-    <button type="submit">Yes, delete it</button>
-</form>
+<div class="delete-card">
+    <p>Are you sure you want to delete "<strong><%= event.title %></strong>"? This cannot be undone.</p>
+    <div class="form-actions">
+        <form action="/events/<%= event._id %>/delete" method="POST">
+            <button type="submit" class="btn-danger">Yes, delete it</button>
+        </form>
+        <a href="/my-events" class="btn-cancel">No, go back</a>
+    </div>
+</div>
 
-<a href="/my-events">No, go back</a>
+<%- include('partials/footer') %>
 

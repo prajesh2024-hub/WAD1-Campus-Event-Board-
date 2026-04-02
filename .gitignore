@@ -4,6 +4,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Bcrypt
+node_modules/bcrypt/build/
+node_modules/bcrypt/lib/binding/
+.node-gyp/
+build/
+
 # Environment variables
 .env
 .env.local
