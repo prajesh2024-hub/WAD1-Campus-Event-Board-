@@ -1,4 +1,3 @@
-
 //Get Service Model
 const Events = require("./../model/events-model");
 const WishlistCollection = require("../model/wishlist-model");
@@ -6,9 +5,6 @@ const WishlistCollection = require("../model/wishlist-model");
 // GET /create-event
 async function getCreateEvent(req, res) {
   try {
-    if (!req.session || !req.session.user) {
-      return res.redirect("/login");
-    }
     //renders an empty form for the ejs
     res.render("create-event", {
       title: "",
@@ -22,12 +18,14 @@ async function getCreateEvent(req, res) {
       organizer: req.session.user.username || "",
       clicked: false,
       error: [],
-      currentUser: req.session.user
+      currentUser: req.session.user,
     });
     //standard error catch
   } catch (error) {
     console.error("getCreateEvent error:", error);
-    res.status(500).render("error", { message: "Failed to load create event page." });
+    res
+      .status(500)
+      .render("error", { message: "Failed to load create event page." });
   }
 }
 
@@ -49,32 +47,26 @@ async function postCreateEvent(req, res) {
   //set clicked as true
   const clicked = true;
 
-   if (new Date(dateFrom) > new Date(dateTo)){
-       error.push("Error adding event: dateFrom cannot be later than dateTo.");
-      // renders the form with their previous answers
-      return res.render("create-event", {
-        title,
-        description,
-        dateFrom,
-        dateTo,
-        time,
-        venue,
-        category,
-        maxAttendees,
-        organizer,
-        clicked,
-        error,
-        currentUser: req.session.user
-      });
+  if (new Date(dateFrom) > new Date(dateTo)) {
+    error.push("Error adding event: dateFrom cannot be later than dateTo.");
+    // renders the form with their previous answers
+    return res.render("create-event", {
+      title,
+      description,
+      dateFrom,
+      dateTo,
+      time,
+      venue,
+      category,
+      maxAttendees,
+      organizer,
+      clicked,
+      error,
+      currentUser: req.session.user,
+    });
   }
 
   try {
-    //check if there is a session going on and if there's a user tied to it.
-    //if none then redirect to login
-    if (!req.session || !req.session.user) {
-      return res.redirect("/login");
-    }
-
     //check if event exists, returns true or false
     const result = await Events.eventExists(
       title,
@@ -82,7 +74,7 @@ async function postCreateEvent(req, res) {
       dateTo,
       time,
       venue,
-      category
+      category,
     );
 
     if (result) {
@@ -101,7 +93,7 @@ async function postCreateEvent(req, res) {
         organizer,
         clicked,
         error,
-        currentUser: req.session.user
+        currentUser: req.session.user,
       });
     }
 
@@ -118,9 +110,9 @@ async function postCreateEvent(req, res) {
       maxAttendees,
       organizer,
       req.session.user.id,
-      req.session.user.username
+      req.session.user.username,
     );
-   
+
     res.redirect("/my-events");
     //standard catch for error
   } catch (err) {
@@ -133,21 +125,17 @@ async function postCreateEvent(req, res) {
 
 async function allEvents(req, res) {
   try {
-     //check if there is a session going on and if there's a user tied to it.
-    //if none then redirect to login
-    if (!req.session || !req.session.user) {
-      return res.redirect("/login");
-    }
-
     const userRole = req.session.user.role;
     const currentUserId = req.session.user.id.toString();
     const eventsList = await Events.retrieveAll();
 
     // userwishlist
-    const userWishlist = await WishlistCollection.findOne({ userId: currentUserId });
+    const userWishlist = await WishlistCollection.findOne({
+      userId: currentUserId,
+    });
     const wishlistMap = {};
     if (userWishlist) {
-      userWishlist.items.forEach(item => {
+      userWishlist.items.forEach((item) => {
         wishlistMap[item.event.toString()] = true;
       });
     }
@@ -160,7 +148,7 @@ async function allEvents(req, res) {
       dateTo: "",
       userRole,
       wishlistMap,
-      currentUser: req.session.user
+      currentUser: req.session.user,
     });
   } catch (error) {
     console.error("allEvents error:", error);
@@ -171,24 +159,27 @@ async function allEvents(req, res) {
 // POST /all-events
 async function postAllEvents(req, res) {
   try {
-    if (!req.session || !req.session.user) {
-      return res.redirect("/login");
-    }
-
     const userRole = req.session.user.role;
     const currentUserId = req.session.user.id.toString();
     const search = req.body.search;
     const category = req.body.category;
     const dateFrom = req.body.dateFrom;
     const dateTo = req.body.dateTo;
-  
-    // Get filtered events from the model
-    const eventsList = await Events.retrieveFiltered(search, category, dateFrom, dateTo);
 
-    const userWishlist = await WishlistCollection.findOne({ userId: currentUserId });
+    // Get filtered events from the model
+    const eventsList = await Events.retrieveFiltered(
+      search,
+      category,
+      dateFrom,
+      dateTo,
+    );
+
+    const userWishlist = await WishlistCollection.findOne({
+      userId: currentUserId,
+    });
     const wishlistMap = {};
     if (userWishlist) {
-      userWishlist.items.forEach(item => {
+      userWishlist.items.forEach((item) => {
         wishlistMap[item.event.toString()] = true;
       });
     }
@@ -201,7 +192,7 @@ async function postAllEvents(req, res) {
       dateTo: dateTo || "",
       userRole,
       wishlistMap,
-      currentUser: req.session.user
+      currentUser: req.session.user,
     });
   } catch (error) {
     console.error("postAllEvents error:", error);
@@ -212,16 +203,11 @@ async function postAllEvents(req, res) {
 // GET /my-events
 async function eventList(req, res) {
   try {
-     //check if there is a session going on and if there's a user tied to it.
-    //if none then redirect to login
-    if (!req.session || !req.session.user) {
-      return res.redirect("/login");
-    }
     const eventsList = await Events.retrieveFromUser(req.session.user.id);
 
     res.render("my-events", {
       eventsList,
-      currentUser: req.session.user
+      currentUser: req.session.user,
     });
   } catch (error) {
     console.error("eventList error:", error);
@@ -235,13 +221,13 @@ async function getEventDetails(req, res) {
     const event = await Events.findById(req.params.id)
       .populate("createdBy")
       .populate("attendees")
-      .populate("waitlist")
+      .populate("waitlist");
     // checks if event even exists if not return error
     if (!event) {
       return res.status(404).render("error", { message: "Event not found." });
     }
 
-    // event-details check again and see what the logic is used for 
+    // event-details check again and see what the logic is used for
     const attendeeCount = event.attendees.length;
     let hasJoined = false;
     let isOwner = false;
@@ -252,7 +238,8 @@ async function getEventDetails(req, res) {
       if (event.createdBy && event.createdBy.id.toString() === currentUserId) {
         isOwner = true;
       }
-      // checks if the user is an attendee for the event itslef
+      // checks if the user is an attendee for the event itself, if it is then it would break
+      // used for the EJS features
       for (let attendee of event.attendees) {
         if (attendee.id.toString() === currentUserId) {
           hasJoined = true;
@@ -264,10 +251,10 @@ async function getEventDetails(req, res) {
     // Fetch host's other past events that have at least one review
     let hostPastReviews = [];
     if (event.createdBy) {
-
       // Step 1 - Get all events by the same host
-      const hostEvents = await Events.find({ createdBy: event.createdBy.id })
-        .select("title endDate reviews");
+      const hostEvents = await Events.find({
+        createdBy: event.createdBy.id,
+      }).select("title endDate reviews");
 
       // Step 2 - Filter in JavaScript
       const now = new Date();
@@ -295,11 +282,13 @@ async function getEventDetails(req, res) {
       hasJoined,
       isOwner,
       hostPastReviews,
-      currentUser: req.session && req.session.user ? req.session.user : null
+      currentUser: req.session && req.session.user ? req.session.user : null,
     });
   } catch (error) {
     console.error("getEventDetails error:", error);
-    res.status(500).render("error", { message: "Failed to load event details." });
+    res
+      .status(500)
+      .render("error", { message: "Failed to load event details." });
   }
 }
 
@@ -309,10 +298,6 @@ async function editEvent(req, res) {
     let clicked = false;
     let error = [];
     let currentUser = req.session.user;
-
-    if (!req.session || !req.session.user) {
-      return res.redirect("/login");
-    }
     const event = await Events.findById(req.params.id);
     if (!event) {
       return res.status(404).render("error", { message: "Event not found." });
@@ -321,7 +306,7 @@ async function editEvent(req, res) {
       event,
       clicked,
       error,
-      currentUser
+      currentUser,
     });
   } catch (error) {
     console.error("editEvent error:", error);
@@ -331,10 +316,6 @@ async function editEvent(req, res) {
 
 // POST /events/:id/edit
 async function postEditEvent(req, res) {
-  if (!req.session || !req.session.user) {
-    return res.redirect("/login");
-  }
-
   const id = req.params.id;
   const title = req.body.title;
   const description = req.body.description;
@@ -369,7 +350,7 @@ async function postEditEvent(req, res) {
         event: existing,
         clicked: true,
         error: ["No changes were made."],
-        currentUser: req.session.user
+        currentUser: req.session.user,
       });
     }
     // double checks if the startsdate is not greater then the end date
@@ -378,7 +359,7 @@ async function postEditEvent(req, res) {
         event: existing,
         clicked: true,
         error: ["Error: start date cannot be later than end date."],
-        currentUser: req.session.user
+        currentUser: req.session.user,
       });
     }
 
@@ -391,7 +372,7 @@ async function postEditEvent(req, res) {
       time,
       venue,
       category,
-      maxAttendees
+      maxAttendees,
     );
 
     res.redirect("/my-events");
@@ -403,10 +384,6 @@ async function postEditEvent(req, res) {
 
 // GET /events/:id/delete
 async function getDeleteEvent(req, res) {
-  if (!req.session || !req.session.user) {
-    return res.redirect("/login");
-  }
-
   const id = req.params.id;
   try {
     const event = await Events.findById(id);
@@ -417,7 +394,7 @@ async function getDeleteEvent(req, res) {
 
     res.render("delete-event", {
       event,
-      currentUser: req.session.user // can be removed and checked
+      currentUser: req.session.user, // can be removed and checked
     });
   } catch (error) {
     console.error("getDeleteEvent error:", error);
@@ -427,10 +404,6 @@ async function getDeleteEvent(req, res) {
 
 // POST /events/:id/delete
 async function deleteEvent(req, res) {
-  if (!req.session || !req.session.user) {
-    return res.redirect("/login");
-  }
-
   const id = req.params.id;
   try {
     await Events.deleteEvent(id);
@@ -442,10 +415,8 @@ async function deleteEvent(req, res) {
 }
 
 // GET /events/:id/participants
+// current user is apssed for the navbar
 async function getParticipants(req, res) {
-  if (!req.session || !req.session.user) {
-    return res.redirect("/login");
-  }
   const id = req.params.id;
   try {
     const event = await Events.findById(id).populate("attendees");
@@ -453,7 +424,7 @@ async function getParticipants(req, res) {
     res.render("my-participants", {
       participants,
       event,
-      currentUser: req.session.user
+      currentUser: req.session.user,
     });
   } catch (error) {
     console.error("getParticipants error:", error);
@@ -463,9 +434,6 @@ async function getParticipants(req, res) {
 
 // POST /events/:id/participants/remove
 async function postParticipants(req, res) {
-  if (!req.session || !req.session.user) {
-    return res.redirect("/login");
-  }
   const id = req.params.id;
   const userId = req.body.userId;
   try {
@@ -500,5 +468,5 @@ module.exports = {
   getDeleteEvent,
   deleteEvent,
   getParticipants,
-  postParticipants
+  postParticipants,
 };
