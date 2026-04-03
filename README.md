@@ -1,6 +1,6 @@
 # SMU Campus Event Board
 
-A web application for discovering and managing campus events at Singapore Management University.
+A web application for discovering and managing campus events at any university.
 
 ---
 
