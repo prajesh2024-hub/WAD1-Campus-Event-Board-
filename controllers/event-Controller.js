@@ -262,7 +262,7 @@ async function getEventDetails(req, res) {
         isWaitlisted = true;
       }
     }
-
+    // Checks if user is attending the event
     let isAttending = false;
 
     for (let attendee of event.attendees) {
