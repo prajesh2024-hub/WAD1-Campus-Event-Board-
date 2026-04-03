@@ -483,8 +483,7 @@ async function getParticipants(req, res) {
   try {
     const event = await Events.findById(id).populate("attendees");
     if (!event) {                         
-        return   
-    res.status(404).render("error", {
+        return res.status(404).render("error", {
     message: "Event not found." });  
     }        
     const participants = event.attendees;                      
