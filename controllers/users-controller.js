@@ -205,11 +205,20 @@ async function getDeleteUserAcc(req, res) {
 async function postDeleteUserAcc(req, res) {
     const adminPassword = req.body.adminPassword;
     const delUser = await User.findByUsername(req.body.delUsername);
+    const adminUser = await User.findByUsername(req.session.user.username);
+    if (!delUser || delUser == null) {
+        res.send(`Please enter valid username <br> 
+           <a href='/delete-user'> Return </a> `)
+     };
 
-    const match = await bcrypt.compare(adminPassword, delUser.password);
+    const match = await bcrypt.compare(adminPassword, adminUser.password);
     if (match) {
         res.render('delete-acc-admin', { delUsername: delUser.username, delUserId: delUser.id })
+    } else {
+        res.send(`Password mismatch, please try again <br> 
+           <a href='/delete-user'> Return </a> `)
     }
+    
 };
 
 
