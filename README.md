@@ -52,12 +52,17 @@ http://localhost:8000/index.html
 ## Test Accounts
 
 ### Admin Account
-- **Username:** `[ADD ADMIN USERNAME]`
-- **Password:** `[ADD ADMIN PASSWORD]`
+- **Username:** `[admin123]`
+- **Email:** `[admin123@gmail.com]`
+- **Phone Number:** `[123123123]`
+- **Password:** `[123123123]`
 
 ### Regular User Account
-- **Username:** `[ADD USER USERNAME]`
-- **Password:** `[ADD USER PASSWORD]`
+- **Username:** `[user1]`
+- **Email:** `[user1@gmail.com]`
+- **Phone Number:** `[123123123]`
+- **Password:** `[123123123]`
+
 
 ---
 
