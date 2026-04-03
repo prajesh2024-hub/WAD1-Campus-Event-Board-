@@ -31,7 +31,7 @@ async function getCreateEvent(req, res) {
 }
 
 // POST /create-event
-//postint the result
+// Receives the form submission and creates a new event in the database
 async function postCreateEvent(req, res) {
   // gathers all info of the user inputs
   const title = req.body.title;
@@ -44,7 +44,7 @@ async function postCreateEvent(req, res) {
   const maxAttendees = req.body.maxAttendees || 50;
   const duration = req.body.duration;
   const organizer = req.body.organizer;
-  //create an emppty list to store errors
+  // create an empty list to collect validation errors
   const error = [];
   //set clicked as true
   const clicked = true;
@@ -244,8 +244,8 @@ async function getEventDetails(req, res) {
       if (event.createdBy && event.createdBy.id.toString() === currentUserId) {
         isOwner = true;
       }
-      // checks if the user is an attendee for the event itself, if it is then it would break
-      // used for the EJS features
+      // loops through the attendees list to check if the current user has already joined the event
+      // hasJoined controls which buttons are shown in the view (join vs cancel)
       for (let attendee of event.attendees) {
         if (attendee.id.toString() === currentUserId) {
           hasJoined = true;
@@ -336,8 +336,8 @@ async function postEditEvent(req, res) {
   const id = req.params.id;
   const title = req.body.title;
   const description = req.body.description;
-  const startDate = req.body.startDate;
-  const endDate = req.body.endDate;
+  const dateFrom = req.body.dateFrom;
+  const dateTo = req.body.dateTo;
   const time = req.body.time;
   const venue = req.body.venue;
   const category = req.body.category;
@@ -356,8 +356,8 @@ async function postEditEvent(req, res) {
     const noChanges =
       existing.title === title &&
       existing.description === description &&
-      existing.startDate.toISOString().split("T")[0] === startDate &&
-      existing.endDate.toISOString().split("T")[0] === endDate &&
+      existing.startDate.toISOString().split("T")[0] === dateFrom &&
+      existing.endDate.toISOString().split("T")[0] === dateTo &&
       existing.time === time &&
       existing.venue === venue &&
       existing.category === category &&
@@ -372,8 +372,8 @@ async function postEditEvent(req, res) {
         currentUser: req.session.user,
       });
     }
-    // double checks if the startsdate is not greater then the end date
-    if (new Date(startDate) > new Date(endDate)) {
+    // validates that the start date is not later than the end date
+    if (new Date(dateFrom) > new Date(dateTo)) {
       return res.render("edit-event", {
         event: existing,
         clicked: true,
@@ -386,8 +386,8 @@ async function postEditEvent(req, res) {
       id,
       title,
       description,
-      startDate,
-      endDate,
+      dateFrom,
+      dateTo,
       time,
       venue,
       category,
@@ -427,7 +427,7 @@ async function deleteEvent(req, res) {
   const id = req.params.id;
   try {
     await Events.deleteEvent(id);
-    res.redirect("/all-events");
+    res.redirect("/my-events");
   } catch (error) {
     console.error("deleteEvent error:", error);
     res.status(500).render("error", { message: "Error deleting event." });
@@ -435,7 +435,7 @@ async function deleteEvent(req, res) {
 }
 
 // GET /events/:id/participants
-// current user is apssed for the navbar
+// currentUser is passed to the view for the navbar
 async function getParticipants(req, res) {
   const id = req.params.id;
   try {

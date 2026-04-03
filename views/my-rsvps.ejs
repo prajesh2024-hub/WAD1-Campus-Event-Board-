@@ -40,9 +40,9 @@
           <p><strong>Organizer:</strong> <%= event.createdBy ? event.createdBy.name : 'Unknown' %></p>
           <p><strong>Attendance:</strong> <%= event.attendees.length %> / <%= event.maxAttendees %></p>
 
-          <p><a href="/events/<%= event._id %>">View Details</a></p>
+          <p><a href="/events/<%= event.id %>">View Details</a></p>
 
-          <form action="/events/<%= event._id %>/cancel-rsvp" method="POST">
+          <form action="/events/<%= event.id %>/cancel-rsvp" method="POST">
             <button type="submit">Cancel RSVP</button>
           </form>
         </div>
@@ -81,7 +81,7 @@
           </p>
           <p><strong>Organizer:</strong> <%= event.createdBy ? event.createdBy.name : 'Unknown' %></p>
 
-          <p><a href="/events/<%= event._id %>">View Details</a></p>
+          <p><a href="/events/<%= event.id %>">View Details</a></p>
         </div>
       <% }) %>
     <% } %>
@@ -107,69 +107,15 @@
           <p><strong>Venue:</strong> <%= event.venue %></p>
           <p><strong>Organizer:</strong> <%= event.createdBy ? event.createdBy.name : 'Unknown' %></p>
 
-          <a href="/events/<%= event._id %>/review"><button>Leave a review</button></a>
+          <a href="/events/<%= event.id %>/review"><button>Leave a review</button></a>
 
-          <p><a href="/events/<%= event._id %>">View Details</a></p>
+          <p><a href="/events/<%= event.id %>">View Details</a></p>
         </div>
       <% }) %>
     <% } %>
   </div>
 
 </div>
-
-<style>
-  .tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #ddd;
-  }
-
-  .tab-btn {
-    padding: 10px 20px;
-    background: #f0f0f0;
-    border: none;
-    border-bottom: 3px solid transparent;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s ease;
-  }
-
-  .tab-btn:hover {
-    background: #e0e0e0;
-  }
-
-  .tab-btn.active {
-    background: #1d4ed8;
-    color: white;
-    border-bottom-color: #1d4ed8;
-  }
-
-  .tab-content {
-    display: none;
-  }
-
-  .tab-content.active {
-    display: block;
-  }
-
-  .waitlist-badge {
-    background: #fbbf24;
-    color: #78350f;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.9em;
-  }
-
-  .waitlist-card {
-    opacity: 0.8;
-    border-left: 4px solid #fbbf24;
-  }
-
-  .past-card {
-    border-left: 4px solid #9ca3af;
-  }
-</style>
 
 <script>
   function switchTab(tabName) {

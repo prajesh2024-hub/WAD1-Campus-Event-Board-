@@ -6,7 +6,7 @@
 <h2>Edit Event</h2>
 <p>Update the details for "<%= event.title %>"</p>
 
-<form action="/events/<%= event._id %>/edit" method="POST" class="create-event-form">
+<form action="/events/<%= event.id %>/edit" method="POST" class="create-event-form">
     <table>
         <tr>
             <td><label>Event Title *</label></td>
@@ -18,11 +18,11 @@
         </tr>
         <tr>
             <td><label>From Date *</label></td>
-            <td><input type="date" name="startDate" value="<%= event.startDate ? event.startDate.toISOString().split('T')[0] : '' %>"></td>
+            <td><input type="date" name="dateFrom" value="<%= event.startDate ? event.startDate.toISOString().split('T')[0] : '' %>"></td>
         </tr>
         <tr>
             <td><label>To Date *</label></td>
-            <td><input type="date" name="endDate" value="<%= event.endDate ? event.endDate.toISOString().split('T')[0] : '' %>"></td>
+            <td><input type="date" name="dateTo" value="<%= event.endDate ? event.endDate.toISOString().split('T')[0] : '' %>"></td>
         </tr>
         <tr>
             <td><label>Time *</label></td>

@@ -2,11 +2,11 @@ const User = require('./../model/user-model');
 const Event = require('./../model/events-model');
 const bcrypt = require('bcrypt');
 
-exports.registerGet = (req, res) => {
+function registerGet(req, res) {
     res.render('register');
-};
+}
 
-exports.registerPost = async (req, res) => {
+async function registerPost(req, res) {
     const username = req.body.username;
     const email = req.body.email;
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -43,11 +43,11 @@ exports.registerPost = async (req, res) => {
     }
 };
 
-exports.loginGet = (req, res) => {
+function loginGet(req, res) {
     res.render('login');
-};
+}
 
-exports.loginPost = async (req, res) => {
+async function loginPost(req, res) {
     try {
         const user = await User.findByEmail(req.body.email);
 
@@ -80,7 +80,7 @@ exports.loginPost = async (req, res) => {
     }
 };
 
-exports.profile = async (req, res) => {
+async function profile(req, res) {
 
     const passedUser = await User.findByUsername(req.session.user.username);
 
@@ -96,13 +96,13 @@ exports.profile = async (req, res) => {
 
 };
 
-exports.getEditInfo = async (req, res) => {
+async function getEditInfo(req, res) {
 
     const userdetails = await User.findByUsername(req.session.user.username);
     res.render('edit-info', { user: userdetails })
 };
 
-exports.postEditInfo = async (req, res) => {
+async function postEditInfo(req, res) {
     const userId = req.session.user.id //filter
 
     const newUsername = req.body.username;
@@ -145,13 +145,13 @@ exports.postEditInfo = async (req, res) => {
 
 };
 
-exports.getDeleteAcc = async (req, res) => {
+async function getDeleteAcc(req, res) {
     const delUserId = req.session.user.id
     res.render('delete-acc', { delUserId })
 };
 
 
-exports.postDeleteAcc = async (req, res) => {
+async function postDeleteAcc(req, res) {
     const delUserId = req.body.delUserId;
     // function to delete all events created by user
     const delAllEvents = async function (userId) {
@@ -191,7 +191,7 @@ exports.postDeleteAcc = async (req, res) => {
     }
 };
 
-exports.getDeleteUserAcc = async (req, res) => {
+async function getDeleteUserAcc(req, res) {
     // render ejs file where you can search by username, only accessible by admin acc, then j implement the same delete acc funct 
     if (req.session.user.role == 'admin') {
         res.render('admin-user-delete')
@@ -202,7 +202,7 @@ exports.getDeleteUserAcc = async (req, res) => {
     }
 };
 
-exports.postDeleteUserAcc = async (req, res) => {
+async function postDeleteUserAcc(req, res) {
     const adminPassword = req.body.adminPassword;
     const delUser = await User.findByUsername(req.body.delUsername);
 
@@ -213,11 +213,11 @@ exports.postDeleteUserAcc = async (req, res) => {
 };
 
 
-exports.getPasswordAuth = async (req, res) => {
+async function getPasswordAuth(req, res) {
     res.render('password-auth')
-};
+}
 
-exports.postPasswordAuth = async (req, res) => {
+async function postPasswordAuth(req, res) {
     const passedEmail = req.body.email;
     const passedPhone = req.body.phone;
 
@@ -243,7 +243,7 @@ exports.postPasswordAuth = async (req, res) => {
 
 
 
-exports.resetPassword = async (req, res) => {
+async function resetPassword(req, res) {
     const email = req.session.user.email;
     const password1 = req.body.password1;
     const password2 = req.body.password2;
@@ -272,8 +272,26 @@ exports.resetPassword = async (req, res) => {
     }
 };
 
-exports.logout = (req, res) => {
+function logout(req, res) {
     req.session.destroy(() => {
         res.redirect('/login');
     })
+}
+
+module.exports = {
+    registerGet,
+    registerPost,
+    loginGet,
+    loginPost,
+    profile,
+    getEditInfo,
+    postEditInfo,
+    getDeleteAcc,
+    postDeleteAcc,
+    getDeleteUserAcc,
+    postDeleteUserAcc,
+    getPasswordAuth,
+    postPasswordAuth,
+    resetPassword,
+    logout,
 };

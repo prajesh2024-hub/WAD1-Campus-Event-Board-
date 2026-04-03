@@ -87,13 +87,13 @@
                     <td><a href="/events/<%= event.id %>">View Details</a></td>
 
                     <td>
-                        <% let inWishlist = wishlistMap && wishlistMap[event._id.toString()]; %>
+                        <% let inWishlist = wishlistMap && wishlistMap[event.id]; %>
                         <% if (inWishlist) { %>
-                            <form action="/my-wishlist/events/<%= event._id %>/remove" method="POST" style="display:inline;">
+                            <form action="/my-wishlist/events/<%= event.id %>/remove" method="POST" style="display:inline;">
                                 <button type="submit" title="Remove from wishlist" class="star-button">★</button>
                             </form>
                         <% } else { %>
-                            <form action="/events/<%= event._id %>/add" method="POST" style="display:inline;">
+                            <form action="/events/<%= event.id %>/add" method="POST" style="display:inline;">
                                 <button type="submit" title="Add to wishlist" class="star-button">☆</button>
                             </form>
                         <% } %>
