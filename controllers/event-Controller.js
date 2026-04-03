@@ -89,6 +89,26 @@ async function postCreateEvent(req, res) {
     });
   }
 
+  if (!time || time === '' || time === null || time === ' ')  {
+    error.push("There must be a time inputed.");
+    // renders the form with their previous answers
+    return res.render("create-event", {
+      title,
+      description,
+      dateFrom,
+      dateTo,
+      time,
+      venue,
+      category,
+      maxAttendees,
+      duration,
+      organizer,
+      clicked,
+      error,
+      currentUser: req.session.user,
+    });
+  }
+
   if (!venue || venue === '' || venue === null || venue === ' ')  {
     error.push("There must be a venue inputed.");
     // renders the form with their previous answers
