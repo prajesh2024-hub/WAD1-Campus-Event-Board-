@@ -16,11 +16,11 @@
     <table>
         <tr>
             <td><label>Event Title *</label></td>
-            <td><input type="text" name="title" placeholder="e.g. Spring Hackathon 2026" value="<%= title %>"></td>
+            <td><input type="text" name="title" placeholder="e.g. Spring Hackathon 2026" value="<%= title %>" required></td>
         </tr>
         <tr>
             <td><label>Description *</label></td>
-            <td><textarea name="description" placeholder="Describe your event, what attendees can expect, what to bring, etc." rows="6"><%= description %></textarea></td>
+            <td><textarea name="description" placeholder="Describe your event, what attendees can expect, what to bring, etc." rows="6" required><%= description %></textarea></td>
         </tr>
         <tr>
             <td><label>From Date *</label></td>
@@ -32,16 +32,16 @@
         </tr>
         <tr>
             <td><label>Time *</label></td>
-            <td><input type="time" name="time" value="<%= time %>"></td>
+            <td><input type="time" name="time" value="<%= time %>" required></td>
         </tr>
         <tr>
             <td><label>Location *</label></td>
-            <td><input type="text" name="venue" placeholder="e.g. SOA, SR 2-2" value="<%= venue %>"></td>
+            <td><input type="text" name="venue" placeholder="e.g. SOA, SR 2-2" value="<%= venue %>" required></td>
         </tr>
         <tr>
             <td><label>Category *</label></td>
             <td>
-                <select name="category">
+                <select name="category" required>
                     <option value="" disabled <%= category === '' ? 'selected' : '' %>>Select a category</option>
                     <option value="academic" <%= category === 'academic'%>>Academic</option>
                     <option value="social" <%= category === 'social'%>>Social</option>
@@ -53,7 +53,7 @@
         </tr>
         <tr>
             <td><label>Max Attendees *</label></td>
-            <td><input type="number" name="maxAttendees" placeholder="e.g. 50" value="<%= maxAttendees %>"></td>
+            <td><input type="number" name="maxAttendees" placeholder="e.g. 50" value="<%= maxAttendees %>" required></td>
         </tr>
         <tr>
             <td><label>Duration (mins) *</label></td>
