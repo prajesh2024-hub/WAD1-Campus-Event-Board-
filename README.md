@@ -10,6 +10,9 @@ Make sure you have the following installed before running the application:
 
 - [Node.js](https://nodejs.org/) (v18 or above)
 - npm (comes with Node.js)
+- MongoDB Atlas account — need a connection string   
+  for the config.env file
+
 
 ---
 
@@ -38,13 +41,13 @@ SECRET=your_session_secret
 ## How to Run
 
 ```bash
-node server.js
+nodemon server.js
 ```
 
 The application will be available at:
 
 ```
-http://localhost:8000/index.html
+http://localhost:8000/index
 ```
 
 ---
