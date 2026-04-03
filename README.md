@@ -323,4 +323,4 @@ Make sure you have the following installed before running the application:
 
 ## AI Usage Disclaimer
 
-Parts of this project were developed with the assistance of Claude (AI by Anthropic). Used AI to help debug, simplify code, and help assist with logic.
+Parts of this project were developed with the assistance of Claude (AI by Anthropic). Used AI to help debug, simplify code, and help test to find bugs and gaps.
