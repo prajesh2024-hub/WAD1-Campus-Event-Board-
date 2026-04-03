@@ -119,7 +119,7 @@ async function postCreateEvent(req, res) {
       dateTo,
       time,
       venue,
-      category,
+      category : '',
       maxAttendees,
       duration,
       organizer,
