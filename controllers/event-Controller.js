@@ -49,6 +49,86 @@ async function postCreateEvent(req, res) {
   //set clicked as true
   const clicked = true;
 
+  if (!title || title === '' || title === null || title === ' ')  {
+    error.push("There must be a Title inputed.");
+    // renders the form with their previous answers
+    return res.render("create-event", {
+      title,
+      description,
+      dateFrom,
+      dateTo,
+      time,
+      venue,
+      category,
+      maxAttendees,
+      duration,
+      organizer,
+      clicked,
+      error,
+      currentUser: req.session.user,
+    });
+  }
+
+  if (!description || description === '' || description === null || description === ' ')  {
+    error.push("There must be a description inputed.");
+    // renders the form with their previous answers
+    return res.render("create-event", {
+      title,
+      description,
+      dateFrom,
+      dateTo,
+      time,
+      venue,
+      category,
+      maxAttendees,
+      duration,
+      organizer,
+      clicked,
+      error,
+      currentUser: req.session.user,
+    });
+  }
+
+  if (!venue || venue === '' || venue === null || venue === ' ')  {
+    error.push("There must be a venue inputed.");
+    // renders the form with their previous answers
+    return res.render("create-event", {
+      title,
+      description,
+      dateFrom,
+      dateTo,
+      time,
+      venue,
+      category,
+      maxAttendees,
+      duration,
+      organizer,
+      clicked,
+      error,
+      currentUser: req.session.user,
+    });
+  }
+
+  if (!category || category === '' || category === null || category === ' ')  {
+    error.push("There must be a category chosen.");
+    // renders the form with their previous answers
+    return res.render("create-event", {
+      title,
+      description,
+      dateFrom,
+      dateTo,
+      time,
+      venue,
+      category,
+      maxAttendees,
+      duration,
+      organizer,
+      clicked,
+      error,
+      currentUser: req.session.user,
+    });
+  }
+
   if (isNaN(maxAttendees) || maxAttendees < 1) {
     error.push("Max attendees must be a positive number.");
     // renders the form with their previous answers
