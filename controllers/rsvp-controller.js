@@ -139,8 +139,8 @@ async function waitlistRSVPs (req,res){
       return res.status(404).render("error", { message: "Event not found." });
     }
     // remove this part once old databases are removed
-    if (!event.attendees) event.attendees = [];
-    if (!event.waitlist) event.waitlist = [];
+    // if (!event.attendees) event.attendees = [];
+    // if (!event.waitlist) event.waitlist = [];
 
     //Check if user is already in the attendees list
     const alreadyJoined = event.attendees.some(

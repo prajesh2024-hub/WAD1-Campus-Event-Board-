@@ -48,6 +48,11 @@
     <p><a href="/login">Login</a> to RSVP.</p>
   <% } else if (isOwner) { %>
     <p>You cannot join your own event.</p>
+  <% } else if (hasJoined) { %>
+    <p>You have already joined this event.</p>
+    <form action="/events/<%= event.id %>/cancel-rsvp" method="POST">
+      <button type="submit">Cancel Booking</button>
+    </form>
     <% } else if (isWaitlisted) { %>
     <p>You are already on the waitlist for this event.</p>
     <form action="/events/<%= event.id %>/leave-waitlist" method="post">
@@ -61,11 +66,6 @@
   <% } else if (!hasJoined) { %>
     <form action="/events/<%= event.id %>/rsvp" method="POST">
       <button type="submit">Join Event</button>
-    </form>
-  <% } else { %>
-    <p>You have already joined this event.</p>
-    <form action="/events/<%= event.id %>/cancel-rsvp" method="POST">
-      <button type="submit">Cancel Booking</button>
     </form>
   <% } %>
 </div>
