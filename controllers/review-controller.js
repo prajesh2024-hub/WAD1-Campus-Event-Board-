@@ -69,12 +69,16 @@ async function postReview(req, res) {
         break; // stops early ✓
       }
     }
-  
+    // Check if rating is between 1 and 5
+    const parsedRating = parseInt(rating)
+    if (isNaN(parsedRating) ||parsedRating < 1 || parsedRating > 5){
+      return res.status(400).render("error",{message:"Rating must be between 1 and 5."})
+    }
     // Add new review
     event.reviews.push({
       userId: req.session.user.id,
       userName: req.session.user.username,
-      rating: parseInt(rating),
+      rating: parsedRating,
       reviewText: reviewText,
       createdAt: new Date()
     });
