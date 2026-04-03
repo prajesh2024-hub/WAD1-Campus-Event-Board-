@@ -353,6 +353,8 @@ async function postEditEvent(req, res) {
     // checks if there is any changes made at all for each of the field
     // if there is changes it would return false
     // if there is no changes it would return true
+    // .toISOString().split("T")[0] converts it to "2026-04-03" from 2026-04-03T00:00:00.000Z
+    // dateFrom on the other hand comes from req.body.dateFrom which is already in a YYYY-MM-DD string 
     const noChanges =
       existing.title === title &&
       existing.description === description &&
@@ -373,6 +375,7 @@ async function postEditEvent(req, res) {
       });
     }
     // validates that the start date is not later than the end date
+    // requires new date to change from string to Date form
     if (new Date(dateFrom) > new Date(dateTo)) {
       return res.render("edit-event", {
         event: existing,
@@ -403,6 +406,7 @@ async function postEditEvent(req, res) {
 }
 
 // GET /events/:id/delete
+// session is needed for the navbar to show who logged and what to display
 async function getDeleteEvent(req, res) {
   const id = req.params.id;
   try {
@@ -414,7 +418,7 @@ async function getDeleteEvent(req, res) {
 
     res.render("delete-event", {
       event,
-      currentUser: req.session.user, // can be removed and checked
+      currentUser: req.session.user,
     });
   } catch (error) {
     console.error("getDeleteEvent error:", error);
