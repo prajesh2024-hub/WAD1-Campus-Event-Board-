@@ -12,7 +12,7 @@ exports.isAdminUser = async (req, res, next) => {
     if (req.session.user.role === 'admin') {
         next();
     } else {
-         res.render(`You do not have authorization to view this page. <br> 
+         return res.send(`You do not have authorization to view this page. <br> 
             <a href='/'> Home </a>`)
     }
 };

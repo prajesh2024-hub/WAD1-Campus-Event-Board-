@@ -93,6 +93,12 @@ async function profile(req, res) {
         console.log("User is admin, rendering admin-profile.")
         res.render('admin-profile', { user: passedUser });
     }
+    
+    else {
+        console.log('User does not exist.')
+        return res.send (`User does not exist, please register. 
+            <a href='/register'> Register </a>`)
+    }
 
 };
 
@@ -141,6 +147,8 @@ async function postEditInfo(req, res) {
     }
     catch (error) {
         console.log(`Error: ${error} Please try again.`)
+        return res.send(`Error updating your details. The username or email may already be in use. <br>                 
+          <a href='/edit-info'> Try Again </a>`)
     }
 
 };
@@ -163,13 +171,13 @@ async function postDeleteAcc(req, res) {
             console.log("All this user's events have been deleted.")
         }
         catch (error) {
-            console.error("Error deleting events:", err);
+            console.error("Error deleting events:", error);
         }
     };
 
     try {
         // if user acc being deleted is their own, session gets destroyed. else, redirected to profile
-        if (delUserId === req.session.user.id) {
+        if (delUserId.toString() === req.session.user.id.toString()) {
             await delAllEvents(delUserId);
             await User.deleteAccount(delUserId)
             console.log("Your account has been successfully deleted.")
@@ -207,7 +215,7 @@ async function postDeleteUserAcc(req, res) {
     const delUser = await User.findByUsername(req.body.delUsername);
     const adminUser = await User.findByUsername(req.session.user.username);
     if (!delUser || delUser == null) {
-        res.send(`Please enter valid username <br> 
+        return res.send(`Please enter valid username <br> 
            <a href='/delete-user'> Return </a> `)
      };
 
@@ -234,10 +242,7 @@ async function postPasswordAuth(req, res) {
         passedUser = await User.findByEmail(passedEmail);
 
         if (passedUser.phone == passedPhone) {
-            req.session.user = {
-                email: passedEmail
-            }
-            res.render('update-password')
+            res.render('update-password', {passedEmail:passedEmail})
         } else {
             return res.send(`Your entry did not match our records, please try again. <br>
                  <a href='/reset-password'> Reset </a>`)
@@ -253,7 +258,7 @@ async function postPasswordAuth(req, res) {
 
 
 async function resetPassword(req, res) {
-    const email = req.session.user.email;
+    const email = req.body.passedEmail;
     const password1 = req.body.password1;
     const password2 = req.body.password2;
     let updateDocument = { $set: {} };
@@ -264,14 +269,14 @@ async function resetPassword(req, res) {
             const result = await User.editParticulars({ email: email }, updateDocument);
 
             console.log(`${password1} Password has been updated.`)
-            req.session.destroy
-            res.send(`Your password has been updated. <br> 
-            <a href='/login'> Login </a>`)
+            req.session.destroy(() => { return res.send(`Your password has been updated. <br> 
+            <a href='/login'> Login </a>`)})
+            
         } else {
             console.log('Password mismatch')
-            req.session.destroy
-            return res.send(`Passwords do not match, please try again. <br>
-                <a href='/reset-password'> Reset </a>`)
+            req.session.destroy (() => {return res.send(`Passwords do not match, please try again. <br>
+                <a href='/reset-password'> Reset </a>`)})
+            
         }
     } catch (error) {
         console.log(`Error: ${error}.`)
