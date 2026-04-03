@@ -49,8 +49,8 @@ async function postCreateEvent(req, res) {
   //set clicked as true
   const clicked = true;
 
-  if (new Date(dateFrom) > new Date(dateTo)) {
-    error.push("Error adding event: dateFrom cannot be later than dateTo.");
+  if (isNaN(maxAttendees) || maxAttendees < 1) {
+    error.push("Max attendees must be a positive number.");
     // renders the form with their previous answers
     return res.render("create-event", {
       title,
@@ -68,6 +68,44 @@ async function postCreateEvent(req, res) {
       currentUser: req.session.user,
     });
   }
+
+  if (new Date(dateFrom) > new Date(dateTo)) {
+    error.push("Error adding event: dateFrom cannot be later than dateTo.");
+    // renders the form with their previous answers
+    return res.render("create-event", {
+      title,
+      description,
+      dateFrom,
+      dateTo,
+      time,
+      venue,
+      category,
+      maxAttendees,
+      duration,
+      organizer,
+      clicked,
+      error,
+      currentUser: req.session.user,
+    });}
+
+  if (isNaN(duration) || duration < 1) {
+    error.push("Duration must be a positive number.");
+    // renders the form with their previous answers
+    return res.render("create-event", {
+      title,
+      description,
+      dateFrom,
+      dateTo,
+      time,
+      venue,
+      category,
+      maxAttendees,
+      duration,
+      organizer,
+      clicked,
+      error,
+      currentUser: req.session.user,
+    });}
 
   try {
     //check if event exists, returns true or false
@@ -444,7 +482,12 @@ async function getParticipants(req, res) {
   const id = req.params.id;
   try {
     const event = await Events.findById(id).populate("attendees");
-    const participants = event.attendees;
+    if (!event) {                         
+        return   
+    res.status(404).render("error", {
+    message: "Event not found." });  
+    }        
+    const participants = event.attendees;                      
     res.render("my-participants", {
       participants,
       event,

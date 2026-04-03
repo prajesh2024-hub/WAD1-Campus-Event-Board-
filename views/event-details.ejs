@@ -53,7 +53,7 @@
     <form action="/events/<%= event.id %>/leave-waitlist" method="post">
       <button type="submit">Leave Waitlist</button>
     </form>
-    <% } else if (attendeeCount = event.maxAttendees) {%>
+    <% } else if (attendeeCount === event.maxAttendees) {%>
       <p>This event is full, would you like to join the waitlist?</p>
       <form action="/events/<%= event.id %>/waitlisted" method="post">
         <button type="submit">Join Waitlist</button>
