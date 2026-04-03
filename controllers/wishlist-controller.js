@@ -15,8 +15,28 @@ async function getMyWishlist(req, res) {
     const wishlist = await Wishlist.findOne({ userId }).populate('items.event');
     const events = wishlist ? wishlist.items.map(i => i.event).filter(Boolean) : [];
 
+    const now = new Date();
+    const getEventStart = (event) => {
+      if (!event || !event.startDate || !event.time) return null;
+      const start = new Date(event.startDate);
+      const [hours, minutes] = event.time.split(':').map(Number);
+      start.setHours(hours || 0, minutes || 0, 0, 0);
+      return start;
+    };
+
+    const upcomingEvents = events.filter(event => {
+      const eventStart = getEventStart(event);
+      return eventStart && eventStart >= now;
+    });
+
+    const ongoingPastEvents = events.filter(event => {
+      const eventStart = getEventStart(event);
+      return eventStart && eventStart < now;
+    });
+
     res.render('my-wishlist', {
-      events,
+      events: upcomingEvents,
+      ongoingPastEvents,
       currentUser: req.session.user
     });
   } catch (error) {
