@@ -3,9 +3,15 @@
 
 <h2>My Wishlist</h2>
 
-<% if (!events || events.length === 0) { %>
+<% const hasUpcoming = events && events.length > 0; %>
+<% const hasOngoingPast = ongoingPastEvents && ongoingPastEvents.length > 0; %>
+
+<% if (!hasUpcoming && !hasOngoingPast) { %>
   <p>Your wishlist is empty. <a href="/all-events">Browse events</a> and add some.</p>
-<% } else { %>
+<% } %>
+
+<% if (hasUpcoming) { %>
+  <h3>Upcoming Events</h3>
   <table class="my-events-table">
     <thead>
       <tr>
@@ -56,6 +62,52 @@
               <% } %>
             </div>
           </td>
+        </tr>
+        <% } %>
+      <% }); %>
+    </tbody>
+  </table>
+<% } %>
+
+<% if (hasOngoingPast) { %>
+  <h3>Ongoing / Past Events</h3>
+  <table class="my-events-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Title</th>
+        <th>Date &amp; Time</th>
+        <th>Venue</th>
+        <th>Category</th>
+        <th>Organizer</th>
+        <th>Attendees</th>
+        <th>Details</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% ongoingPastEvents.forEach(event => { %>
+        <% if (event) { %>
+        <tr>
+          <td>
+            <form action="/my-wishlist/events/<%= event.id %>/remove" method="POST" style="display:inline;">
+              <button type="submit" title="Remove from wishlist" class="star-button">★</button>
+            </form>
+          </td>
+          <td><strong><%= event.title %></strong></td>
+          <td>
+            <% if (new Date(event.startDate).toDateString() === new Date(event.endDate).toDateString()) { %>
+              <%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+            <% } else { %>
+              <%= new Date(event.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %> to <%= new Date(event.endDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+            <% } %>
+            <br><%= event.time %>
+          </td>
+          <td><%= event.venue %></td>
+          <td><%= event.category %></td>
+          <td><%= event.organizer %></td>
+          <td><%= event.attendees ? event.attendees.length : 0 %> / <%= event.maxAttendees %></td>
+          <td><a href="/events/<%= event.id %>">View Details</a></td>
         </tr>
         <% } %>
       <% }); %>
