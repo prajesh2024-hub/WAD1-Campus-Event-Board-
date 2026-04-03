@@ -207,6 +207,26 @@ async function postCreateEvent(req, res) {
       currentUser: req.session.user,
     });}
 
+  if (!organizer || organizer === '' || organizer === null || organizer === ' ')  {
+    error.push("There must be a category chosen.");
+    // renders the form with their previous answers
+    return res.render("create-event", {
+      title,
+      description,
+      dateFrom,
+      dateTo,
+      time,
+      venue,
+      category : '',
+      maxAttendees,
+      duration,
+      organizer,
+      clicked,
+      error,
+      currentUser: req.session.user,
+    });
+  }
+
   try {
     //check if event exists, returns true or false
     const result = await Events.eventExists(
