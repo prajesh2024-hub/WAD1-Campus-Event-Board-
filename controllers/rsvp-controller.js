@@ -164,6 +164,7 @@ async function waitlistRSVPs (req,res){
     await event.save();
     console.log(event.waitlist) 
     res.redirect(`/events/${eventId}`);
+    // res.render(`/waitlist-prompt`);
 
   } catch (error) { 
     console.error("waitlistRSVPs error:", error);

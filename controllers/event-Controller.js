@@ -262,14 +262,7 @@ async function getEventDetails(req, res) {
         isWaitlisted = true;
       }
     }
-    // Checks if user is attending the event
-    let isAttending = false;
 
-    for (let attendee of event.attendees) {
-      if (attendee._id.toString() === req.session.user.id.toString()){
-        isAttending = true;
-      }
-    }
 
     // Fetch host's other past events that have at least one review
     let hostPastReviews = [];
@@ -305,7 +298,6 @@ async function getEventDetails(req, res) {
       hasJoined,
       isOwner,
       isWaitlisted,
-      isAttending,
       hostPastReviews,
       currentUser: req.session && req.session.user ? req.session.user : null,
     });
