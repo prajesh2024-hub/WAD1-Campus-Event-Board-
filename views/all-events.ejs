@@ -89,7 +89,8 @@
                     <td>
                         <% let inWishlist = wishlistMap && wishlistMap[event.id]; %>
                         <% if (inWishlist) { %>
-                            <form action="/my-wishlist/events/<%= event.id %>/remove" method="POST" style="display:inline;">
+                            <form action="/events/<%= event.id %>/remove" method="POST" style="display:inline;">
+                                <input type="hidden" name="fromPage" value="all-events">
                                 <button type="submit" title="Remove from wishlist" class="star-button">★</button>
                             </form>
                         <% } else { %>

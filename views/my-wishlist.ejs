@@ -31,7 +31,8 @@
         <% if (event) { %>
         <tr>
           <td>
-            <form action="/my-wishlist/events/<%= event.id %>/remove" method="POST" style="display:inline;">
+            <form action="/events/<%= event.id %>/remove" method="POST" style="display:inline;">
+              <input type="hidden" name="fromPage" value="my-wishlist">
               <button type="submit" title="Remove from wishlist" class="star-button">★</button>
             </form>
           </td>
@@ -90,7 +91,8 @@
         <% if (event) { %>
         <tr>
           <td>
-            <form action="/my-wishlist/events/<%= event.id %>/remove" method="POST" style="display:inline;">
+            <form action="/events/<%= event.id %>/remove" method="POST" style="display:inline;">
+              <input type="hidden" name="fromPage" value="my-wishlist">
               <button type="submit" title="Remove from wishlist" class="star-button">★</button>
             </form>
           </td>
