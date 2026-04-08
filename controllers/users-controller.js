@@ -87,9 +87,9 @@ async function profile(req, res) {
     if (req.session.user.role == "student") {
         console.log("User is student, rendering profile.")
         res.render('profile', { user: passedUser })
-    };
+    }
 
-    if (req.session.user.role == "admin") {
+    else if (req.session.user.role == "admin") {
         console.log("User is admin, rendering admin-profile.")
         res.render('admin-profile', { user: passedUser });
     }
